@@ -24,15 +24,17 @@ Go to the project directory and install dependencies.
 composer install --optimize-autoloader
 ```
 
-Copy the `.env.format` to `.env`.
+Setup environment variables by editing the `.env` file.
 
-```
-// for Unix
-cp .env.format .env
-
-// for windows
-copy .env.format .env
-```
+| Key | Value | Description |
+|---|---|---|
+| APP_NAME | DTMS | The name of the app. Any name will do on development.|
+| APP_ENV | local |The current environment of the app. Use `local` for development.|
+| APP_KEY | | The key used for encryptions of the app. Use `php artisan key:generate` command to create a random key. |
+| APP_URL | http://localhost:8000 | The base url of the app. |
+| APP_CLIENT | http://localhost:3000 | The base url of the frontend app. |
+| DB_\* | | The details about the database used. |
+| FILESYSTEMS_DELETE | false | Determines whether the uploaded files will be permanently deleted or just move to a trash folder. |
 
 ## Running Development Server
 
