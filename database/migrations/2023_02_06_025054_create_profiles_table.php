@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('suffix')->nullable();
             $table->string('position_designation');
             $table->timestamps();
+            $table->foreign('id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+
         });
     }
 
