@@ -16,13 +16,9 @@ class UserController extends Controller
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:3',
             'password' => 'required',
-            'prefix' => '',
-            'first_name' => '',
-            'middle_name' => '',
-            'last_name' => '',
-            'suffix' => '',
-            'position_designation' => ''
-
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            
         ]);
 
         
