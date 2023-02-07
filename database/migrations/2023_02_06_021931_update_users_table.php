@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->bigInteger('role_id')->after('id');
-            $table->boolean('is_first_login')->after('remember_token');
+            $table->bigInteger('role_id')->after('id') -> nullable();
+            $table->boolean('is_first_login')->after('remember_token')->default(true);
             $table->renameColumn('email', 'username');
             $table->dropColumn('email_verified_at');
             $table->dropColumn('name');
