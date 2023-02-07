@@ -15,6 +15,7 @@ use App\Http\Controllers\UserController;
 |
 */
 Route::post('/users', [UserController::class, 'createUser']);
+Route::delete('/users/{user_id}', [UserController::class, 'deleteUser']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

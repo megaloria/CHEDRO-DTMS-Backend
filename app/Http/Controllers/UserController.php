@@ -2,50 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\profile;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-use App\Models\User;
-use App\Models\profile;
 class UserController extends Controller
 {
-    
-    public function createUser (Request $request) {
-        $requestData = $request->only(['username', 'password','prefix','first_name','middle_name','last_name','suffix','position_designation']);
+
+    public function createUser(Request $request)
+    {
+        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'position_designation']);
 
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:3',
-            'password' => 'required',
+            'password' => 'required|min:8',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            
+
         ]);
 
-        
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
         try {
             $user = new User([
-                
-                'username' =>  $requestData['username'],
-                'password' => $requestData['password']
+
+                'username' => $requestData['username'],
+                'password' => $requestData['password'],
             ]);
 
             if ($user->save()) {
+
                 $profile = new Profile([
                     'prefix' => $requestData['prefix'],
                     'first_name' => $requestData['first_name'],
                     'middle_name' => $requestData['middle_name'],
                     'last_name' => $requestData['last_name'],
                     'suffix' => $requestData['suffix'],
-                    'position_designation' => $requestData['position_designation']                 
+                    'position_designation' => $requestData['position_designation'],
                 ]);
 
-                return response()->json(['data' => $user,$profile, 'message' => 'Successfully created a user'], 201);
+                return response()->json(['data' => [$user,'profile'=> $profile], 'message' => 'Successfully created a user'], 201);
             }
-        } catch (\Exception $e) {
+        } catch (\Exception$e) {
             report($e);
         }
 
@@ -54,7 +55,17 @@ class UserController extends Controller
     }
 
 
+    public function deleteUser(Request $Request,$id)
+    {
+       $user = User::find($id);
+       
+       if ($user)
+       {
+        $user -> delete();
 
+        return response()->json(['message' => 'Deleted Successfully'], 200);
 
+       }
 
+    }
 }
