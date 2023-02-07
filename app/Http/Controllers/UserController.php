@@ -6,6 +6,8 @@ use App\Models\profile;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -19,6 +21,11 @@ class UserController extends Controller
             'password'   => 'required|min:8',
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
+            'prefix'    => 'nullable|present|string',
+            'suffix'    => 'nullable|present|string',
+            'middle_name'    => 'nullable|present|string',
+            'position_designation'    => 'required|string',
+
 
         ]);
 
@@ -30,7 +37,7 @@ class UserController extends Controller
             $user = new User([
 
                 'username' => $requestData['username'],
-                'password' => $requestData['password'],
+                'password' => Hash::make($requestData['password'])
             ]);
 
             if ($user->save()) {
