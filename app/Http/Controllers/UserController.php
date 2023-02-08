@@ -85,7 +85,7 @@ class UserController extends Controller
         } catch (\Exception$e) {
             report($e);
         }
-        return response()->json(['message' => 'No user/s deleted.'], 400);
+        return response()->json(['message' => 'No user deleted.'], 400);
 
     }
 
