@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,7 @@ use App\Http\Controllers\UserController;
 |
 */
 Route::post('/users', [UserController::class, 'createUser']);
+Route::post('/roles', [RoleController::class, 'createRole']);
 Route::delete('/users/{user_id}', [UserController::class, 'deleteUser']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
