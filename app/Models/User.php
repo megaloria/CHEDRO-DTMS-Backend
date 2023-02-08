@@ -19,8 +19,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'username',
-        'password'
-
+        'password',
+        'role_id'
     ];
 
     /**
@@ -41,4 +41,12 @@ class User extends Authenticatable
     protected $casts = [
         'role_id' => 'integer',
     ];
+
+    public function profile() {
+        return $this->hasOne('App\Models\Profile', 'id', 'id');
+    }
+
+    public function role() {
+        return $this->belongsTo('App\Models\Role');
+    }
 }
