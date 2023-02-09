@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -33,6 +33,30 @@ Route::group([
         // Route::get('', [UserController::class, 'getUser'])->where('user_id', '[0-9]+');
     });
 
+});
+
+Route::group([
+    'prefix' => '/settings'
+], function () {
+    Route::group([
+        'prefix' => '/roles'
+    ], function () {
+        Route::post('', [RoleController::class, 'addRole']);
+        Route::get('', [RoleController::class, 'getRoles']);
+
+        Route::group([
+            'prefix' => '/{role_id}',
+            'where' => ['role_id' => '[0-9]+']
+        ], function () {
+            Route::get('', [RoleController::class, 'getRole']);
+            Route::patch('', [RoleController::class, 'editRole']);
+            Route::delete('', [RoleController::class, 'deleteRole']);
+        });
+    });
+
+    // Route::group([
+    //     'prefix' => '/document-types'
+    // ], function () {});
 });
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
