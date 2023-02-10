@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Role;
 
@@ -21,18 +22,27 @@ class RoleController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        try {
+        try 
+        {
+            DB::beginTransaction();
+
             $role = new Role([
                 'description' => $requestData['description'],
             ]);
 
             if ($role->save()) {
+
+
+                DB::commit();
                 return response()->json(['data' => $role, 'message' => 'Successfully created a role.'], 201);
+
             }
+
         } catch (\Exception$e) {
             report($e);
         }
 
+        DB::rollBack();
         return response()->json(['message' => 'Failed to create a role.'], 400);
     }
 
@@ -68,10 +78,10 @@ class RoleController extends Controller
         }
 
         $role = Role::find($id);
-
+    
         if (!$role) {
             return response()->json(['message' => 'Role not found.'], 404);
-        }
+        }    
 
         try {
             $role->description = $requestData['description'];
