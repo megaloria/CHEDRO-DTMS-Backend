@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentTypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,17 +61,17 @@ Route::group([
 Route::group([
      'prefix' => '/document-types'
 ], function () {
-    Route::post('', [DocumentController::class, 'addDocumentType']);
-    Route::get('', [DocumentController::class, 'getDocumentTypes']);
+    Route::post('', [DocumentTypeController::class, 'addDocumentType']);
+    Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
 
 
     Route::group([
             'prefix' => '/{document_id}',
             'where' => ['document_id' => '[0-9]+']
         ], function () {
-            Route::get('', [DocumentController::class, 'getDocumentType']);
-            Route::post('', [DocumentController::class, 'editDocumentType']);
-            Route::delete('', [DocumentController::class, 'deleteDocumentType']);
+            Route::get('', [DocumentTypeController::class, 'getDocumentType']);
+            Route::post('', [DocumentTypeController::class, 'editDocumentType']);
+            Route::delete('', [DocumentTypeController::class, 'deleteDocument']);
         });
     });
 
