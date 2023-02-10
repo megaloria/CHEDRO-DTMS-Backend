@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use App\Models\User;
+// use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -104,4 +105,56 @@ class UserController extends Controller
 
     }
 
-}
+    //closing tag//
+
+    public function editUser (Request $request,$id){
+
+            $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix','position_designation']);
+            $validator = Validator::make($requestData, [
+
+                'prefix' => 'nullable|present|string|min:2',
+                'first_name' => '|string|min:3',
+                'middle_name' => 'nullable|string|min:3',
+                'last_name' => '|string|min:3',
+                'suffix' => 'nullable|string|min:2',
+                'position_designation' => '|string|min:3'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['message' => $validator->errors()->first()], 409);
+            }
+
+            $editUser = Profile::find($id);
+
+            if (!$editUser) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+
+            try {
+                $editUser->prefix = $requestData['prefix'];
+                $editUser->first_name = $requestData['first_name'];
+                $editUser->middle_name = $requestData['middle_name'];
+                $editUser->last_name = $requestData['last_name'];
+                $editUser->suffix = $requestData['suffix'];
+                $editUser->position_designation = $requestData['position_designation'];
+
+            if ($editUser->save()) {
+                return response()->json(['data' => $editUser, 'message' => 'Successfully updated the User.'], 201);
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+        
+        return response()->json(['message' => 'Failed to update the User'], 400);
+    }
+
+    //closing tag//
+
+
+    // public function(){
+
+    // }
+
+
+  }
+
