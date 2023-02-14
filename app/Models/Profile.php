@@ -23,7 +23,6 @@ class Profile extends Model
         'middle_name',
         'last_name',
         'suffix',
-        'position_designation'
 
     ];
 

@@ -12,10 +12,12 @@ class RoleController extends Controller
 {
     public function addRole(Request $request)
     {
-        $requestData = $request->only(['description']);
+        $requestData = $request->only(['division_id','description','level']);
 
         $validator = Validator::make($requestData, [
+            'division_id' => 'required|integer|exists:divisions,id',
             'description'   => 'required|string|min:3',
+            'level'   => 'required|integer|',
         ]);
 
         if ($validator->fails()) {
@@ -27,7 +29,9 @@ class RoleController extends Controller
             DB::beginTransaction();
 
             $role = new Role([
-                'description' => $requestData['description'],
+                 'description' => $requestData['description'],
+                'level' => $requestData['level'], 'division_id' => $requestData['division_id'],
+              
             ]);
 
             if ($role->save()) {
@@ -67,10 +71,13 @@ class RoleController extends Controller
 
     public function editRole (Request $request, $id) {
 
-        $requestData = $request->only(['description']);
+        $requestData = $request->only(['division_id','description','level']);
 
         $validator = Validator::make($requestData, [
+            'division_id' => 'required|integer|exists:divisions,id',
             'description'   => 'required|string|min:3',
+            'level'   => 'required|integer|',
+            
         ]);
 
         if ($validator->fails()) {
@@ -84,7 +91,10 @@ class RoleController extends Controller
         }    
 
         try {
+            $role->division_id = $requestData['division_id'];
             $role->description = $requestData['description'];
+            $role->level = $requestData['level'];
+
 
             if ($role->save()) {
                 return response()->json(['data' => $role, 'message' => 'Successfully updated the role.'], 201);
