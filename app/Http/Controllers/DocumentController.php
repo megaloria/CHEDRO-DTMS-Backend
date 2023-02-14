@@ -53,7 +53,7 @@ class DocumentController extends Controller
             ]);
 
             $attachment->save();
-            $document->load(['user','documentType','attachment']);
+            $document->load(['user','documentType','attachments']);
 
             DB::commit();
             return response()->json(['data' => $document, 'message' => 'Successfully'], 201);
@@ -110,7 +110,7 @@ class DocumentController extends Controller
     }
     
     public function getDocuments(Request $request){
-        $document = document::with('attachments')->get();
+        $document = document::with  ('attachments')->get();
 
 
         return response()->json(['data' => $document,  'message' => 'Successfully fetched the document.'], 200);
