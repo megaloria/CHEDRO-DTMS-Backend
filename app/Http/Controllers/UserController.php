@@ -151,9 +151,12 @@ class UserController extends Controller
     //closing tag//
 
 
-    // public function(){
+     public function getUsers(Request $request){
+        $user = User::get();
 
-    // }
+        return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
+
+    }
 
 
   }
