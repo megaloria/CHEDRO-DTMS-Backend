@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DivisionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,10 +58,41 @@ Route::group([
             Route::get('', [RoleController::class, 'getRole']);
             Route::post('', [RoleController::class, 'editRole']);
             Route::delete('', [RoleController::class, 'deleteRole']);
-        });
+        });  
     });
 
 
+        Route::group([
+        'prefix' => '/divisions'
+    ], function () {
+        Route::post('', [DivisionController::class, 'addDivision']);
+        Route::get('', [DivisionController::class, 'getDivisions']);
+
+        Route::group([
+            'prefix' => '/{division_id}',
+            'where' => ['division_id' => '[0-9]+']
+        ], function () {
+            Route::get('', [DivisionController::class, 'getDivision']);
+            Route::post('', [DivisionController::class, 'editDivision']);
+            Route::delete('', [DivisionController::class, 'deleteDivision']);
+        });  
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     Route::group([
         'prefix' => '/document-types'
     ], function () {
