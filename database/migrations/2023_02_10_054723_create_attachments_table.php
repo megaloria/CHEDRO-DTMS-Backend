@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('document_id');
+            $table->bigInteger('document_id')->unsigned();
             $table->string('file_name');
             $table->string('file_title');
             $table->timestamps();

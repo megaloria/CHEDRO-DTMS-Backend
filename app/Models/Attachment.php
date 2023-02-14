@@ -12,10 +12,9 @@ class Attachment extends Model
     use HasApiTokens, HasFactory, Notifiable;
     protected $fillable = [
         'id',
-        'document_type_id',
-        'tracking_no',
-        'recieved_from',
-        'description',
-        'date_received'
+        'document_id',
+        'file_name',
+        'file_title'
+
     ];
 }
