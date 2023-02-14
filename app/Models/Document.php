@@ -28,4 +28,9 @@ class Document extends Model
    public function documentType() {
         return $this->belongsTo('App\Models\DocumentType');
     }
+
+    public function attachments() {
+         return $this->hasMany('App\Models\Attachment');
+    }
+    
 }

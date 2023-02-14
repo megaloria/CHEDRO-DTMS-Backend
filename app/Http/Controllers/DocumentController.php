@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Document;
+use App\Models\Attachment;
 
 
 class DocumentController extends Controller
@@ -14,7 +15,7 @@ class DocumentController extends Controller
     public function addDocument(Request $request) {
         // $user = $request->user();
 
-        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'description', 'date_received']);
+        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'description', 'date_received','file_name','file_title']);
 
         $validator = Validator::make($requestData, [
         'document_type_id' => 'required|integer|exists:document_types,id',
@@ -23,6 +24,8 @@ class DocumentController extends Controller
         'recieved_from' => 'required|present|string',
         'description' => 'required|present|string',
         'date_received' => 'required|date',
+        'file_name' => 'required|string',
+        'file_title' => 'required|string',       
 
         ]);
 
@@ -41,9 +44,16 @@ class DocumentController extends Controller
                 'date_received'     => $requestData['date_received'],
             ]);
  
-            $document->save();
+            if ($document->save());
 
-            $document->load('user','documentType');
+            $attachment = new Attachment([
+                'document_id' => $document->id,
+                'file_name'    => $requestData['file_name'],
+                'file_title'   => $requestData['file_title'],
+            ]);
+
+            $attachment->save();
+            $document->load(['user','documentType','attachment']);
 
             DB::commit();
             return response()->json(['data' => $document, 'message' => 'Successfully'], 201);
@@ -100,9 +110,10 @@ class DocumentController extends Controller
     }
     
     public function getDocuments(Request $request){
-        $document = document::get();
+        $document = document::with('attachments')->get();
 
-        return response()->json(['data' => $document, 'message' => 'Successfully fetched the document.'], 200);
+
+        return response()->json(['data' => $document,  'message' => 'Successfully fetched the document.'], 200);
     }
 
     
