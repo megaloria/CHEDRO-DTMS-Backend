@@ -10,6 +10,13 @@ class Role extends Model
     use HasFactory;
 
     protected $fillable = [
-        'description'
+        'id',
+        'description',
+        'division_id',
+        'level'
     ];
+
+        public function divisions() {
+         return $this->belongsTo('App\Models\Division');
+    }
 }

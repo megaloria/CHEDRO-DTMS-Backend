@@ -15,11 +15,13 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('division_id')->unsigned()->nullable();
+            $table->integer('level');
             $table->string('description');
             $table->timestamps();
+            $table->foreign('division_id')->references('id')->on('divisions')->cascadeOnDelete()->cascadeOnUpdate();
+
             
-
-
         });
     }
 
