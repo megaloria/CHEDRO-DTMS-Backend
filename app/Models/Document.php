@@ -19,4 +19,13 @@ class Document extends Model
         'description',
         'date_received'
     ];
+
+
+    public function user() {
+        return $this->belongsTo('App\Models\User');
+    }
+
+   public function documentType() {
+        return $this->belongsTo('App\Models\DocumentType');
+    }
 }

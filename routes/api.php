@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\DocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,29 +59,51 @@ Route::group([
         });
     });
 
-Route::group([
-     'prefix' => '/document-types'
-], function () {
-    Route::post('', [DocumentTypeController::class, 'addDocumentType']);
-    Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
+
+    Route::group([
+        'prefix' => '/document-types'
+    ], function () {
+        Route::post('', [DocumentTypeController::class, 'addDocumentType']);
+        Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
+
+
+        Route::group([
+                'prefix' => '/{document_id}',
+                'where' => ['document_id' => '[0-9]+']
+            ], function () {
+                Route::get('', [DocumentTypeController::class, 'getDocumentType']);
+                Route::post('', [DocumentTypeController::class, 'editDocumentType']);
+                Route::delete('', [DocumentTypeController::class, 'deleteDocumentType']);
+            });
+        });      
+});
 
 
     Route::group([
-            'prefix' => '/{document_id}',
-            'where' => ['document_id' => '[0-9]+']
-        ], function () {
-            Route::get('', [DocumentTypeController::class, 'getDocumentType']);
-            Route::post('', [DocumentTypeController::class, 'editDocumentType']);
-            Route::delete('', [DocumentTypeController::class, 'deleteDocument']);
+        'prefix' => '/documents'
+    ], function () {
+        Route::post('', [DocumentController::class, 'addDocument']);
+        Route::get('', [DocumentController::class, 'getDocuments']);
+
+
+        Route::group([
+                'prefix' => '/{document_id}',
+                'where' => ['document_id' => '[0-9]+']
+            ], function () {
+                Route::get('', [DocumentController::class, 'getDocument']);
+                Route::post('', [DocumentController::class, 'editDocument']);
+                Route::delete('', [DocumentController::class, 'deleteDocument']);
+            });
         });
-    });
 
 
 
 
 
-    
-});
+
+
+
+
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
