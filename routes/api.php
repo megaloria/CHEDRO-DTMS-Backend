@@ -24,7 +24,8 @@ Route::group([
     'prefix' => '/users'
 ], function () {
     Route::post('', [UserController::class, 'createUser']);
-    // Route::get
+    Route::get('', [UserController::class, 'getUsers']);
+
 
     Route::group([
         'prefix' => '/{user_id}',
