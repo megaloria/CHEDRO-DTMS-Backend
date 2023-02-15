@@ -17,7 +17,7 @@ class UserController extends Controller
 
     public function createUser(Request $request)
     {
-        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description']);
+        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
 
         $validator = Validator::make($requestData, [
             'username'   => 'required|string|min:3',
@@ -30,7 +30,8 @@ class UserController extends Controller
             'role_id' => 'required|integer|exists:roles,id',
             'division_id' => 'required|integer|exists:divisions,id',
             'level' => 'required|integer',
-            'description' => 'required|string|'
+            'description' => 'required|string|',
+            'position_designation' => 'required|string|'
 
         ]);
 
@@ -57,6 +58,7 @@ class UserController extends Controller
                     'middle_name'          => $requestData['middle_name'],
                     'last_name'            => $requestData['last_name'],
                     'suffix'               => $requestData['suffix'],
+                    'position_designation' => $requestData['position_designation'],
                 ]);
 
                 $profile->save();
@@ -110,7 +112,7 @@ class UserController extends Controller
 
     public function editUser (Request $request,$id){
 
-            $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix']);
+            $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
             $validator = Validator::make($requestData, [
 
                 'prefix' => 'nullable|present|string|min:2',
@@ -118,6 +120,7 @@ class UserController extends Controller
                 'middle_name' => 'nullable|string|min:3',
                 'last_name' => '|string|min:3',
                 'suffix' => 'nullable|string|min:2',
+                'position_designation' => 'required|string',
             ]);
 
             if ($validator->fails()) {
@@ -136,6 +139,7 @@ class UserController extends Controller
                 $editUser->middle_name = $requestData['middle_name'];
                 $editUser->last_name = $requestData['last_name'];
                 $editUser->suffix = $requestData['suffix'];
+                $editUser->position_designation = $requestData['position_designation'];
 
             if ($editUser->save()) {
                 return response()->json(['data' => $editUser, 'message' => 'Successfully updated the User.'], 201);

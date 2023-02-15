@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->string('suffix')->nullable();
+            $table->string('position_designation');
             $table->timestamps();
             $table->foreign('id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
 
