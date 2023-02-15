@@ -18,7 +18,7 @@ class UserController extends Controller
         $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
 
         $validator = Validator::make($requestData, [
-            'username' => 'required|string|min:3',
+            'username' => 'required|string|min:5',
             'password' => 'required|min:8',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
@@ -58,7 +58,7 @@ class UserController extends Controller
 
                 $profile->save();
 
-                $user->load(['profile','role']);
+                $user->load(['profile', 'role']);
                 DB::commit();
                 return response()->json(['data' => $user, 'message' => 'Successfully created a user.'], 201);
             }
