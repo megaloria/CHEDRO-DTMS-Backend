@@ -65,7 +65,7 @@ class UserController extends Controller
                 $user->load(['profile','role']);
                 DB::commit();
 
-                return response()->json(['data' => $user, 'message' => 'Successfully created a user'], 201);
+                return response()->json(['data' => $user, 'message' => 'Successfully created a user.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -73,7 +73,7 @@ class UserController extends Controller
         }
 
         DB::rollBack();
-        return response()->json(['message' => 'Failed to create a user'], 400);
+        return response()->json(['message' => 'Failed to create a user.'], 400);
 
     }
 
@@ -85,12 +85,12 @@ class UserController extends Controller
             if ($user) {
                 $user->delete();
 
-                return response()->json(['message' => 'Deleted Successfully'], 200);
+                return response()->json(['message' => 'Successfully deleted the user.'], 200);
             }
         } catch (\Exception$e) {
             report($e);
         }
-        return response()->json(['message' => 'No user deleted.'], 400);
+        return response()->json(['message' => 'Failed to delete the user.'], 400);
 
     }
 
@@ -98,7 +98,7 @@ class UserController extends Controller
 
         $users = User::paginate(10);
         
-        return response()->json(['data' => $users, 'message' => ' Successfully'], 200);
+        return response()->json(['data' => $users, 'message' => ' Successfully fetched the user.'], 200);
     }
 
     //closing tag//
@@ -135,13 +135,13 @@ class UserController extends Controller
             $editUser->position_designation = $requestData['position_designation'];
 
             if ($editUser->save()) {
-                return response()->json(['data' => $editUser, 'message' => 'Successfully updated the User.'], 201);
+                return response()->json(['data' => $editUser, 'message' => 'Successfully updated the user.'], 201);
             }
         } catch (\Exception $e) {
             report($e);
         }
     
-        return response()->json(['message' => 'Failed to update the User'], 400);
+        return response()->json(['message' => 'Failed to update the user'], 400);
     }
 
     //closing tag//

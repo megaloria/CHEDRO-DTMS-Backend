@@ -31,7 +31,7 @@ class DivisionController extends Controller
 
             if ($division->save()) {
                 DB::commit();
-                return response()->json(['data' => $division, 'message' => 'Successfully created a Division.'], 201);
+                return response()->json(['data' => $division, 'message' => 'Successfully created a division.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -39,7 +39,7 @@ class DivisionController extends Controller
         }
 
         DB::rollBack();
-        return response()->json(['message' => 'Failed to create a Division.'], 400);
+        return response()->json(['message' => 'Failed to create a division.'], 400);
     }
 
 
@@ -67,13 +67,13 @@ class DivisionController extends Controller
             $division->description = $requestData['description'];
 
             if ($division->save()) {
-                return response()->json(['data' => $division, 'message' => 'Successfully updated the Divistion.'], 201);
+                return response()->json(['data' => $division, 'message' => 'Successfully updated the division.'], 201);
             }
         } catch (\Exception $e) {
             report($e);
         }
         
-        return response()->json(['message' => 'Failed to update the Division'], 400);
+        return response()->json(['message' => 'Failed to update the division'], 400);
     }
 
 
@@ -89,13 +89,13 @@ class DivisionController extends Controller
         try {
             $division->delete();
 
-            return response()->json(['message' => 'Successfully deleted the Division.'], 200);
+            return response()->json(['message' => 'Successfully deleted the division.'], 200);
 
         } catch (\Exception $e) {
             report($e);
         }
 
-        return response()->json(['message' => 'Failed to update the Division.'], 400);
+        return response()->json(['message' => 'Failed to update the division.'], 400);
 
     }
 

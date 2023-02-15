@@ -56,7 +56,7 @@ class DocumentController extends Controller
                 $document->load(['user','documentType','attachments']);
                 DB::commit();
 
-                return response()->json(['data' => $document, 'message' => 'Successfully'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully added the document.'], 201);
             
         } catch (\Exception$e) {
             report($e);
@@ -64,7 +64,7 @@ class DocumentController extends Controller
 
         DB::rollBack();
 
-        return response()->json(['message' => 'Failed'], 400);
+        return response()->json(['message' => 'Failed to add the document.'], 400);
 
     }
 
@@ -106,7 +106,7 @@ class DocumentController extends Controller
             report($e);
         }
         
-        return response()->json(['message' => 'Failed to update the document'], 400);
+        return response()->json(['message' => 'Failed to update the document.'], 400);
 
     }
     
@@ -114,7 +114,7 @@ class DocumentController extends Controller
         $document = document::with  ('attachments')->get();
 
 
-        return response()->json(['data' => $document,  'message' => 'Successfully fetched the document.'], 200);
+        return response()->json(['data' => $document,  'message' => 'Successfully fetched the documents.'], 200);
     }
 
     
@@ -145,7 +145,7 @@ class DocumentController extends Controller
         report($e);
     }
 
-    return response()->json(['message' => 'Failed to update the document.'], 400);
+    return response()->json(['message' => 'Failed to delete the document.'], 400);
 
 }
 

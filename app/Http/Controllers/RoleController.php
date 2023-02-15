@@ -119,7 +119,7 @@ class RoleController extends Controller
             report($e);
         }
 
-        return response()->json(['message' => 'Failed to update the role.'], 400);
+        return response()->json(['message' => 'Failed to delete the role.'], 400);
 
     }
 }

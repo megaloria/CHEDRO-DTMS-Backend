@@ -38,7 +38,7 @@ class DocumentTypeController extends Controller
 
                 DB::commit();
 
-                return response()->json(['data' => $documents, 'message' => 'Successfully created a document.'], 201);
+                return response()->json(['data' => $documents, 'message' => 'Successfully created a document type.'], 201);
 
             }
 
@@ -48,7 +48,7 @@ class DocumentTypeController extends Controller
 
         DB::rollBack();
 
-        return response()->json(['message' => 'Failed to create a document.'], 400);
+        return response()->json(['message' => 'Failed to create a document type.'], 400);
     }
 
 
@@ -67,7 +67,7 @@ class DocumentTypeController extends Controller
         $documents = DocumentType::find($id);
 
         if (!$documents) {
-            return response()->json(['message' => 'Document Type not found.'], 404);
+            return response()->json(['message' => 'Document type not found.'], 404);
         }
 
         try {
@@ -81,7 +81,7 @@ class DocumentTypeController extends Controller
             report($e);
         }
 
-        return response()->json(['message' => 'Failed to update the document type'], 400);
+        return response()->json(['message' => 'Failed to update the document type.'], 400);
 
     }
 
@@ -98,7 +98,7 @@ class DocumentTypeController extends Controller
         $documents = DocumentType::find($id);
 
         if (!$documents) {
-            return response()->json(['message' => 'Document Type not found.'], 404);
+            return response()->json(['message' => 'Document type not found.'], 404);
         }
 
         return response()->json(['data' => $documents, 'message' => 'Successfully fetched the document type.'], 200);
@@ -111,7 +111,7 @@ class DocumentTypeController extends Controller
     $documents = DocumentType::find($id);
 
     if (!$documents) {
-        return response()->json(['message' => 'Role not found.'], 404);
+        return response()->json(['message' => 'Document type not found.'], 404);
     }
 
     try {
@@ -123,7 +123,7 @@ class DocumentTypeController extends Controller
         report($e);
     }
 
-    return response()->json(['message' => 'Failed to update the document type.'], 400);
+    return response()->json(['message' => 'Failed to delete the document type.'], 400);
 
     }
 
