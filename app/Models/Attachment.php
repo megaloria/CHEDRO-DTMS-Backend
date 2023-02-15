@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Attachment extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
+
     protected $fillable = [
         'id',
         'document_id',
         'file_name',
         'file_title'
+    ];
 
+    protected $casts = [
+        'document_id' => 'integer'
     ];
 }

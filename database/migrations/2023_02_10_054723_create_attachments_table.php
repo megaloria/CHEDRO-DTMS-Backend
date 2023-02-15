@@ -19,8 +19,12 @@ return new class extends Migration
             $table->string('file_name');
             $table->string('file_title');
             $table->timestamps();
-            $table->foreign('document_id')->references('id')->on('documents')->cascadeOnDelete()->cascadeOnUpdate();
-
+    
+            $table->foreign('document_id')
+                ->references('id')
+                ->on('documents')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
         });
     }
 

@@ -17,8 +17,8 @@ class RoleController extends Controller
 
         $validator = Validator::make($requestData, [
             'division_id' => 'required|integer|exists:divisions,id',
-            'description'   => 'required|string|min:3',
-            'level'   => 'required|integer|',
+            'description' => 'required|string|min:3',
+            'level' => 'required|integer|',
         ]);
 
         if ($validator->fails()) {
@@ -34,12 +34,9 @@ class RoleController extends Controller
             ]);
 
             if ($role->save()) {
-
                 DB::commit();
-
                 return response()->json(['data' => $role, 'message' => 'Successfully created a role.'], 201);
             }
-
         } catch (\Exception$e) {
             report($e);
         }
@@ -49,14 +46,12 @@ class RoleController extends Controller
     }
 
     public function getRoles (Request $request) {
-
         $roles = Role::get();
         
         return response()->json(['data' => $roles, 'message' => 'Successfully fetched the roles.'], 200);
     }
 
     public function getRole (Request $request, $id) {
-
         $role = Role::find($id);
 
         if (!$role) {
@@ -64,7 +59,6 @@ class RoleController extends Controller
         }
 
         return response()->json(['data' => $role, 'message' => 'Successfully fetched the role.'], 200);
-        
     }
 
     public function editRole (Request $request, $id) {
@@ -73,9 +67,8 @@ class RoleController extends Controller
 
         $validator = Validator::make($requestData, [
             'division_id' => 'required|integer|exists:divisions,id',
-            'description'   => 'required|string|min:3',
-            'level'   => 'required|integer|',
-            
+            'description' => 'required|string|min:3',
+            'level' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -114,12 +107,10 @@ class RoleController extends Controller
             $role->delete();
 
             return response()->json(['message' => 'Successfully deleted the role.'], 200);
-
         } catch (\Exception $e) {
             report($e);
         }
 
         return response()->json(['message' => 'Failed to delete the role.'], 400);
-
     }
 }

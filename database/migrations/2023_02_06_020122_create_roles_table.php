@@ -19,9 +19,12 @@ return new class extends Migration
             $table->integer('level');
             $table->string('description');
             $table->timestamps();
-            $table->foreign('division_id')->references('id')->on('divisions')->cascadeOnDelete()->cascadeOnUpdate();
 
-            
+            $table->foreign('division_id')
+                ->references('id')
+                ->on('divisions')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
         });
     }
 

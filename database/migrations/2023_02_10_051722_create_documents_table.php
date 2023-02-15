@@ -22,9 +22,17 @@ return new class extends Migration
             $table->text('description');
             $table->date('date_received');
             $table->timestamps();
-            $table->foreign('document_type_id')->references('id')->on('document_types')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
 
+            $table->foreign('document_type_id')
+                ->references('id')
+                ->on('document_types')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
         });
     }
 

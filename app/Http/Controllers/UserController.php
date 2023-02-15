@@ -14,25 +14,22 @@ use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller 
 {
-
     public function createUser (Request $request) {
-        
         $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
 
         $validator = Validator::make($requestData, [
-            'username'   => 'required|string|min:3',
-            'password'   => 'required|min:8',
+            'username' => 'required|string|min:3',
+            'password' => 'required|min:8',
             'first_name' => 'required|string',
-            'last_name'  => 'required|string',
-            'prefix'    => 'nullable|present|string',
-            'suffix'    => 'nullable|present|string',
-            'middle_name'    => 'nullable|present|string',
+            'last_name' => 'required|string',
+            'prefix' => 'nullable|present|string',
+            'suffix' => 'nullable|present|string',
+            'middle_name' => 'nullable|present|string',
             'role_id' => 'required|integer|exists:roles,id',
             'division_id' => 'required|integer|exists:divisions,id',
             'level' => 'required|integer',
-            'description' => 'required|string|',
-            'position_designation' => 'required|string|'
-
+            'description' => 'required|string',
+            'position_designation' => 'nullable|present|string'
         ]);
 
         if ($validator->fails()) {
@@ -43,68 +40,69 @@ class UserController extends Controller
             DB::beginTransaction();
 
             $user = new User([
-
                 'username' => $requestData['username'],
                 'password' => Hash::make($requestData['password']),
                 'role_id' => $requestData['role_id']
             ]);
 
             if ($user->save()) {
-
                 $profile = new Profile([
                     'id' => $user->id,
-                    'prefix'               => $requestData['prefix'],
-                    'first_name'           => $requestData['first_name'],
-                    'middle_name'          => $requestData['middle_name'],
-                    'last_name'            => $requestData['last_name'],
-                    'suffix'               => $requestData['suffix'],
+                    'prefix' => $requestData['prefix'],
+                    'first_name' => $requestData['first_name'],
+                    'middle_name' => $requestData['middle_name'],
+                    'last_name' => $requestData['last_name'],
+                    'suffix' => $requestData['suffix'],
                     'position_designation' => $requestData['position_designation'],
                 ]);
 
                 $profile->save();
+
                 $user->load(['profile','role']);
                 DB::commit();
-
                 return response()->json(['data' => $user, 'message' => 'Successfully created a user.'], 201);
             }
-
         } catch (\Exception$e) {
             report($e);
         }
 
         DB::rollBack();
         return response()->json(['message' => 'Failed to create a user.'], 400);
-
     }
 
     public function deleteUser (Request $Request, $id) {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
 
         try {
-            $user = User::find($id);
+            $user->delete();
 
-            if ($user) {
-                $user->delete();
-
-                return response()->json(['message' => 'Successfully deleted the user.'], 200);
-            }
+            return response()->json(['message' => 'Successfully deleted the user.'], 200);
         } catch (\Exception$e) {
             report($e);
         }
-        return response()->json(['message' => 'Failed to delete the user.'], 400);
 
+        return response()->json(['message' => 'Failed to delete the user.'], 400);
+    }
+
+    public function getUsers (Request $request) {
+        $user = User::paginate(10);
+
+        return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
     }
 
     public function getUser (Request $request, $id) {
-
-        $users = User::paginate(10);
+        $user = User::find($id);
         
-        return response()->json(['data' => $users, 'message' => ' Successfully fetched the user.'], 200);
+        return response()->json(['data' => $user, 'message' => ' Successfully fetched the user.'], 200);
     }
 
     //closing tag//
 
     public function editUser (Request $request,$id) {
-
         $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
 
         $validator = Validator::make($requestData, [
@@ -146,12 +144,6 @@ class UserController extends Controller
 
     //closing tag//
 
-     public function getUsers (Request $request) {
-
-        $user = User::get();
-
-        return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
-    }
 
 }
 

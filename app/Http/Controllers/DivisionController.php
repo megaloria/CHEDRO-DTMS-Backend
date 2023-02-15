@@ -9,9 +9,7 @@ use App\Models\Division;
 
 class DivisionController extends Controller
 {
-
     public function addDivision (Request $request) {
-
         $requestData = $request->only(['description']);
 
         $validator = Validator::make($requestData, [
@@ -45,12 +43,10 @@ class DivisionController extends Controller
 
 
     public function editDivision (Request $request, $id) {
-
         $requestData = $request->only(['description']);
 
         $validator = Validator::make($requestData, [
-            'description'   => 'required|string|min:3',
-            
+            'description' => 'required|string|min:3',
         ]);
 
         if ($validator->fails()) {
@@ -79,7 +75,6 @@ class DivisionController extends Controller
 
 
     public function deleteDivision (Request $request, $id) {
-            
         $division = Division::find($id);
 
         if (!$division) {
@@ -96,18 +91,15 @@ class DivisionController extends Controller
         }
 
         return response()->json(['message' => 'Failed to update the division.'], 400);
-
     }
 
     public function getRDivisions (Request $request) {
-
         $divisions = Division::get();
         
         return response()->json(['data' => $divisions, 'message' => 'Successfully fetched the divisions.'], 200);
     }
 
     public function getDivision (Request $request, $id) {
-
         $division = Division::find($id);
 
         if (!$division) {
@@ -115,7 +107,6 @@ class DivisionController extends Controller
         }
 
         return response()->json(['data' => $division, 'message' => 'Successfully fetched the division.'], 200);
-        
     }
 }
 

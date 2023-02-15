@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
+
     protected $fillable = [
         'id',
         'document_type_id',
@@ -20,6 +19,10 @@ class Document extends Model
         'date_received'
     ];
 
+    protected $casts = [
+        'document_type_id' => 'integer',
+        'user_id' => 'integer'
+    ];
 
     public function user() {
         return $this->belongsTo('App\Models\User');
@@ -32,5 +35,4 @@ class Document extends Model
     public function attachments() {
          return $this->hasMany('App\Models\Attachment');
     }
-    
 }

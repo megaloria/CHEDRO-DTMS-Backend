@@ -16,7 +16,11 @@ class Role extends Model
         'level'
     ];
 
-        public function divisions() {
-         return $this->belongsTo('App\Models\Division');
+    protected $casts = [
+        'division_id' => 'integer'
+    ];
+
+    public function divisions() {
+        return $this->belongsTo('App\Models\Division');
     }
 }

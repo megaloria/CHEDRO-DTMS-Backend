@@ -14,14 +14,21 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->bigInteger('role_id')->unsigned()->after('id');
-            $table->boolean('is_first_login')->after('remember_token')->default(true);
+            $table->bigInteger('role_id')
+                ->unsigned()
+                ->after('id');
+            $table->boolean('is_first_login')
+                ->after('remember_token')
+                ->default(true);
             $table->renameColumn('email', 'username');
             $table->dropColumn('email_verified_at');
             $table->dropColumn('name');
-            $table->foreign('role_id')->references('id')->on('roles')->cascadeOnDelete()->cascadeOnUpdate();
 
-           
+            $table->foreign('role_id')
+                ->references('id')
+                ->on('roles')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
         });
             
     }
@@ -41,8 +48,6 @@ return new class extends Migration
             $table->renameColumn('username', 'email');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('name');
-
-
         });
     }
 };

@@ -11,14 +11,12 @@ use App\Models\DocumentType;
 
 class DocumentTypeController extends Controller
 {
-
     public function addDocumentType (Request $request) {
-
         $requestData = $request->only(['code','description']);
 
         $validator = Validator::make($requestData, [
-        'code'             => 'required|string|min:4',
-        'description'      => 'required|min:3',
+            'code' => 'required|string|min:4',
+            'description' => 'required|min:3',
         ]);
 
         if ($validator->fails()) {
@@ -29,19 +27,14 @@ class DocumentTypeController extends Controller
             DB::beginTransaction();
 
             $documents = new DocumentType([
-
                 'code' => $requestData['code'],
                 'description' => $requestData['description']
             ]);
 
             if ($documents->save()) {
-
                 DB::commit();
-
                 return response()->json(['data' => $documents, 'message' => 'Successfully created a document type.'], 201);
-
             }
-
         } catch (\Exception$e) {
             report($e);
         }
@@ -55,9 +48,10 @@ class DocumentTypeController extends Controller
 
     public function editDocumentType (Request $request,$id) {
         $requestData = $request->only(['code','description']);
+
         $validator = Validator::make($requestData, [
-        'code' => 'required|string|min:4',
-        'description' => 'required|string|min:3'
+            'code' => 'required|string|min:4',
+            'description' => 'required|string|min:3'
         ]);
 
         if ($validator->fails()) {
@@ -74,15 +68,14 @@ class DocumentTypeController extends Controller
             $documents->code = $requestData['code'];
             $documents->description = $requestData['description'];
 
-        if ($documents->save()) {
-            return response()->json(['data' => $documents, 'message' => 'Successfully updated the document type.'], 201);
-        }
+            if ($documents->save()) {
+                return response()->json(['data' => $documents, 'message' => 'Successfully updated the document type.'], 201);
+            }
         } catch (\Exception$e) {
             report($e);
         }
 
         return response()->json(['message' => 'Failed to update the document type.'], 400);
-
     }
 
 
@@ -90,7 +83,6 @@ class DocumentTypeController extends Controller
         $documents = DocumentType::get();
 
         return response()->json(['data' => $documents, 'message' => 'Successfully fetched the document types.'], 200);
-
     }
 
 
@@ -102,29 +94,26 @@ class DocumentTypeController extends Controller
         }
 
         return response()->json(['data' => $documents, 'message' => 'Successfully fetched the document type.'], 200);
-        
     }
 
     //closing tag///
 
     public function deleteDocumentType (Request $request, $id) {
-    $documents = DocumentType::find($id);
+        $documents = DocumentType::find($id);
 
-    if (!$documents) {
-        return response()->json(['message' => 'Document type not found.'], 404);
-    }
+        if (!$documents) {
+            return response()->json(['message' => 'Document type not found.'], 404);
+        }
 
-    try {
-        $documents->delete();
+        try {
+            $documents->delete();
 
-        return response()->json(['message' => 'Successfully deleted the document type.'], 200);
+            return response()->json(['message' => 'Successfully deleted the document type.'], 200);
+        } catch (\Exception $e) {
+            report($e);
+        }
 
-    } catch (\Exception $e) {
-        report($e);
-    }
-
-    return response()->json(['message' => 'Failed to delete the document type.'], 400);
-
+        return response()->json(['message' => 'Failed to delete the document type.'], 400);
     }
 
 }
