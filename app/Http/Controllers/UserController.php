@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 
 
-class UserController extends Controller
+class UserController extends Controller 
 {
 
-    public function createUser(Request $request)
-    {
+    public function createUser (Request $request) {
+        
         $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
 
         $validator = Validator::make($requestData, [
@@ -63,10 +63,11 @@ class UserController extends Controller
 
                 $profile->save();
                 $user->load(['profile','role']);
-
                 DB::commit();
+
                 return response()->json(['data' => $user, 'message' => 'Successfully created a user'], 201);
             }
+
         } catch (\Exception$e) {
             report($e);
         }
@@ -76,8 +77,8 @@ class UserController extends Controller
 
     }
 
-    public function deleteUser(Request $Request, $id)
-    {
+    public function deleteUser (Request $Request, $id) {
+
         try {
             $user = User::find($id);
 
@@ -93,53 +94,45 @@ class UserController extends Controller
 
     }
 
-    public function getUser(Request $request, $id) {
+    public function getUser (Request $request, $id) {
 
         $users = User::paginate(10);
         
         return response()->json(['data' => $users, 'message' => ' Successfully'], 200);
-
-        // $user = User::with([
-        //     'profile',
-        //     'role'
-        // ])->find($id);
-        
-        // return response()->json(['data' => $user, 'message' => ' Successfully'], 200);
-
     }
 
     //closing tag//
 
-    public function editUser (Request $request,$id){
+    public function editUser (Request $request,$id) {
 
-            $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
-            $validator = Validator::make($requestData, [
+        $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
 
-                'prefix' => 'nullable|present|string|min:2',
-                'first_name' => '|string|min:3',
-                'middle_name' => 'nullable|string|min:3',
-                'last_name' => '|string|min:3',
-                'suffix' => 'nullable|string|min:2',
-                'position_designation' => 'required|string',
-            ]);
+        $validator = Validator::make($requestData, [
+            'prefix' => 'nullable|present|string|min:2',
+            'first_name' => '|string|min:3',
+            'middle_name' => 'nullable|string|min:3',
+            'last_name' => '|string|min:3',
+            'suffix' => 'nullable|string|min:2',
+            'position_designation' => 'required|string',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json(['message' => $validator->errors()->first()], 409);
-            }
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
 
-            $editUser = Profile::find($id);
+        $editUser = Profile::find($id);
 
-            if (!$editUser) {
-                return response()->json(['message' => 'User not found.'], 404);
-            }
+        if (!$editUser) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
 
-            try {
-                $editUser->prefix = $requestData['prefix'];
-                $editUser->first_name = $requestData['first_name'];
-                $editUser->middle_name = $requestData['middle_name'];
-                $editUser->last_name = $requestData['last_name'];
-                $editUser->suffix = $requestData['suffix'];
-                $editUser->position_designation = $requestData['position_designation'];
+        try {
+            $editUser->prefix = $requestData['prefix'];
+            $editUser->first_name = $requestData['first_name'];
+            $editUser->middle_name = $requestData['middle_name'];
+            $editUser->last_name = $requestData['last_name'];
+            $editUser->suffix = $requestData['suffix'];
+            $editUser->position_designation = $requestData['position_designation'];
 
             if ($editUser->save()) {
                 return response()->json(['data' => $editUser, 'message' => 'Successfully updated the User.'], 201);
@@ -147,20 +140,18 @@ class UserController extends Controller
         } catch (\Exception $e) {
             report($e);
         }
-        
+    
         return response()->json(['message' => 'Failed to update the User'], 400);
     }
 
     //closing tag//
 
+     public function getUsers (Request $request) {
 
-     public function getUsers(Request $request){
         $user = User::get();
 
         return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
-
     }
 
-
-  }
+}
 

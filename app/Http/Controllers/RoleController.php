@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Role;
 
-class RoleController extends Controller
+class RoleController extends Controller 
 {
-    public function addRole(Request $request)
-    {
+    
+    public function addRole (Request $request) {
+        
         $requestData = $request->only(['division_id','description','level']);
 
         $validator = Validator::make($requestData, [
@@ -24,22 +25,19 @@ class RoleController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        try 
-        {
+        try {
             DB::beginTransaction();
 
             $role = new Role([
-                 'description' => $requestData['description'],
+                'description' => $requestData['description'],
                 'level' => $requestData['level'], 'division_id' => $requestData['division_id'],
-              
             ]);
 
             if ($role->save()) {
 
-
                 DB::commit();
-                return response()->json(['data' => $role, 'message' => 'Successfully created a role.'], 201);
 
+                return response()->json(['data' => $role, 'message' => 'Successfully created a role.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -94,7 +92,6 @@ class RoleController extends Controller
             $role->division_id = $requestData['division_id'];
             $role->description = $requestData['description'];
             $role->level = $requestData['level'];
-
 
             if ($role->save()) {
                 return response()->json(['data' => $role, 'message' => 'Successfully updated the role.'], 201);

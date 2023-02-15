@@ -10,11 +10,11 @@ use App\Models\Document;
 use App\Models\Attachment;
 
 
-class DocumentController extends Controller
+class DocumentController extends Controller 
 {
-    public function addDocument(Request $request) {
-        // $user = $request->user();
 
+    public function addDocument (Request $request) {
+    
         $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'description', 'date_received','file_name','file_title']);
 
         $validator = Validator::make($requestData, [
@@ -32,6 +32,7 @@ class DocumentController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
+
         try {
             DB::beginTransaction();
     
@@ -45,30 +46,30 @@ class DocumentController extends Controller
             ]);
  
             if ($document->save());
+                $attachment = new Attachment([
+                    'document_id' => $document->id,
+                    'file_name'    => $requestData['file_name'],
+                    'file_title'   => $requestData['file_title'],
+                ]);
 
-            $attachment = new Attachment([
-                'document_id' => $document->id,
-                'file_name'    => $requestData['file_name'],
-                'file_title'   => $requestData['file_title'],
-            ]);
+                $attachment->save();
+                $document->load(['user','documentType','attachments']);
+                DB::commit();
 
-            $attachment->save();
-            $document->load(['user','documentType','attachments']);
-
-            DB::commit();
-            return response()->json(['data' => $document, 'message' => 'Successfully'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully'], 201);
             
-            } catch (\Exception$e) {
+        } catch (\Exception$e) {
             report($e);
-            }
+        }
 
-            DB::rollBack();
-            return response()->json(['message' => 'Failed'], 400);
+        DB::rollBack();
+
+        return response()->json(['message' => 'Failed'], 400);
 
     }
 
 
-    public function editDocument(Request $request,$id){
+    public function editDocument (Request $request,$id) {
 
         $requestData = $request->only(['user_id', 'document_type_id','tracking_no', 'recieved_from','description', 'date_received']);
         $validator = Validator::make($requestData, [
@@ -81,35 +82,35 @@ class DocumentController extends Controller
         ]);
 
         if ($validator->fails()) {
-        return response()->json(['message' => $validator->errors()->first()], 409);
+            return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
         $document = Document::find($id);
 
         if (!$document) {
-        return response()->json(['message' => 'Document not found.'], 404);
+            return response()->json(['message' => 'Document not found.'], 404);
         }
 
         try {
-        $document->user_id = $requestData['user_id'];
-        $document->document_type_id = $requestData['document_type_id'];
-        $document->tracking_no        = $requestData['tracking_no'];
-        $document->recieved_from = $requestData['recieved_from'];
-        $document->description        = $requestData['description'];
-        $document->date_received = $requestData['date_received']; 
+            $document->user_id = $requestData['user_id'];
+            $document->document_type_id = $requestData['document_type_id'];
+            $document->tracking_no        = $requestData['tracking_no'];
+            $document->recieved_from = $requestData['recieved_from'];
+            $document->description        = $requestData['description'];
+            $document->date_received = $requestData['date_received']; 
           
-        if ($document->save()) {
-        return response()->json(['data' => $document, 'message' => 'Successfully updated the document.'], 201);
-        }
+            if ($document->save()) {
+                return response()->json(['data' => $document, 'message' => 'Successfully updated the document.'], 201);
+            }
         } catch (\Exception$e) {
-        report($e);
+            report($e);
         }
         
         return response()->json(['message' => 'Failed to update the document'], 400);
 
     }
     
-    public function getDocuments(Request $request){
+    public function getDocuments (Request $request) {
         $document = document::with  ('attachments')->get();
 
 
@@ -117,7 +118,7 @@ class DocumentController extends Controller
     }
 
     
-    public function getDocument(Request $request, $id){
+    public function getDocument (Request $request, $id) {
         $document = document::find($id);
 
         if (!$document) {
@@ -128,54 +129,24 @@ class DocumentController extends Controller
         
     }
 
-     public function deleteDocument(Request $request, $id) {
-        $document = Document::find($id);
+    public function deleteDocument (Request $request, $id) {
+    $document = Document::find($id);
 
-        if (!$document) {
-            return response()->json(['message' => 'Role not found.'], 404);
-        }
-
-        try {
-            $document->delete();
-
-            return response()->json(['message' => 'Successfully deleted the document.'], 200);
-
-        } catch (\Exception $e) {
-            report($e);
-        }
-
-        return response()->json(['message' => 'Failed to update the document.'], 400);
-
+    if (!$document) {
+        return response()->json(['message' => 'Role not found.'], 404);
     }
 
+    try {
+        $document->delete();
 
+        return response()->json(['message' => 'Successfully deleted the document.'], 200);
 
+    } catch (\Exception $e) {
+        report($e);
+    }
 
+    return response()->json(['message' => 'Failed to update the document.'], 400);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 }
