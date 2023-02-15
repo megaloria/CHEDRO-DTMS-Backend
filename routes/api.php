@@ -23,72 +23,82 @@ use App\Http\Controllers\DivisionController;
 Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+
     Route::group([
-        'prefix' => '/users'
+        'prefix' => '/'
     ], function () {
-        Route::post('', [UserController::class, 'createUser']);
-        Route::get('', [UserController::class, 'getUsers']);
-    
-        Route::group([
-            'prefix' => '/{user_id}',
-            'where' => ['user_id' => '[0-9]+']
-        ], function () {
-            Route::delete('', [UserController::class, 'deleteUser']);
-            Route::get('', [UserController::class, 'getUser']);
-            Route::post('', [UserController::class, 'editUser']);
-        });
+        Route::get('', [UserController::class, 'getCurrentUser']);
+        Route::delete('', [UserController::class, 'logout']);
     });
-    
-    Route::group([
-        'prefix' => '/settings'
-    ], function () {
+
+    Route::middleware(['admin'])->group(function () {
         Route::group([
-            'prefix' => '/roles'
+            'prefix' => '/users'
         ], function () {
-            Route::post('', [RoleController::class, 'addRole']);
-            Route::get('', [RoleController::class, 'getRoles']);
-    
+            Route::post('', [UserController::class, 'createUser']);
+            Route::get('', [UserController::class, 'getUsers']);
+        
             Route::group([
-                'prefix' => '/{role_id}',
-                'where' => ['role_id' => '[0-9]+']
+                'prefix' => '/{user_id}',
+                'where' => ['user_id' => '[0-9]+']
             ], function () {
-                Route::get('', [RoleController::class, 'getRole']);
-                Route::post('', [RoleController::class, 'editRole']);
-                Route::delete('', [RoleController::class, 'deleteRole']);
-            });  
+                Route::delete('', [UserController::class, 'deleteUser']);
+                Route::get('', [UserController::class, 'getUser']);
+                Route::post('', [UserController::class, 'editUser']);
+            });
         });
-    
+        
         Route::group([
-            'prefix' => '/divisions'
+            'prefix' => '/settings'
         ], function () {
-            Route::post('', [DivisionController::class, 'addDivision']);
-            Route::get('', [DivisionController::class, 'getDivisions']);
-    
             Route::group([
-                'prefix' => '/{division_id}',
-                'where' => ['division_id' => '[0-9]+']
+                'prefix' => '/roles'
             ], function () {
-                Route::get('', [DivisionController::class, 'getDivision']);
-                Route::post('', [DivisionController::class, 'editDivision']);
-                Route::delete('', [DivisionController::class, 'deleteDivision']);
-            });  
-        });
-    
-        Route::group([
-            'prefix' => '/document-types'
-        ], function () {
-            Route::post('', [DocumentTypeController::class, 'addDocumentType']);
-            Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
-    
-            Route::group([
-                    'prefix' => '/{document_id}',
-                    'where' => ['document_id' => '[0-9]+']
+                Route::post('', [RoleController::class, 'addRole']);
+                Route::get('', [RoleController::class, 'getRoles']);
+        
+                Route::group([
+                    'prefix' => '/{role_id}',
+                    'where' => ['role_id' => '[0-9]+']
                 ], function () {
-                    Route::get('', [DocumentTypeController::class, 'getDocumentType']);
-                    Route::post('', [DocumentTypeController::class, 'editDocumentType']);
-                    Route::delete('', [DocumentTypeController::class, 'deleteDocumentType']);
-                });
-            });      
+                    Route::get('', [RoleController::class, 'getRole']);
+                    Route::post('', [RoleController::class, 'editRole']);
+                    Route::delete('', [RoleController::class, 'deleteRole']);
+                });  
+            });
+        
+            Route::group([
+                'prefix' => '/divisions'
+            ], function () {
+                Route::post('', [DivisionController::class, 'addDivision']);
+                Route::get('', [DivisionController::class, 'getDivisions']);
+        
+                Route::group([
+                    'prefix' => '/{division_id}',
+                    'where' => ['division_id' => '[0-9]+']
+                ], function () {
+                    Route::get('', [DivisionController::class, 'getDivision']);
+                    Route::post('', [DivisionController::class, 'editDivision']);
+                    Route::delete('', [DivisionController::class, 'deleteDivision']);
+                });  
+            });
+        
+            Route::group([
+                'prefix' => '/document-types'
+            ], function () {
+                Route::post('', [DocumentTypeController::class, 'addDocumentType']);
+                Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
+        
+                Route::group([
+                        'prefix' => '/{document_id}',
+                        'where' => ['document_id' => '[0-9]+']
+                    ], function () {
+                        Route::get('', [DocumentTypeController::class, 'getDocumentType']);
+                        Route::post('', [DocumentTypeController::class, 'editDocumentType']);
+                        Route::delete('', [DocumentTypeController::class, 'deleteDocumentType']);
+                    });
+                });      
+        });
     });
     
     Route::group([

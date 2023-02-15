@@ -177,7 +177,14 @@ class UserController extends Controller
     public function getCurrentUser (Request $request) {
         $user = $request->user();
         $user->load('profile');
-        return response()->json(['data' => $user, 'message' => 'Successfully fetched current user'], 200);
+        return response()->json(['data' => $user, 'message' => 'Successfully fetched current user.'], 200);
+    }
+
+    public function logout (Request $request) {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'Successfully logged out.'], 200);
     }
 }
 
