@@ -97,6 +97,25 @@ class DivisionController extends Controller
         return response()->json(['message' => 'Failed to update the Division.'], 400);
 
     }
+
+    public function getRDivisions (Request $request) {
+
+        $divisions = Division::get();
+        
+        return response()->json(['data' => $divisions, 'message' => 'Successfully fetched the divisions.'], 200);
+    }
+
+    public function getDivision (Request $request, $id) {
+
+        $division = Division::find($id);
+
+        if (!$division) {
+            return response()->json(['message' => 'Divison not found.'], 404);
+        }
+
+        return response()->json(['data' => $division, 'message' => 'Successfully fetched the division.'], 200);
+        
+    }
 }
 
 
