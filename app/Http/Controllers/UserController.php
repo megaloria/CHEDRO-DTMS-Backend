@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Profile;
-use App\Models\User;
-use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
-
+use App\Models\Profile;
+use App\Models\User;
+use App\Models\Role;
 
 class UserController extends Controller 
 {
@@ -18,7 +18,7 @@ class UserController extends Controller
         $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
 
         $validator = Validator::make($requestData, [
-            'username' => 'required|string|min:3',
+            'username' => 'required|string|min:5',
             'password' => 'required|min:8',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
@@ -58,7 +58,7 @@ class UserController extends Controller
 
                 $profile->save();
 
-                $user->load(['profile','role']);
+                $user->load(['profile', 'role']);
                 DB::commit();
                 return response()->json(['data' => $user, 'message' => 'Successfully created a user.'], 201);
             }
@@ -100,8 +100,6 @@ class UserController extends Controller
         return response()->json(['data' => $user, 'message' => ' Successfully fetched the user.'], 200);
     }
 
-    //closing tag//
-
     public function editUser (Request $request,$id) {
         $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
 
@@ -142,8 +140,51 @@ class UserController extends Controller
         return response()->json(['message' => 'Failed to update the user'], 400);
     }
 
-    //closing tag//
+    public function login(Request $request) {
+        $requestData = $request->only(['username', 'password']);
+        
+        $validator = Validator::make($requestData, [
+            'username' => 'required|min:5',
+            'password' => 'required|min:8'
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Invalid credentials!'], 409);
+        }
 
+        $user = User::where('username', $requestData['username'])->first();
+
+        if (!$user || !Hash::check($requestData['password'], $user->password)) {
+            return response()->json(['message' => 'Invalid credentials!'], 409);
+        }
+
+        try {
+            if (Hash::needsRehash($user->password)) {
+                $user->password = Hash::make($requestData['password']);
+                $user->save();
+            }
+
+            Auth::guard('web')->login($user);
+            $user->load('profile');
+            return response()->json(['message' => 'Successfully logged in.', 'data' => $user], 200);
+        } catch (\Exception $e) {
+            report($e);
+        }
+        
+        return response()->json(['message' => 'Failed to login.'], 400);
+    }
+
+    public function getCurrentUser (Request $request) {
+        $user = $request->user();
+        $user->load('profile');
+        return response()->json(['data' => $user, 'message' => 'Successfully fetched current user.'], 200);
+    }
+
+    public function logout (Request $request) {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json(['message' => 'Successfully logged out.'], 200);
+    }
 }
 
