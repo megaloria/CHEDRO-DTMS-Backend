@@ -25,7 +25,7 @@ Route::post('/login', [UserController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::group([
-        'prefix' => '/'
+        'prefix' => '/user'
     ], function () {
         Route::get('', [UserController::class, 'getCurrentUser']);
         Route::delete('', [UserController::class, 'logout']);
