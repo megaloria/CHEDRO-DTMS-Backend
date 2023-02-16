@@ -24,6 +24,13 @@ class Profile extends Model
         'position_designation'
     ];
 
+    protected $appends = [
+        'name'
+    ];
+
+    public function getNameAttribute() {
+        return $this->first_name . ' ' . $this->last_name;
+    }
     
 }
 
