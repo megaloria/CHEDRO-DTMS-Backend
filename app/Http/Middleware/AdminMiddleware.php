@@ -17,9 +17,9 @@ class AdminMiddleware
     {
         $user = $request->user();
 
-        // if ($user && $user->role->level === 1) {
-        //     return $next($request);
-        // }
+        if ($user && $user->role->level === 1) {
+            return $next($request);
+        }
         return response()->json(['message' => 'Unauthenticated', $user], 401);
     }
 }

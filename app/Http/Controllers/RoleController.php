@@ -7,18 +7,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Role;
+use App\Models\Division;
 
 class RoleController extends Controller 
 {
     
     public function addRole (Request $request) {
-        
         $requestData = $request->only(['division_id','description','level']);
 
         $validator = Validator::make($requestData, [
-            'division_id' => 'required|integer|exists:divisions,id',
+            'division_id' => 'present|nullable|integer|exists:divisions,id',
             'description' => 'required|string|min:3',
-            'level' => 'required|integer|',
+            'level' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -47,8 +47,15 @@ class RoleController extends Controller
 
     public function getRoles (Request $request) {
         $roles = Role::get();
-        
-        return response()->json(['data' => $roles, 'message' => 'Successfully fetched the roles.'], 200);
+        $divisions = Division::get();
+
+        return response()->json([
+            'data' => [
+                'roles' => $roles,
+                'divisions' => $divisions
+            ],
+            'message' => 'Successfully fetched the roles.'
+        ], 200);
     }
 
     public function getRole (Request $request, $id) {
@@ -66,7 +73,7 @@ class RoleController extends Controller
         $requestData = $request->only(['division_id','description','level']);
 
         $validator = Validator::make($requestData, [
-            'division_id' => 'required|integer|exists:divisions,id',
+            'division_id' => 'present|nullable|integer|exists:divisions,id',
             'description' => 'required|string|min:3',
             'level' => 'required|integer',
         ]);
