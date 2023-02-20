@@ -5,16 +5,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
-use App\Models\HEI;
+use App\Models\Hei;
 
 class HEISController extends Controller
 {
     public function addHEI (Request $request) {
-        $requestData = $request->only(['uii','name','head_of_institution']);
+        $requestData = $request->only(['uii','name','head_of_institution','address']);
 
         $validator = Validator::make($requestData, [
             'uii' => 'required|integer',
             'name' => 'required|string|min:5',
+            'address' => 'required|string',
             'head_of_institution' => 'required|string|min:5'
         ]);
 
@@ -25,10 +26,11 @@ class HEISController extends Controller
         try {
             DB::beginTransaction();
 
-            $hei = new HEI([
-                'uii' => 'required|integer',
-                'name' => 'required|string|min:5',
-                'head_of_institution' => 'required|string|min:5'
+            $hei = new Hei([
+                'uii' => $requestData['uii'],
+                'name' => $requestData['name'],
+                'address' => $requestData['address'],
+                'head_of_institution' => $requestData['head_of_institution']
             ]);
 
             if ($hei->save()) {
@@ -47,11 +49,12 @@ class HEISController extends Controller
 
 
     public function editHEI (Request $request,$id) {
-        $requestData = $request->only(['uii','name', 'head_of_institution']);
+        $requestData = $request->only(['uii','name', 'head_of_institution','address']);
 
         $validator = Validator::make($requestData, [
             'uii' => 'required|integer',
             'name' => 'required|string|min:5',
+            'address' => 'required|string',
             'head_of_institution' => 'required|string|min:5'
         ]);
 
@@ -59,7 +62,7 @@ class HEISController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $hei = HEI::find($id);
+        $hei = Hei::find($id);
 
         if (!$hei) {
             return response()->json(['message' => 'HEI not found.'], 404);
@@ -68,6 +71,7 @@ class HEISController extends Controller
         try {
             $hei->uii = $requestData['uii'];
             $hei->name = $requestData['name'];
+            $hei->address = $requestData['address'];
             $hei->head_of_institution = $requestData['head_of_institution'];
 
             if ($hei->save()) {
@@ -82,14 +86,14 @@ class HEISController extends Controller
 
 
     public function getHEIS (Request $request) {
-        $heiS = HEI::get();
+        $heiS = Hei::get();
 
         return response()->json(['data' => $heiS, 'message' => 'Successfully fetched the HEIS.'], 200);
     }
 
 
     public function getHEI (Request $request, $id) {
-        $hei = HEI::find($id);
+        $hei = Hei::find($id);
 
         if (!$hei) {
             return response()->json(['message' => 'HEI not found.'], 404);
@@ -101,7 +105,7 @@ class HEISController extends Controller
     //closing tag///
 
     public function deleteHEI (Request $request, $id) {
-        $hei = HEI::find($id);
+        $hei = Hei::find($id);
 
         if (!$hei) {
             return response()->json(['message' => 'HEI not found.'], 404);
