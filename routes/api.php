@@ -8,6 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\HEISController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,7 +98,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
                         Route::post('', [DocumentTypeController::class, 'editDocumentType']);
                         Route::delete('', [DocumentTypeController::class, 'deleteDocumentType']);
                     });
-                });      
+                });   
+                
+                Route::group([
+                    'prefix' => '/heis'
+                ], function () {
+                    Route::post('', [HEISController::class, 'addHEI']);
+                    Route::get('', [HEISController::class, 'getHEIS']);
+            
+                    Route::group([
+                            'prefix' => '/{hei_id}',
+                            'where' => ['hei_id' => '[0-9]+']
+                        ], function () {
+                            Route::get('', [HEISController::class, 'getHEI']);
+                            Route::post('', [HEISController::class, 'editHEI']);
+                            Route::delete('', [HEISController::class, 'deleteHEI']);
+                        });
+                    }); 
         });
     });
     
