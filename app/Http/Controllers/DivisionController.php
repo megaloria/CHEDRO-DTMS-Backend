@@ -93,7 +93,7 @@ class DivisionController extends Controller
         return response()->json(['message' => 'Failed to update the division.'], 400);
     }
 
-    public function getRDivisions (Request $request) {
+    public function getDivisions (Request $request) {
         $divisions = Division::get();
         
         return response()->json(['data' => $divisions, 'message' => 'Successfully fetched the divisions.'], 200);

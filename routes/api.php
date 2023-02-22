@@ -101,6 +101,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         });
     });
     
+
+
+
+    
     Route::group([
         'prefix' => '/documents'
     ], function () {

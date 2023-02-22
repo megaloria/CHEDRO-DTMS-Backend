@@ -89,9 +89,19 @@ class UserController extends Controller
     }
 
     public function getUsers (Request $request) {
-        $user = User::paginate(10);
+        $user = User::with('profile')->paginate(10);
+        $roles = Role::get();
 
-        return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
+        return response()->json([
+            'data' => [
+                'roles' => $roles,
+                'users' => $user
+            ],
+            'message' => 'Successfully fetched the users.'
+        ], 200);
+
+
+        // return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
     }
 
     public function getUser (Request $request, $id) {
