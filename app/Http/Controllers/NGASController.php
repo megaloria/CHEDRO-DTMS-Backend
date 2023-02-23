@@ -71,9 +71,9 @@ class NGASController extends Controller
             $nga->code = $requestData['code'];
             $nga->description = $requestData['description'];
             $nga->email = $requestData['email'];
-         
+        
 
-            if ($hei->save()) {
+            if ($nga->save()) {
                 return response()->json(['data' => $nga, 'message' => 'Successfully updated the NGA'], 201);
             }
         } catch (\Exception$e) {
