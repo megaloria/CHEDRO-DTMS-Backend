@@ -13,7 +13,10 @@ class Hei extends Model
         'id',
         'uii',
         'name',
-        'address',
-        'head_of_institution'
+        'street_barangay',
+        'city_municipality',
+        'province',
+        'head_of_institution',
+        'email'
     ];
 }

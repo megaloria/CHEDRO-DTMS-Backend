@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('uii');
             $table->string('name');
-            $table->string('address');
+            $table->string('street_barangay');
+            $table->string('city_municipality');
+            $table->string('province');
             $table->string('head_of_institution');
+            $table->string('email');
             $table->timestamps();
         });
     }
