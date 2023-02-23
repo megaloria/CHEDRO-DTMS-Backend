@@ -15,7 +15,7 @@ use App\Models\Role;
 class UserController extends Controller 
 {
     public function createUser (Request $request) {
-        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
+        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id','position_designation']);
 
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:5',
@@ -26,9 +26,6 @@ class UserController extends Controller
             'suffix' => 'nullable|present|string',
             'middle_name' => 'nullable|present|string',
             'role_id' => 'required|integer|exists:roles,id',
-            'division_id' => 'required|integer|exists:divisions,id',
-            'level' => 'required|integer',
-            'description' => 'required|string',
             'position_designation' => 'nullable|present|string'
         ]);
 
@@ -72,6 +69,7 @@ class UserController extends Controller
 
     public function deleteUser (Request $Request, $id) {
         $user = User::find($id);
+        // $profile = Profile::get();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
@@ -89,9 +87,17 @@ class UserController extends Controller
     }
 
     public function getUsers (Request $request) {
-        $user = User::paginate(10);
+        $user = User::with('profile')->paginate(10);
+        $roles = Role::get();
 
-        return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
+        return response()->json([
+            'data'=>[
+                'roles' => $roles,
+                'users' => $user
+            ],
+            'message'=> 'Successfully fetched the users.'
+            
+        ], 200);
     }
 
     public function getUser (Request $request, $id) {
@@ -101,9 +107,11 @@ class UserController extends Controller
     }
 
     public function editUser (Request $request,$id) {
-        $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
+        $requestData = $request->only(['username', 'role_id', 'prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
 
         $validator = Validator::make($requestData, [
+            'username' => 'required|string|min:5',
+            'role_id' => 'required|integer|exists:roles,id',
             'prefix' => 'nullable|present|string|min:2',
             'first_name' => '|string|min:3',
             'middle_name' => 'nullable|string|min:3',
@@ -116,21 +124,25 @@ class UserController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $editUser = Profile::find($id);
+        $editUser = User::with('profile')->find($id);
 
         if (!$editUser) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
         try {
-            $editUser->prefix = $requestData['prefix'];
-            $editUser->first_name = $requestData['first_name'];
-            $editUser->middle_name = $requestData['middle_name'];
-            $editUser->last_name = $requestData['last_name'];
-            $editUser->suffix = $requestData['suffix'];
-            $editUser->position_designation = $requestData['position_designation'];
+            $editUser->username = $requestData['username'];
+            $editUser->role_id = $requestData['role_id'];
+            $editUser->save();
 
-            if ($editUser->save()) {
+            $editUser->profile->prefix = $requestData['prefix'];
+            $editUser->profile->first_name = $requestData['first_name'];
+            $editUser->profile->middle_name = $requestData['middle_name'];
+            $editUser->profile->last_name = $requestData['last_name'];
+            $editUser->profile->suffix = $requestData['suffix'];
+            $editUser->profile->position_designation = $requestData['position_designation'];
+
+            if ($editUser->profile->save()) {
                 return response()->json(['data' => $editUser, 'message' => 'Successfully updated the user.'], 201);
             }
         } catch (\Exception $e) {
