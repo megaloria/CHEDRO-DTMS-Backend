@@ -22,9 +22,9 @@ class UserController extends Controller
             'password' => 'required|min:8',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'prefix' => 'nullable|present|string',
-            'suffix' => 'nullable|present|string',
-            'middle_name' => 'nullable|present|string',
+            'prefix' => 'nullable|string',
+            'suffix' => 'nullable|string',
+            'middle_name' => 'nullable|string',
             'role_id' => 'required|integer|exists:roles,id',
             'position_designation' => 'nullable|present|string'
         ]);
@@ -112,7 +112,7 @@ class UserController extends Controller
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:5',
             'role_id' => 'required|integer|exists:roles,id',
-            'prefix' => 'nullable|present|string|min:2',
+            'prefix' => 'nullable|string|min:2',
             'first_name' => '|string|min:3',
             'middle_name' => 'nullable|string|min:3',
             'last_name' => '|string|min:3',
