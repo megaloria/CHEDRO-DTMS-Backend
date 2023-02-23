@@ -83,6 +83,7 @@ class ChedOfficesController extends Controller
     }
 
     public function getChedOffices (Request $request) {
+        $ched = ChedOffice::paginate(10);
         $ched = ChedOffice::get();
 
         return response()->json(['data' => $ched, 'message' => 'Successfully fetched the Ched Offices.'], 200);
