@@ -98,8 +98,6 @@ class UserController extends Controller
             'message'=> 'Successfully fetched the users.'
             
         ], 200);
-
-        // return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
     }
 
     public function getUser (Request $request, $id) {
