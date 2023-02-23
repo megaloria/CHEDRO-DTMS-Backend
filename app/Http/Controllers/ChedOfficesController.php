@@ -14,7 +14,7 @@ class ChedOfficesController extends Controller
         $requestData = $request->only(['code','description','email']);
 
         $validator = Validator::make($requestData, [
-            'code' => 'required|integer',
+            'code' => 'required|string',
             'description' => 'required|string|min:5',
             'email' => 'required|email'
            
@@ -51,7 +51,7 @@ class ChedOfficesController extends Controller
         $requestData = $request->only(['code','description','email']);
 
         $validator = Validator::make($requestData, [
-            'code' => 'required|integer',
+            'code' => 'required|string',
             'description' => 'required|string|min:5',
             'email' => 'required|email'
         ]);

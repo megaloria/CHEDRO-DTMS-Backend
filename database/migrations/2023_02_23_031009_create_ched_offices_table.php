@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('ched_offices', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('code');
+            $table->string('code');
             $table->string('description');
             $table->string('email');
             $table->timestamps();
