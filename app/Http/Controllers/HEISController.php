@@ -99,7 +99,7 @@ class HEISController extends Controller
             return response()->json(['message' => 'HEI not found.'], 404);
         }
 
-        return response()->json(['data' => $documents, 'message' => 'Successfully fetched the HEI.'], 200);
+        return response()->json(['data' => $hei, 'message' => 'Successfully fetched the HEI.'], 200);
     }
 
     //closing tag///
