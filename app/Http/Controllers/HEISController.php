@@ -13,7 +13,7 @@ class HEISController extends Controller
         $requestData = $request->only(['uii','name','head_of_institution','street_barangay', 'city_municipality', 'province']);
 
         $validator = Validator::make($requestData, [
-            'uii' => 'required|integer',
+            'uii' => 'required|string',
             'name' => 'required|string|min:5',
             'head_of_institution' => 'required|string|min:5',
             'street_barangay' => 'required|string|min:5',
@@ -56,7 +56,7 @@ class HEISController extends Controller
         $requestData = $request->only(['uii','name', 'head_of_institution','street_barangay', 'city_municipality', 'province']);
 
         $validator = Validator::make($requestData, [
-            'uii' => 'required|integer',
+            'uii' => 'required|string',
             'name' => 'required|string|min:5',
             'head_of_institution' => 'required|string|min:5',
             'street_barangay' => $requestData['street_barangay'],
