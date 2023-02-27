@@ -152,6 +152,39 @@ class UserController extends Controller
         return response()->json(['message' => 'Failed to update the user'], 400);
     }
 
+    public function editPass (Request $request,$id) {
+        $requestData = $request->only(['reset_password']);
+
+        $validator = Validator::make($requestData, [
+            'reset_password' => 'required|string|min:4',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $editPass = User::with('profile')->find($id);
+
+        if (!$editPass) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        try {
+            $editPass->password = $requestData['reset_password'];
+            $editPass->save();
+
+            if ($editPass->user->save()) {
+                return response()->json(['data' => $editPass, 'message' => 'Successfully updated the password.'], 201);
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+    
+        return response()->json(['message' => 'Failed to update the user'], 400);
+    }
+
+
+
     public function login(Request $request) {
         $requestData = $request->only(['username', 'password']);
         
