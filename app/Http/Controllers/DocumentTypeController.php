@@ -12,11 +12,13 @@ use App\Models\DocumentType;
 class DocumentTypeController extends Controller
 {
     public function addDocumentType (Request $request) {
-        $requestData = $request->only(['code','description']);
+        $requestData = $request->only(['code','description','days']);
 
         $validator = Validator::make($requestData, [
             'code' => 'required|string|min:4',
             'description' => 'required|min:3',
+            'days' => 'required|integer|min:1',
+
         ]);
 
         if ($validator->fails()) {
@@ -28,7 +30,8 @@ class DocumentTypeController extends Controller
 
             $documents = new DocumentType([
                 'code' => $requestData['code'],
-                'description' => $requestData['description']
+                'description' => $requestData['description'],
+                'days' => $requestData['days']
             ]);
 
             if ($documents->save()) {
@@ -47,11 +50,12 @@ class DocumentTypeController extends Controller
 
 
     public function editDocumentType (Request $request,$id) {
-        $requestData = $request->only(['code','description']);
+        $requestData = $request->only(['code','description', 'days']);
 
         $validator = Validator::make($requestData, [
             'code' => 'required|string|min:4',
-            'description' => 'required|string|min:3'
+            'description' => 'required|string|min:3',
+            'days' => 'required|integer|min:1'
         ]);
 
         if ($validator->fails()) {

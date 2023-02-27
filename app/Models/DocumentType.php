@@ -12,6 +12,7 @@ class DocumentType extends Model
     protected $fillable = [
         'id',
         'code',
-        'description'
+        'description',
+        'days'
     ];
 }
