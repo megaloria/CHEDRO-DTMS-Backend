@@ -152,37 +152,35 @@ class UserController extends Controller
         return response()->json(['message' => 'Failed to update the user'], 400);
     }
 
-    public function editPass (Request $request,$id) {
-        $requestData = $request->only(['reset_password']);
+    // public function editPass (Request $request,$id) {
+    //     $requestData = $request->only('password');
 
-        $validator = Validator::make($requestData, [
-            'reset_password' => 'required|string|min:4',
-        ]);
+    //     $validator2 = Validator::make($requestData, [
+    //         'reset_password' => 'required|string|min:4'
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()->first()], 409);
-        }
+    //     if ($validator2->fails()) {
+    //         return response()->json(['message' => $validator2->errors()->first()], 409);
+    //     }
 
-        $editPass = User::with('profile')->find($id);
+    //     $editPass = User::with('profile')->find($id);
 
-        if (!$editPass) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
+    //     if (!$editPass) {
+    //         return response()->json(['message' => 'User not found.'], 404);
+    //     }
 
-        try {
-            $editPass->password = $requestData['reset_password'];
-            $editPass->save();
+    //     try {
+    //         $editPass->password = $requestData['reset_password'];
 
-            if ($editPass->user->save()) {
-                return response()->json(['data' => $editPass, 'message' => 'Successfully updated the password.'], 201);
-            }
-        } catch (\Exception $e) {
-            report($e);
-        }
+    //         if ($editPass->profile->save()) {
+    //             return response()->json(['data' => $editPass, 'message' => 'Successfully updated the password.'], 201);
+    //         }
+    //     } catch (\Exception $e) {
+    //         report($e);
+    //     }
     
-        return response()->json(['message' => 'Failed to update the user'], 400);
-    }
-
+    //     return response()->json(['message' => 'Failed to update the user'], 400);
+    // }
 
 
     public function login(Request $request) {
