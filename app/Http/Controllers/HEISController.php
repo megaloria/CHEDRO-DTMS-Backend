@@ -10,13 +10,15 @@ use App\Models\Hei;
 class HEISController extends Controller
 {
     public function addHEI (Request $request) {
-        $requestData = $request->only(['uii','name','head_of_institution','address']);
+        $requestData = $request->only(['uii','name','head_of_institution','street_barangay', 'city_municipality', 'province']);
 
         $validator = Validator::make($requestData, [
             'uii' => 'required|integer',
             'name' => 'required|string|min:5',
-            'address' => 'required|string',
-            'head_of_institution' => 'required|string|min:5'
+            'head_of_institution' => 'required|string|min:5',
+            'street_barangay' => 'required|string|min:5',
+            'city_municipality' => 'required|string|min:5',
+            'province' => 'required|string|min:5'
         ]);
 
         if ($validator->fails()) {
@@ -29,8 +31,10 @@ class HEISController extends Controller
             $hei = new Hei([
                 'uii' => $requestData['uii'],
                 'name' => $requestData['name'],
-                'address' => $requestData['address'],
-                'head_of_institution' => $requestData['head_of_institution']
+                'head_of_institution' => $requestData['head_of_institution'],
+                'street_barangay' => $requestData['street_barangay'],
+                'city_municipality' => $requestData['city_municipality'],
+                'province' => $requestData['province']
             ]);
 
             if ($hei->save()) {
@@ -49,13 +53,15 @@ class HEISController extends Controller
 
 
     public function editHEI (Request $request,$id) {
-        $requestData = $request->only(['uii','name', 'head_of_institution','address']);
+        $requestData = $request->only(['uii','name', 'head_of_institution','street_barangay', 'city_municipality', 'province']);
 
         $validator = Validator::make($requestData, [
             'uii' => 'required|integer',
             'name' => 'required|string|min:5',
-            'address' => 'required|string',
-            'head_of_institution' => 'required|string|min:5'
+            'head_of_institution' => 'required|string|min:5',
+            'street_barangay' => $requestData['street_barangay'],
+            'city_municipality' => $requestData['city_municipality'],
+            'province' => $requestData['province']
         ]);
 
         if ($validator->fails()) {
@@ -71,8 +77,11 @@ class HEISController extends Controller
         try {
             $hei->uii = $requestData['uii'];
             $hei->name = $requestData['name'];
-            $hei->address = $requestData['address'];
             $hei->head_of_institution = $requestData['head_of_institution'];
+            $hei->street_barangay = $requestData['street_barangay'];
+            $hei->city_municipality = $requestData['city_municipality'];
+            $hei->province = $requestData['province'];
+
 
             if ($hei->save()) {
                 return response()->json(['data' => $hei, 'message' => 'Successfully updated the HEI'], 201);
