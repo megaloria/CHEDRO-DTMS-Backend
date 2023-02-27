@@ -17,7 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('code');
             $table->text('description');
+            $table->integer('days');
             $table->timestamps();
+
         });
     }
 

@@ -23,7 +23,8 @@ class DatabaseSeeder extends Seeder
         $this->call(
             [UserSeeder::class,
             NGASeeder::class,
-            ChedOfficeSeeder::class]
+            ChedOfficeSeeder::class,
+            DocumentTypeSeeder::class]
 
             
         );
