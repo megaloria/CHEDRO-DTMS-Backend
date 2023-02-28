@@ -10,6 +10,10 @@ class Category extends Model
     use HasFactory;
     protected $fillable = [
         'id',
-        'description'
+        'description',
+        'is_assignable'
+    ];
+    protected $casts = [
+        'is_assignable' => 'boolean'
     ];
 }
