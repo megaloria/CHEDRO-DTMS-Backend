@@ -15,6 +15,7 @@ class Document extends Model
         'user_id',
         'tracking_no',
         'recieved_from',
+        'category_id',
         'description',
         'date_received'
     ];

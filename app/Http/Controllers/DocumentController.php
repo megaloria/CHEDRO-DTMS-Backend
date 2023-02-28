@@ -22,8 +22,9 @@ class DocumentController extends Controller
             'recieved_from' => 'required|present|string',
             'description' => 'required|present|string',
             'date_received' => 'required|date',
-            'file_name' => 'required|string',
-            'file_title' => 'required|string'
+            'category_id' => 'required|present|string',
+            // 'file_name' => 'required|string',
+            // 'file_title' => 'required|string'
         ]);
 
         if ($validator->fails()) {
