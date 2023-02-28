@@ -137,7 +137,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
                         Route::group([
                             'prefix' => '/ched-offices'
-                        ], function () {
+                        ], function () { 
                             Route::post('', [ChedOfficesController::class, 'addChedOffice']);
                             Route::get('', [ChedOfficesController::class, 'getChedOffices']);
                     
