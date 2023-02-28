@@ -154,7 +154,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                             Route::group([
                                 'prefix' => '/category'
                             ], function () {
-                                Route::post('', [CategoryController::class, 'addCategories']);
+                                Route::post('', [CategoryController::class, 'addCategory']);
                                 Route::get('', [CategoryController::class, 'getCategories']);
                         
                                 Route::group([
