@@ -11,6 +11,7 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\HEISController;
 use App\Http\Controllers\NGASController;
 use App\Http\Controllers\ChedOfficesController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -153,8 +154,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                             Route::group([
                                 'prefix' => '/category'
                             ], function () {
-                                Route::post('', [CategoryController::class, 'addCategory']);
-                                Route::get('', [CategoryController::class, 'getCategory']);
+                                Route::post('', [CategoryController::class, 'addCategories']);
+                                Route::get('', [CategoryController::class, 'getCategories']);
                         
                                 Route::group([
                                         'prefix' => '/{category_id}',

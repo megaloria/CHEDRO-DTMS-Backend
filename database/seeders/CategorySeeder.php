@@ -24,5 +24,7 @@ class CategorySeeder extends Seeder
                 'description' => 'Confidential'
             ],
         ];
+
+        $category = Category::insert($category);
     }
 }
