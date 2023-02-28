@@ -11,6 +11,7 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\HEISController;
 use App\Http\Controllers\NGASController;
 use App\Http\Controllers\ChedOfficesController;
+use App\Http\Controllers\CategoriesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::delete('', [UserController::class, 'deleteUser']);
                 Route::get('', [UserController::class, 'getUser']);
                 Route::post('', [UserController::class, 'editUser']);
+                // Route::post('', [UserController::class, 'editPass']);
             });
         });
         
@@ -157,7 +159,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     ], function () {
         Route::post('', [DocumentController::class, 'addDocument']);
         Route::get('', [DocumentController::class, 'getDocuments']);
-    
+        Route::get('', [CategoryController::class, 'getCategories']);
+
         Route::group([
                 'prefix' => '/{document_id}',
                 'where' => ['document_id' => '[0-9]+']
@@ -165,6 +168,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::get('', [DocumentController::class, 'getDocument']);
                 Route::post('', [DocumentController::class, 'editDocument']);
                 Route::delete('', [DocumentController::class, 'deleteDocument']);
+                Route::get('', [CategoryController::class, 'getCategory']);
             });
     });
 });
