@@ -44,7 +44,8 @@ class CategoryController extends Controller
     }
 
     public function editCategory (Request $request, $id) {
-        $requestData = $request->only(['description']);
+        $requestData = $request->only(['description', 'is_assignable']);
+       
 
         $validator = Validator::make($requestData, [
             'description' => 'required|string|min:3',
