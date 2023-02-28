@@ -46,7 +46,7 @@ class RoleController extends Controller
     }
 
     public function getRoles (Request $request) {
-        $roles = Role::get();
+        $roles = Role::paginate(10);
         $divisions = Division::get();
 
         return response()->json([
