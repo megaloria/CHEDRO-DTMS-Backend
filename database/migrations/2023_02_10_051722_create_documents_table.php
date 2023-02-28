@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->string('tracking_no');
             $table->string('recieved_from');
+            $table->bigInteger('category_id')->unsigned();
             $table->text('description');
             $table->date('date_received');
             $table->timestamps();

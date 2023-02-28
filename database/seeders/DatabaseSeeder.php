@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
             [UserSeeder::class,
             NGASeeder::class,
             ChedOfficeSeeder::class,
-            DocumentTypeSeeder::class]
+            DocumentTypeSeeder::class,
+            CategorySeeder::class]
 
             
         );
