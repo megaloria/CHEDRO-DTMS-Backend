@@ -15,16 +15,20 @@ class CategorySeeder extends Seeder
     {
         $category = [
             [
-                'description' => 'Urgent'
+                'description' => 'Urgent',
+                'is_assignable' => true
             ],
             [
-                'description' => 'Ordinary'
+                'description' => 'Ordinary',
+                'is_assignable' => true
             ],
             [
-                'description' => 'Confidential'
+                'description' => 'Confidential',
+                'is_assignable' => false
             ],
         ];
 
         $category = Category::insert($category);
+
     }
 }
