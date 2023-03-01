@@ -101,7 +101,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                         Route::post('', [DocumentTypeController::class, 'editDocumentType']);
                         Route::delete('', [DocumentTypeController::class, 'deleteDocumentType']);
                     });
-                });   
+                }); 
                 
                 Route::group([
                     'prefix' => '/heis'
