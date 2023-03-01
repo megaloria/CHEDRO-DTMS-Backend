@@ -85,7 +85,7 @@ class DocumentTypeController extends Controller
 
 
     public function getDocumentTypesPaginate (Request $request) {
-        $documents = DocumentType::paginate(10);
+        $documents = DocumentType::paginate(6);
 
         return response()->json(['data' => $documents, 'message' => 'Successfully fetched the document types.'], 200);
     }

@@ -87,7 +87,7 @@ class UserController extends Controller
     }
 
     public function getUsers (Request $request) {
-        $user = User::with('profile')->paginate(10);
+        $user = User::with('profile')->paginate(6);
         $roles = Role::get();
 
         return response()->json([

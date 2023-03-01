@@ -102,7 +102,7 @@ class HEISController extends Controller
 
 
     public function getHEIS (Request $request) {
-        $heiS = Hei::paginate(10);
+        $heiS = Hei::paginate(6);
 
         return response()->json(['data' => $heiS, 'message' => 'Successfully fetched the HEIS.'], 200);
     }
