@@ -11,7 +11,7 @@ use App\Models\Category;
 class CategoryController extends Controller
 {
     public function addCategory (Request $request) {
-        $requestData = $request->only(['description','is_assignable']);
+        $requestData = $request->only(['description', 'is_assignable']);
 
         $validator = Validator::make($requestData, [
             'description' => 'required|string|min:3',
