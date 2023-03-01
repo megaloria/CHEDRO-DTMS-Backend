@@ -71,6 +71,7 @@ class DocumentTypeController extends Controller
         try {
             $documents->code = $requestData['code'];
             $documents->description = $requestData['description'];
+            $documents->days = $requestData['days'];
 
             if ($documents->save()) {
                 return response()->json(['data' => $documents, 'message' => 'Successfully updated the document type.'], 201);

@@ -15,4 +15,8 @@ class DocumentType extends Model
         'description',
         'days'
     ];
+
+    protected $cast = [
+        'days' => 'integer'
+    ];
 }
