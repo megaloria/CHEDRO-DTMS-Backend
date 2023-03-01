@@ -91,7 +91,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 'prefix' => '/document-types'
             ], function () {
                 Route::post('', [DocumentTypeController::class, 'addDocumentType']);
-                Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
+                Route::get('', [DocumentTypeController::class, 'getDocumentTypesPaginate']);
+
         
                 Route::group([
                         'prefix' => '/{document_id}',
@@ -101,6 +102,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
                         Route::post('', [DocumentTypeController::class, 'editDocumentType']);
                         Route::delete('', [DocumentTypeController::class, 'deleteDocumentType']);
                     });
+                });   
+
+                Route::group([
+                'prefix' => '/all-document-types'
+            ], function () {
+                Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
                 });   
                 
                 Route::group([
