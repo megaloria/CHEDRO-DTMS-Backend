@@ -114,7 +114,7 @@ class UserController extends Controller
             'role_id' => 'required|integer|exists:roles,id',
             'prefix' => 'nullable|string|min:2',
             'first_name' => '|string|min:3',
-            'middle_name' => 'nullable|string|min:3',
+            'middle_name' => 'nullable|string|min:2',
             'last_name' => '|string|min:3',
             'suffix' => 'nullable|string|min:2',
             'position_designation' => 'required|string',
@@ -157,7 +157,7 @@ class UserController extends Controller
         $requestData = $request->only('reset_password');
 
         $validator = Validator::make($requestData, [
-            'reset_password' => 'required|string|min:2'
+            'reset_password' => 'required|string|min:8'
         ]);
 
         if ($validator->fails()) {
