@@ -153,35 +153,35 @@ class UserController extends Controller
     }
 
     // RESET PASSWORD
-    // public function editPass (Request $request,$id) {
-    //     $requestData = $request->only('password');
+    public function editPass (Request $request,$id) {
+        $requestData = $request->only('reset_password');
 
-    //     $validator = Validator::make($requestData, [
-    //         'reset_password' => 'required|string|min:2'
-    //     ]);
+        $validator = Validator::make($requestData, [
+            'reset_password' => 'required|string|min:2'
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json(['message' => $validator->errors()->first()], 409);
-    //     }
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
 
-    //     $editPass = User::with('profile')->find($id);
+        $editPass = User::with('profile')->find($id);
 
-    //     if (!$editPass) {
-    //         return response()->json(['message' => 'User not found.'], 404);
-    //     }
+        if (!$editPass) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
 
-    //     try {
-    //         $editPass->password = $requestData['reset_password'];
+        try {
+            $editPass->password = Hash::make($requestData['reset_password']);
 
-    //         if ($editPass->profile->save()) {
-    //             return response()->json(['data' => $editPass, 'message' => 'Successfully updated the password.'], 201);
-    //         }
-    //     } catch (\Exception $e) {
-    //         report($e);
-    //     }
+            if ($editPass->save()) {
+                return response()->json(['data' => $editPass, 'message' => 'Successfully updated the password.'], 201);
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
     
-    //     return response()->json(['message' => 'Failed to update the user'], 400);
-    // }
+        return response()->json(['message' => 'Failed to update the password'], 400);
+    }
 
 
     public function login(Request $request) {
