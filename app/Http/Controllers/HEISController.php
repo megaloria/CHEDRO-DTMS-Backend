@@ -125,6 +125,13 @@ class HEISController extends Controller
         return response()->json(['data' => $provinces, 'message' => 'Successfully fetched the provinces.'], 200);
     }
 
+    public function getMunicipalities()
+    {
+        $municipalities = HEI::select('city_municipality')->distinct()->orderBy('city_municipality')->get();
+
+        return response()->json(['data' => $municipalities, 'message' => 'Successfully fetched the municipalities.'], 200);
+    }
+
     //closing tag///
 
     public function deleteHEI (Request $request, $id) {
