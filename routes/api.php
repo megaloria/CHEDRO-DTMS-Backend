@@ -124,12 +124,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                             Route::delete('', [HEISController::class, 'deleteHEI']);
                         });
                             Route::get('/provinces', [HEISController::class, 'getProvinces']);
-<<<<<<< HEAD
                             Route::get('/municipalities', [HEISController::class, 'getMunicipalities']);
-=======
-                            Route::get('/municipalities', [HEISController::class, 'getMunicipality']);
->>>>>>> 64c25626aa3e5182053dea9123c392133a2fd079
-                       
                     }); 
 
                     Route::group([
