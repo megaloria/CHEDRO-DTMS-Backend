@@ -125,6 +125,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                         });
                             Route::get('/provinces', [HEISController::class, 'getProvinces']);
                             Route::get('/municipalities', [HEISController::class, 'getMunicipalities']);
+                            Route::get('/names', [HEISController::class, 'getNames']);
                     }); 
 
                     Route::group([
