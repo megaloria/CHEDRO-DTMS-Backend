@@ -132,7 +132,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                     ], function () {
                         Route::post('', [NGASController::class, 'addNGA']);
                         Route::get('', [NGASController::class, 'getNGAS']);
-                
+                        Route::get('/all', [NGASController::class, 'getAllNGAS']);
+
                         Route::group([
                                 'prefix' => '/{nga_id}',
                                 'where' => ['nga_id' => '[0-9]+']
@@ -141,6 +142,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                                 Route::post('', [NGASController::class, 'editNGA']);
                                 Route::delete('', [NGASController::class, 'deleteNGA']);
                             });
+                            
                         }); 
 
                         Route::group([
