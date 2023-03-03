@@ -17,7 +17,7 @@ class ChedOfficeSeeder extends Seeder
          $ched = [
             [
                 'code'=> 'OCC',
-                'description' => 'Office Of The Chairperson and Commissioners',
+                'description' => 'Office of the Chairperson and Commissioners',
                 'email' => 'chairperson@ched.gov.ph'
             ],
             [

@@ -105,17 +105,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
                     });
                 });   
 
-                Route::group([
-                'prefix' => '/all-document-types'
-            ], function () {
-                Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
-                });   
+               
+                Route::get('/all-document-types', [DocumentTypeController::class, 'getDocumentTypes']);
+                 
                 
                 Route::group([
                     'prefix' => '/heis'
                 ], function () {
                     Route::post('', [HEISController::class, 'addHEI']);
                     Route::get('', [HEISController::class, 'getHEIS']);
+                    
             
                     Route::group([
                             'prefix' => '/{hei_id}',
@@ -125,6 +124,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
                             Route::post('', [HEISController::class, 'editHEI']);
                             Route::delete('', [HEISController::class, 'deleteHEI']);
                         });
+
+                      
+                            Route::get('/provinces', [HEISController::class, 'getProvinces']);
+                       
                     }); 
 
                     Route::group([
