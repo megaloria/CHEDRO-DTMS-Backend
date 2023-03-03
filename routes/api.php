@@ -123,9 +123,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                             Route::post('', [HEISController::class, 'editHEI']);
                             Route::delete('', [HEISController::class, 'deleteHEI']);
                         });
-
-                      
                             Route::get('/provinces', [HEISController::class, 'getProvinces']);
+                            Route::get('/municipalities', [HEISController::class, 'getMunicipality']);
                        
                     }); 
 
