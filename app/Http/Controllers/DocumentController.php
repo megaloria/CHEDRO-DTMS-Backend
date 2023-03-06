@@ -141,4 +141,11 @@ class DocumentController extends Controller
 
     }
 
+    public function getAllDocuments(){
+
+        $documents = Document::where('series_no');
+
+        return response()->json(['data' => $documents, 'message' => 'Successfully fetched the Documents.'], 200);
+    }
+
 }

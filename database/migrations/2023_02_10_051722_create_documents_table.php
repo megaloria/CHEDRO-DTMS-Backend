@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('document_type_id')->unsigned();
             $table->bigInteger('user_id')->unsigned();
-            $table->string('tracking_no');
+            $table->string('tracking_no')->unique();
+            $table->bigInteger('series_no');
             $table->string('recieved_from');
             $table->bigInteger('category_id')->unsigned();
             $table->text('description');
