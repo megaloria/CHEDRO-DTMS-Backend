@@ -185,7 +185,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     ], function () {
         Route::post('', [DocumentController::class, 'addDocument']);
         Route::get('', [DocumentController::class, 'getDocuments']);
-        Route::get('/all', [DocumentController::class, 'getAllDocuments']);
+        Route::get('/series/{document_type_id}', [DocumentController::class, 'getDocumentSeries'])->where('document_type_id','[0-9]+');
     
         Route::group([
                 'prefix' => '/{document_id}',

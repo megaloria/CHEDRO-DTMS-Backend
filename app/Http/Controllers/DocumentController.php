@@ -141,11 +141,22 @@ class DocumentController extends Controller
 
     }
 
-    public function getAllDocuments(){
+    public function getDocumentSeries(Request $request, $documentTypeId){
 
-        $documents = Document::where('series_no');
+        $validator = Validator::make([
+            'document_type' => $documentTypeId
+        ], [
+            'document_type' => 'required|integer|exists:document_types,id',
+        ]);
 
-        return response()->json(['data' => $documents, 'message' => 'Successfully fetched the Documents.'], 200);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $document = Document::where('document_type_id', $documentTypeId)->orderBy('series_no', 'DESC')->first();
+
+        $seriesNo = $document ? $document->series_no+1 : 1;
+        return response()->json(['data' => $seriesNo, 'message' => 'Successfully fetched the latest series number.'], 200);
     }
 
 }
