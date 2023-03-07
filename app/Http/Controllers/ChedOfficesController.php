@@ -89,6 +89,13 @@ class ChedOfficesController extends Controller
         return response()->json(['data' => $ched, 'message' => 'Successfully fetched the Ched Offices.'], 200);
     }
 
+     public function getAllChedOffices()
+    {
+        $ched = ChedOffice::get();
+
+        return response()->json(['data' => $ched, 'message' => 'Successfully fetched the NGAs.'], 200);
+    }
+
     public function getChedOffice (Request $request, $id) {
         $ched = ChedOffice::find($id);
 
