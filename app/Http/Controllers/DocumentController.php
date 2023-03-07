@@ -163,7 +163,7 @@ class DocumentController extends Controller
     }
 
     public function getDocumentReceive (Request $request) {
-        $users = User::with(['profile', 'role'])->get();
+        $users = User::with(['profile'])->get();
         $documentTypes = DocumentType::get();
         $categories = Category::get();
 
