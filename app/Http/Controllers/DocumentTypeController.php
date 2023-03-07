@@ -90,13 +90,6 @@ class DocumentTypeController extends Controller
         return response()->json(['data' => $documents, 'message' => 'Successfully fetched the document types.'], 200);
     }
 
-    public function getAllDocumentTypes (Request $request) {
-        $documents = DocumentType::get();
-
-        return response()->json(['data' => $documents, 'message' => 'Successfully fetched the document types.'], 200);
-    }
-
-
     public function getDocumentType (Request $request, $id) {
         $documents = DocumentType::find($id);
 

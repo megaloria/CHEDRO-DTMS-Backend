@@ -41,8 +41,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ], function () {
             Route::post('', [UserController::class, 'createUser']);
             Route::get('', [UserController::class, 'getUsers']);
-            Route::get('/all', [UserController::class, 'getAllUsers']);
-
         
             Route::group([
                 'prefix' => '/{user_id}',
@@ -94,9 +92,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ], function () {
                 Route::post('', [DocumentTypeController::class, 'addDocumentType']);
                 Route::get('', [DocumentTypeController::class, 'getDocumentTypes']);
-                Route::get('/all', [DocumentTypeController::class, 'getAllDocumentTypes']);
-
-        
+               
                 Route::group([
                         'prefix' => '/{document_id}',
                         'where' => ['document_id' => '[0-9]+']
@@ -185,7 +181,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     ], function () {
         Route::post('', [DocumentController::class, 'addDocument']);
         Route::get('', [DocumentController::class, 'getDocuments']);
+        Route::get('/receive', [DocumentController::class, 'getDocumentReceive']);
         Route::get('/series/{document_type_id}', [DocumentController::class, 'getDocumentSeries'])->where('document_type_id','[0-9]+');
+        
     
         Route::group([
                 'prefix' => '/{document_id}',

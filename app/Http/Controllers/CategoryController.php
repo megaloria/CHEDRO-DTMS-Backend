@@ -77,7 +77,6 @@ class CategoryController extends Controller
     }
 
     public function getCategories (Request $request) {
-        // $ched = ChedOffice::paginate(10);
         $categories = Category::get();
 
         return response()->json(['data' => $categories, 'message' => 'Successfully fetched the Categories.'], 200);

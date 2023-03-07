@@ -98,27 +98,6 @@ class UserController extends Controller
             'message'=> 'Successfully fetched the users.' ], 200);
     }
 
-    public function getAllUsers (Request $request) {
-        $users = User::with('profile')->get();
-        $roles = Role::get();
-    
-        $usersData = $users->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'first_name' => $user->profile->first_name,
-                'last_name' => $user->profile->last_name,
-            ];
-        });
-
-            return response()->json([
-                'data' => [
-                    'users' => $usersData,
-                    'roles' => $roles
-                ],
-                'message' => 'Successfully fetched the users.',
-            ], 200);
-    }
-
     public function getUser (Request $request, $id) {
         $user = User::find($id);
         

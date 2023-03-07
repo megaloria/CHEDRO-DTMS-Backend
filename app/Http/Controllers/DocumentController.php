@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Document;
 use App\Models\Attachment;
+use App\Models\User;
+use App\Models\Category;
+use App\Models\DocumentType;
 
 
 class DocumentController extends Controller 
@@ -158,5 +161,22 @@ class DocumentController extends Controller
         $seriesNo = $document ? $document->series_no+1 : 1;
         return response()->json(['data' => $seriesNo, 'message' => 'Successfully fetched the latest series number.'], 200);
     }
+
+    public function getDocumentReceive (Request $request) {
+        $users = User::with(['profile', 'role'])->get();
+        $documentTypes = DocumentType::get();
+        $categories = Category::get();
+
+            return response()->json([
+                'data' => [
+                    'users' => $users,
+                    'documentTypes' => $documentTypes,
+                    'categories' => $categories,
+                ],
+                'message' => 'Successfully fetched the data.',
+            ], 200);
+    }
+
+    
 
 }
