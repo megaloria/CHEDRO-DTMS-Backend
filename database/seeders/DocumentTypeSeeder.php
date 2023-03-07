@@ -26,12 +26,12 @@ class DocumentTypeSeeder extends Seeder
             ],
             [
                 'code'=> '23-02',
-                'description' => 'Additional major',
+                'description' => 'Additional Major',
                 'days' => '3'
             ],
             [
                 'code'=> '23-03',
-                'description' => 'Change of nomenclature',
+                'description' => 'Change of Nomenclature',
                 'days' => '3'
             ],
             [
@@ -71,7 +71,7 @@ class DocumentTypeSeeder extends Seeder
             ],
             [
                 'code'=> '23-11',
-                'description' => 'Communication from/to other agencies ',
+                'description' => 'Communication from/to Other Agencies ',
                 'days' => '3'
             ],
             [
@@ -86,7 +86,7 @@ class DocumentTypeSeeder extends Seeder
             ],
             [
                 'code'=> '23-14',
-                'description' => 'Foreign student data',
+                'description' => 'Foreign Student Data',
                 'days' => '3'
             ],
             [
