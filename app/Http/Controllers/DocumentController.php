@@ -16,17 +16,17 @@ use App\Models\DocumentType;
 class DocumentController extends Controller 
 {
     public function addDocument (Request $request) {
-        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'description', 'date_received','file_name','file_title']);
+        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'description', 'date_received','attachment']);
 
         $validator = Validator::make($requestData, [
             'document_type_id' => 'required|integer|exists:document_types,id',
             'user_id' => 'required|integer|exists:users,id',
-            'tracking_no' => 'required|present|string',
-            'recieved_from' => 'required|present|string',
-            'description' => 'required|present|string',
+            'tracking_no' => 'required|string',
+            'recieved_from' => 'required|string',
+            'description' => 'required|string|min:5',
             'date_received' => 'required|date',
-            'category_id' => 'required|present|string',
-            // 'file_name' => 'required|string',
+            'category_id' => 'required|string',
+            'attachment' => 'file',
             // 'file_title' => 'required|string'
         ]);
 
@@ -44,13 +44,13 @@ class DocumentController extends Controller
                 'recieved_from' => $requestData['recieved_from'],
                 'description' => $requestData['description'],
                 'date_received' => $requestData['date_received'],
+                'category_id' => $requestData['category_id'],
             ]);
  
             if ($document->save()) {
                 $attachment = new Attachment([
                     'document_id' => $document->id,
-                    'file_name'    => $requestData['file_name'],
-                    'file_title'   => $requestData['file_title'],
+                    'attachment'    => $requestData['attachment'],
                 ]);
 
                 $attachment->save();
@@ -74,7 +74,7 @@ class DocumentController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'document_type_id' => 'required|integer|exists:document_types,id',
             'tracking_no' => 'required|string',
-            'recieved_from' => 'required|string|min:3',
+            'recieved_from' => 'required|integer|min:3',
             'description' => 'required|present|string',
             'date_received' => 'required|date',
         ]);
