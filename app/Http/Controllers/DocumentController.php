@@ -22,11 +22,10 @@ class DocumentController extends Controller
             'document_type_id' => 'required|integer|exists:document_types,id',
             'user_id' => 'required|integer|exists:users,id',
             'tracking_no' => 'required|present|string',
-            'recieved_from' => 'required|string',
-            'category_id' => 'required|present|string',
+            'recieved_from' => 'required|present|string',
             'description' => 'required|present|string',
             'date_received' => 'required|date',
-            
+            'category_id' => 'required|present|string',
             // 'file_name' => 'required|string',
             // 'file_title' => 'required|string'
         ]);
@@ -46,13 +45,13 @@ class DocumentController extends Controller
                 'category_id' => $requestData['category_id'],
                 'description' => $requestData['description'],
                 'date_received' => $requestData['date_received'],
+                'category_id' => $requestData['category_id'],
             ]);
  
             if ($document->save()) {
                 $attachment = new Attachment([
                     'document_id' => $document->id,
-                    'file_name'    => $requestData['file_name'],
-                    'file_title'   => $requestData['file_title'],
+                    'attachment'    => $requestData['attachment'],
                 ]);
 
                 $attachment->save();
@@ -76,7 +75,7 @@ class DocumentController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'document_type_id' => 'required|integer|exists:document_types,id',
             'tracking_no' => 'required|string',
-            'recieved_from' => 'required|string|min:3',
+            'recieved_from' => 'required|integer|min:3',
             'description' => 'required|present|string',
             'date_received' => 'required|date',
         ]);

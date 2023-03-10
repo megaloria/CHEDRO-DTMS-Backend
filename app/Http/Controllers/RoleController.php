@@ -30,7 +30,8 @@ class RoleController extends Controller
 
             $role = new Role([
                 'description' => $requestData['description'],
-                'level' => $requestData['level'], 'division_id' => $requestData['division_id'],
+                'level' => $requestData['level'], 
+                'division_id' => $requestData['division_id'],
             ]);
 
             if ($role->save()) {
