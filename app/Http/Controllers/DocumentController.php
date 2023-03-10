@@ -16,16 +16,17 @@ use App\Models\DocumentType;
 class DocumentController extends Controller 
 {
     public function addDocument (Request $request) {
-        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'description', 'date_received','file_name','file_title']);
+        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'category_id', 'description', 'date_received']);
 
         $validator = Validator::make($requestData, [
             'document_type_id' => 'required|integer|exists:document_types,id',
             'user_id' => 'required|integer|exists:users,id',
             'tracking_no' => 'required|present|string',
-            'recieved_from' => 'required|present|string',
+            'recieved_from' => 'required|string',
+            'category_id' => 'required|present|string',
             'description' => 'required|present|string',
             'date_received' => 'required|date',
-            'category_id' => 'required|present|string',
+            
             // 'file_name' => 'required|string',
             // 'file_title' => 'required|string'
         ]);
@@ -38,10 +39,11 @@ class DocumentController extends Controller
             DB::beginTransaction();
     
             $document = new Document([
-                'user_id' => $requestData['user_id'],
                 'document_type_id' => $requestData['document_type_id'],
+                'user_id' => $requestData['user_id'],
                 'tracking_no' => $requestData['tracking_no'],
                 'recieved_from' => $requestData['recieved_from'],
+                'category_id' => $requestData['category_id'],
                 'description' => $requestData['description'],
                 'date_received' => $requestData['date_received'],
             ]);
