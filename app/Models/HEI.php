@@ -19,4 +19,8 @@ class Hei extends Model
         'head_of_institution',
         'email'
     ];
+
+    public function sender(){
+        return $this->morphOne('App\Models\Sender','receivable');
+    }
 }
