@@ -15,4 +15,8 @@ class ChedOffice extends Model
         'description',
         'email'
     ];
+
+    public function sender(){
+        return $this->morphOne('App\Models\Sender','receivable');
+    }
 }
