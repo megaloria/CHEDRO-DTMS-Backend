@@ -5,18 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Nga extends Model
+class Sender extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'id',
-        'code',
-        'description',
-        'email'
+        'receivable_table',
+        'receivable_id',
+        'name'
     ];
 
-    public function sender(){
-        return $this->morphOne('App\Models\Sender','receivable');
+    public function receivable() 
+    {
+        return $this->morphTo();
     }
+
+    
 }
