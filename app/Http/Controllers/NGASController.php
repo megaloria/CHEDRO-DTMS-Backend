@@ -117,7 +117,7 @@ class NGASController extends Controller
     {
         $nga = Nga::get();
 
-        return response()->json(['data' => $ngas, 'message' => 'Successfully fetched the NGAs.'], 200);
+        return response()->json(['data' => $nga, 'message' => 'Successfully fetched the NGAs.'], 200);
     }
 
     public function getNGA (Request $request, $id) {
