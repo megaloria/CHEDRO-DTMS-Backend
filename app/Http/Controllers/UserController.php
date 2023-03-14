@@ -87,7 +87,31 @@ class UserController extends Controller
     }
 
     public function getUsers (Request $request) {
-        $user = User::with('profile')->paginate(6);
+         $allQuery = $request->query->all();
+
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+       $user = User::when($searchQuery, function ($query, $searchQuery) {
+        $query->where('username', 'like', "%$searchQuery%")
+            ->orWhereHas('profile', function ($query) use ($searchQuery) {
+                $query->where(function ($query) use ($searchQuery) {
+                    $query->where('position_designation', 'like', "%$searchQuery%");
+                });
+            })
+            ->orWhereHas('role', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            });
+    })
+    ->with('profile', 'role')
+    ->paginate(6);
         $roles = Role::get();
 
         return response()->json([

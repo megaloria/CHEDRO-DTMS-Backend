@@ -47,7 +47,24 @@ class RoleController extends Controller
     }
 
     public function getRoles (Request $request) {
-        $roles = Role::paginate(6);
+        $allQuery = $request->query->all();
+
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+        $roles = Role::when($searchQuery, function ($query, $searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%")
+                    ->orWhereHas('division', function ($query) use ($searchQuery) {
+                        $query->where('description', 'like', "%$searchQuery%");
+                    });
+            })->paginate(6);
         $divisions = Division::get();
 
         return response()->json([

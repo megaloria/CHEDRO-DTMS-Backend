@@ -147,19 +147,28 @@ class HEISController extends Controller
         return response()->json(['data' => $provinces, 'message' => 'Successfully fetched the provinces.'], 200);
     }
 
-    public function getMunicipalities()
+    public function getMunicipalities($province)
     {
-        $municipalities = HEI::select('city_municipality')->distinct()->orderBy('city_municipality')->get();
+
+        $municipalities = HEI::select('city_municipality')
+                ->where('province', '=', $province)
+                ->distinct()
+                ->orderBy('city_municipality')
+                ->get();
 
         return response()->json(['data' => $municipalities, 'message' => 'Successfully fetched the municipalities.'], 200);
     }
-    public function getNames()
+
+    public function getNames($municipality)
     {
-        $names = HEI::select('name')->distinct()->orderBy('name')->get();
+        $names = HEI::select('name')
+            ->where('city_municipality', '=', $municipality)
+            ->distinct()
+            ->orderBy('name')
+            ->get();
 
         return response()->json(['data' => $names, 'message' => 'Successfully fetched the names.'], 200);
     }
-
     //closing tag///
 
     public function deleteHEI (Request $request, $id) {
@@ -179,4 +188,6 @@ class HEISController extends Controller
 
         return response()->json(['message' => 'Failed to delete the HEI.'], 400);
     }
+
+
 }

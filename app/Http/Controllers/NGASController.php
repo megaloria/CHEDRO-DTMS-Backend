@@ -92,7 +92,7 @@ class NGASController extends Controller
 
 
     public function getNGAS (Request $request) {
-      $allQuery = $request->query->all();
+        $allQuery = $request->query->all();
 
         $validator = Validator::make($allQuery, [
             'query' => 'present|nullable|string'
@@ -104,11 +104,11 @@ class NGASController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        $ngas = Nga::when($searchQuery, function ($query, $searchQuery) {
-                $query->where('code', 'like', "%$searchQuery%")
-                    ->orWhere('description', 'like', "%$searchQuery%");
-            })
-            ->paginate(6);
+        $nga = Nga::when($searchQuery, function ($query, $searchQuery) {
+            $query->where('code','like',"%$searchQuery%")
+                ->orWhere('description','like',"%$searchQuery%");
+        })
+        ->paginate(6);
 
         return response()->json(['data' => $ngas, 'message' => 'Successfully fetched the Ched Offices.'], 200);
     }
