@@ -11,23 +11,23 @@ use App\Models\Attachment;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\DocumentType;
+use App\Models\Sender;
 
 
 class DocumentController extends Controller 
 {
     public function addDocument (Request $request) {
-        $requestData = $request->only(['document_type_id', 'user_id', 'tracking_no', 'recieved_from', 'category_id', 'description', 'date_received']);
+        $requestData = $request->only(['user_id', 'document_type_id', 'tracking_no', 'attachment', 'date_received', 'sender_id', 'description', 'category_id']);
 
         $validator = Validator::make($requestData, [
-            'document_type_id' => 'required|integer|exists:document_types,id',
             'user_id' => 'required|integer|exists:users,id',
+            'document_type_id' => 'required|integer|exists:document_types,id',
             'tracking_no' => 'required|present|string',
-            'recieved_from' => 'required|present|string',
-            'description' => 'required|present|string',
+            'attachment' => 'file',
             'date_received' => 'required|date',
-            'category_id' => 'required|present|string',
-            // 'file_name' => 'required|string',
-            // 'file_title' => 'required|string'
+            'sender_id' => 'required|integer',
+            'description' => 'required|present|string',
+            'category_id' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -36,19 +36,23 @@ class DocumentController extends Controller
 
         try {
             DB::beginTransaction();
-    
+
             $document = new Document([
-                'document_type_id' => $requestData['document_type_id'],
                 'user_id' => $requestData['user_id'],
+                'document_type_id' => $requestData['document_type_id'],
                 'tracking_no' => $requestData['tracking_no'],
-                'recieved_from' => $requestData['recieved_from'],
-                'category_id' => $requestData['category_id'],
-                'description' => $requestData['description'],
+                'attachment' => $requestData['attachment'],
                 'date_received' => $requestData['date_received'],
-                'category_id' => $requestData['category_id'],
+                'sender_id' => $requestData['sender_id'],
+                'description' => $requestData['description'],
+                'category_id' => $requestData['category_id'], 
             ]);
  
             if ($document->save()) {
+                $sender = new Sender();
+                $sender->id = $requestData['sender_id'];
+                $sender->save();
+
                 $attachment = new Attachment([
                     'document_id' => $document->id,
                     'attachment'    => $requestData['attachment'],
@@ -94,7 +98,7 @@ class DocumentController extends Controller
             $document->user_id = $requestData['user_id'];
             $document->document_type_id = $requestData['document_type_id'];
             $document->tracking_no = $requestData['tracking_no'];
-            $document->recieved_from = $requestData['recieved_from'];
+            $document->sender_id = $requestData['sender_id'];
             $document->description = $requestData['description'];
             $document->date_received = $requestData['date_received']; 
           
