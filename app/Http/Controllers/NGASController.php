@@ -115,7 +115,7 @@ class NGASController extends Controller
 
     public function getAllNGAS()
     {
-        $ngas = Nga::get();
+        $nga = Nga::get();
 
         return response()->json(['data' => $ngas, 'message' => 'Successfully fetched the NGAs.'], 200);
     }
