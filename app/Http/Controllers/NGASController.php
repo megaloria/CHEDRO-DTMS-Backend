@@ -110,7 +110,7 @@ class NGASController extends Controller
         })
         ->paginate(6);
 
-        return response()->json(['data' => $ngas, 'message' => 'Successfully fetched the Ched Offices.'], 200);
+        return response()->json(['data' => $nga, 'message' => 'Successfully fetched the Ched Offices.'], 200);
     }
 
     public function getAllNGAS()
