@@ -102,9 +102,31 @@ class HEISController extends Controller
 
 
     public function getHEIS (Request $request) {
-        $heiS = Hei::paginate(6);
+            $allQuery = $request->query->all();
+      
+              $validator = Validator::make($allQuery, [
+                  'query' => 'present|nullable|string'
+              ]);
+      
+              if ($validator->fails()) {
+                  return response()->json(['message' => $validator->errors()->first()], 409);
+              }
+      
+              $searchQuery = $allQuery['query'];
+      
+              $heiS = HEI::when($searchQuery, function ($query, $searchQuery) {
+                      $query->where('name', 'like', "%$searchQuery%")
+                          ->orWhere('province', 'like', "%$searchQuery%")
+                          ->orWhere('head_of_institution', 'like', "%$searchQuery%")
+                          ->orWhere('uii', 'like', "%$searchQuery%");
 
-        return response()->json(['data' => $heiS, 'message' => 'Successfully fetched the HEIS.'], 200);
+
+                  })
+                  ->paginate(6);
+      
+              return response()->json(['data' => $heiS, 'message' => 'Successfully fetched the Ched Offices.'], 200);
+          
+      
     }
 
 

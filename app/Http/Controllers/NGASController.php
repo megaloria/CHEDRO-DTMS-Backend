@@ -88,10 +88,29 @@ class NGASController extends Controller
         return response()->json(['message' => 'Failed to update the NGA.'], 400);
     }
 
-    public function getNGAS (Request $request) {
-        $nga = Nga::paginate(6);
 
-        return response()->json(['data' => $nga, 'message' => 'Successfully fetched the NGAs.'], 200);
+
+
+    public function getNGAS (Request $request) {
+      $allQuery = $request->query->all();
+
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+        $ngas = Nga::when($searchQuery, function ($query, $searchQuery) {
+                $query->where('code', 'like', "%$searchQuery%")
+                    ->orWhere('description', 'like', "%$searchQuery%");
+            })
+            ->paginate(6);
+
+        return response()->json(['data' => $ngas, 'message' => 'Successfully fetched the Ched Offices.'], 200);
     }
 
     public function getAllNGAS()
