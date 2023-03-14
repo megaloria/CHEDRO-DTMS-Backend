@@ -127,7 +127,6 @@ class HEISController extends Controller
 
     public function getMunicipalities($province)
     {
-        $provinces = HEI::select('province')->distinct()->orderBy('province')->get();
 
         $municipalities = HEI::select('city_municipality')
                 ->where('province', '=', $province)
@@ -138,9 +137,13 @@ class HEISController extends Controller
         return response()->json(['data' => $municipalities, 'message' => 'Successfully fetched the municipalities.'], 200);
     }
 
-    public function getNames()
+    public function getNames($municipality)
     {
-        $names = HEI::select('name')->distinct()->orderBy('name')->get();
+        $names = HEI::select('name')
+            ->where('city_municipality', '=', $municipality)
+            ->distinct()
+            ->orderBy('name')
+            ->get();
 
         return response()->json(['data' => $names, 'message' => 'Successfully fetched the names.'], 200);
     }

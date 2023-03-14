@@ -120,7 +120,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                         });
                             Route::get('/provinces', [HEISController::class, 'getProvinces']);
                             Route::get('/municipalities/{provinces}', [HEISController::class, 'getMunicipalities']);
-                            Route::get('/names', [HEISController::class, 'getNames']);
+                            Route::get('/names/{municipalities}', [HEISController::class, 'getNames']);
                     }); 
 
                     Route::group([
