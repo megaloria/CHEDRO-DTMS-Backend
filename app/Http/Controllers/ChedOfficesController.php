@@ -83,8 +83,23 @@ class ChedOfficesController extends Controller
     }
 
     public function getChedOffices (Request $request) {
-        $ched = ChedOffice::paginate(6);
-    
+        $allQuery = $request->query->all();
+
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+        $ched = ChedOffice::when($searchQuery, function ($query, $searchQuery) {
+                $query->where('code', 'like', "%$searchQuery%")
+                    ->orWhere('description', 'like', "%$searchQuery%");
+            })
+            ->paginate(6);
 
         return response()->json(['data' => $ched, 'message' => 'Successfully fetched the Ched Offices.'], 200);
     }
@@ -93,8 +108,9 @@ class ChedOfficesController extends Controller
     {
         $ched = ChedOffice::get();
 
-        return response()->json(['data' => $ched, 'message' => 'Successfully fetched the NGAs.'], 200);
+        return response()->json(['data' => $ched, 'message' => 'Successfully fetched the Ched Offices.'], 200);
     }
+
 
     public function getChedOffice (Request $request, $id) {
         $ched = ChedOffice::find($id);
