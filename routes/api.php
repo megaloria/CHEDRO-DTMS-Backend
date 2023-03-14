@@ -108,7 +108,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 ], function () {
                     Route::post('', [HEISController::class, 'addHEI']);
                     Route::get('', [HEISController::class, 'getHEIS']);
-                    
+                 
             
                     Route::group([
                             'prefix' => '/{hei_id}',
@@ -119,8 +119,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                             Route::delete('', [HEISController::class, 'deleteHEI']);
                         });
                             Route::get('/provinces', [HEISController::class, 'getProvinces']);
-                            Route::get('/municipalities', [HEISController::class, 'getMunicipalities']);
-                            Route::get('/names', [HEISController::class, 'getNames']);
+                            Route::get('/municipalities/{provinces}', [HEISController::class, 'getMunicipalities']);
+                            Route::get('/names/{municipalities}', [HEISController::class, 'getNames']);
                     }); 
 
                     Route::group([
