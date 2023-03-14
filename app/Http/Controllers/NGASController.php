@@ -48,6 +48,11 @@ class NGASController extends Controller
         return response()->json(['message' => 'Failed to add the NGA.'], 400);
     }
 
+
+
+
+    
+
     public function editNGA (Request $request,$id) {
         $requestData = $request->only(['code','description','email']);
 

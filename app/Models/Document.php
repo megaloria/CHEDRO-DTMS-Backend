@@ -14,7 +14,7 @@ class Document extends Model
         'document_type_id',
         'user_id',
         'tracking_no',
-        'recieved_from',
+        'sender_id',
         'category_id',
         'description',
         'date_received'
@@ -22,7 +22,8 @@ class Document extends Model
 
     protected $casts = [
         'document_type_id' => 'integer',
-        'user_id' => 'integer'
+        'user_id' => 'integer',
+        'sender_id' => 'integer'
     ];
 
     public function user() {
@@ -35,5 +36,10 @@ class Document extends Model
 
     public function attachments() {
          return $this->hasMany('App\Models\Attachment');
+    }
+
+
+    public function sender(){
+        return $this->belongsTo('App\Models\Sender');
     }
 }
