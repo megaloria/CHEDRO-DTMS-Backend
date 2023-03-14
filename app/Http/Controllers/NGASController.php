@@ -89,7 +89,23 @@ class NGASController extends Controller
     }
 
     public function getNGAS (Request $request) {
-        $nga = Nga::paginate(6);
+        $allQuery = $request->query->all();
+
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+        $nga = Nga::when($searchQuery, function ($query, $searchQuery) {
+            $query->where('code','like',"%$searchQuery%")
+                ->orWhere('description','like',"%$searchQuery%");
+        })
+        ->paginate(6);
 
         return response()->json(['data' => $nga, 'message' => 'Successfully fetched the NGAs.'], 200);
     }
