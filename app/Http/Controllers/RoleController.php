@@ -60,7 +60,10 @@ class RoleController extends Controller
         $searchQuery = $allQuery['query'];
 
         $roles = Role::when($searchQuery, function ($query, $searchQuery) {
-                $query->where('description', 'like', "%$searchQuery%");
+                $query->where('description', 'like', "%$searchQuery%")
+                    ->orWhereHas('division', function ($query) use ($searchQuery) {
+                        $query->where('description', 'like', "%$searchQuery%");
+                    });
             })->paginate(6);
         $divisions = Division::get();
 

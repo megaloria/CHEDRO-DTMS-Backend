@@ -99,9 +99,19 @@ class UserController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        $user = User::when($searchQuery, function ($query, $searchQuery) {
-                $query->where('username', 'like', "%$searchQuery%");
-            })->with('profile')->paginate(6);
+       $user = User::when($searchQuery, function ($query, $searchQuery) {
+        $query->where('username', 'like', "%$searchQuery%")
+            ->orWhereHas('profile', function ($query) use ($searchQuery) {
+                $query->where(function ($query) use ($searchQuery) {
+                    $query->where('position_designation', 'like', "%$searchQuery%");
+                });
+            })
+            ->orWhereHas('role', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            });
+    })
+    ->with('profile', 'role')
+    ->paginate(6);
         $roles = Role::get();
 
         return response()->json([
