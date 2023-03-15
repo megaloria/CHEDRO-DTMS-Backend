@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sender', function (Blueprint $table) {
+        Schema::create('senders', function (Blueprint $table) {
             $table->id();
-            $table->morphs('receivable');
+            $table->nullableMorphs('receivable');
             $table->string('name')->nullable();
             $table->timestamps();
         });
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sender');
+        Schema::dropIfExists('senders');
     }
 };
