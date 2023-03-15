@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 use App\Models\Document;
 use App\Models\Attachment;
@@ -12,53 +14,99 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\DocumentType;
 use App\Models\Sender;
+use App\Models\Hei;
+use App\Models\Nga;
+use App\Models\ChedOffice;
 
 
 class DocumentController extends Controller 
 {
     public function addDocument (Request $request) {
-        $requestData = $request->only(['user_id', 'document_type_id', 'tracking_no', 'attachment', 'date_received', 'sender_id', 'description', 'category_id']);
+        $user = $request->user();
 
-        $validator = Validator::make($requestData, [
-            'user_id' => 'required|integer|exists:users,id',
-            'document_type_id' => 'required|integer|exists:document_types,id',
-            'tracking_no' => 'required|present|string',
-            'attachment' => 'file',
+        $requestData = $request->only(['document_type_id', 'date_received', 'receivable_type', 'receivable_id', 'receivable_name', 'description', 'category_id']);
+        $requestFile = $request->file('attachment');
+
+        $validator = Validator::make(array_merge($requestData, [
+            'attachment' => $requestFile
+        ]), [
+            'document_type_id' => 'required|integer',
+            'attachment' => 'nullable|file',
             'date_received' => 'required|date',
-            'sender_id' => 'required|integer',
-            'description' => 'required|present|string',
-            'category_id' => 'required|string',
+            'receivable_type' => 'required|string|in:HEIs,NGAs,CHED Offices,Others',
+            'receivable_name' => 'required_if:receivable_type,Others',
+            'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
+            'description' => 'required|string',
+            'category_id' => 'required|integer|exists:categories,id'
         ]);
 
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
+        $documentType = DocumentType::find($requestData['document_type_id']);
+        if (!$documentType) {
+            return response()->json(['message' => 'Document type not found'], 404);
+        }
+
+        $latestDocument = Document::where('document_type_id', $documentType->id)->orderBy('series_no', 'DESC')->first();
+        $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
+        $trackingNo = Carbon::parse($requestData['date_received'])->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
+
         try {
             DB::beginTransaction();
+            
+            $receivable = null;
+            switch ($requestData['receivable_type']) {
+                case 'HEIs':
+                    $receivable = Hei::find($requestData['receivable_id']);
+                    break;
+                case 'NGAs':
+                    $receivable = Nga::find($requestData['receivable_id']);
+                    break;
+                case 'CHED Offices':
+                    $receivable = ChedOffice::find($requestData['receivable_id']);
+                    break;
+                default:
+                    $receivable = 'Others';
+            }
+
+            if (!$receivable) {
+                return response()->json(['message' => 'Received from not found'], 404);
+            }
+
+            $sender = new Sender();
+            if ($receivable === 'Others') {
+                $sender->name = $requestData['receivable_name'];
+            } else {
+                $sender->receivable()->associate($receivable);
+            }
+            $sender->save();          
 
             $document = new Document([
-                'user_id' => $requestData['user_id'],
-                'document_type_id' => $requestData['document_type_id'],
-                'tracking_no' => $requestData['tracking_no'],
-                'attachment' => $requestData['attachment'],
+                'user_id' => $user->id,
+                'document_type_id' => $documentType->id,
+                'tracking_no' => $trackingNo,
                 'date_received' => $requestData['date_received'],
-                'sender_id' => $requestData['sender_id'],
+                'sender_id' => $sender->id,
                 'description' => $requestData['description'],
-                'category_id' => $requestData['category_id'], 
+                'category_id' => $requestData['category_id'],
+                'series_no' => $seriesNo
             ]);
  
             if ($document->save()) {
-                $sender = new Sender();
-                $sender->id = $requestData['sender_id'];
-                $sender->save();
 
-                $attachment = new Attachment([
-                    'document_id' => $document->id,
-                    'attachment'    => $requestData['attachment'],
-                ]);
-
-                $attachment->save();
+                if ($requestFile) {
+                    $hash = Str::random(40);
+                    $ext = $requestFile->getClientOriginalExtension();
+                    $fileName = $requestFile->storeAs('/'.$document->id, $hash.'.'.$ext, 'document_files');
+                    $attachment = new Attachment([
+                        'document_id' => $document->id,
+                        'file_name' => $fileName,
+                        'file_title' => $requestFile->getClientOriginalName()
+                    ]);
+                    $attachment->save();
+                }
 
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
