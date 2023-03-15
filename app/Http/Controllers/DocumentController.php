@@ -49,9 +49,10 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document type not found'], 404);
         }
 
-        $latestDocument = Document::where('document_type_id', $documentType->id)->orderBy('series_no', 'DESC')->first();
+        $dateReceived = Carbon::parse($requestData['date_received']);
+        $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
         $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
-        $trackingNo = Carbon::parse($requestData['date_received'])->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
+        $trackingNo = $dateReceived->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
 
         try {
             DB::beginTransaction();
@@ -162,9 +163,9 @@ class DocumentController extends Controller
     }
     
     public function getDocuments (Request $request) {
-        $document = Document::with('attachments')->get();
+        $documents = Document::with(['attachments','sender.receivable'])->get();
 
-        return response()->json(['data' => $document,  'message' => 'Successfully fetched the documents.'], 200);
+        return response()->json(['data' => $documents,  'message' => 'Successfully fetched the documents.'], 200);
     }
 
     
