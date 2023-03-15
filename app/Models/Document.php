@@ -17,13 +17,15 @@ class Document extends Model
         'sender_id',
         'category_id',
         'description',
-        'date_received'
+        'date_received',
+        'series_no'
     ];
 
     protected $casts = [
         'document_type_id' => 'integer',
         'user_id' => 'integer',
-        'sender_id' => 'integer'
+        'sender_id' => 'integer',
+        'series_no' => 'integer'
     ];
 
     public function user() {
