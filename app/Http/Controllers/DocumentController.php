@@ -163,15 +163,24 @@ class DocumentController extends Controller
     }
     
     public function getDocuments (Request $request) {
-        $documents = Document::with(['attachments','sender.receivable'])->get();
+        $documents = Document::with(['attachments','sender.receivable'])->paginate();
+        $documentType = DocumentType::get();
+        $category = Category::get();
 
-        return response()->json(['data' => $documents,  'message' => 'Successfully fetched the documents.'], 200);
+        return response()->json([
+            'data' => [
+                'documents' => $documents,
+                'documentType' => $documentType,
+                'category' => $category
+            ],
+            'message' => 'Successfully fetched the documents.'
+        ], 200);
     }
 
     
     public function getDocument (Request $request, $id) {
         $document = Document::find($id);
-
+        
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
         }
