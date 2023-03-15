@@ -56,6 +56,23 @@ return [
             'throw' => false,
         ],
 
+        'document_files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/document_files'),
+            'visibility' => 'private',
+            'url' => env('APP_URL') . '/ched_4_dtms_df',
+            'dir' => 'ched_4_dtms_df',
+            'permissions' => [
+                'file' => [
+                    'public' => 0664,
+                    'private' => 0600
+                ],
+                'dir' => [
+                    'public' => 0775,
+                    'private' => 0700
+                ]
+            ]
+        ],
     ],
 
     /*
