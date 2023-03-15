@@ -15,127 +15,127 @@ class DocumentTypeSeeder extends Seeder
     {
         $document_types = [
             [
-                'code'=> '23-00',
+                'code'=> '00',
                 'description' => 'Application/COPC',
                 'days' => '40'
             ],
             [
-                'code'=> '23-01',
+                'code'=> '01',
                 'description' => 'Curriculum',
                 'days' => '3'
             ],
             [
-                'code'=> '23-02',
+                'code'=> '02',
                 'description' => 'Additional Major',
                 'days' => '3'
             ],
             [
-                'code'=> '23-03',
+                'code'=> '03',
                 'description' => 'Change of Nomenclature',
                 'days' => '3'
             ],
             [
-                'code'=> '23-04',
+                'code'=> '04',
                 'description' => 'NSTP Enrollment/Request',
                 'days' => '3'
             ],
             [
-                'code'=> '23-05',
+                'code'=> '05',
                 'description' => 'Request for Data/Certification',
                 'days' => '3'
             ],
             [
-                'code'=> '23-06',
+                'code'=> '06',
                 'description' => 'SEC Endorsement',
                 'days' => '3'
             ],
             [
-                'code'=> '23-07',
+                'code'=> '07',
                 'description' => 'COR for LUCs',
                 'days' => '3'
             ],
             [
-                'code'=> '23-08',
+                'code'=> '08',
                 'description' => 'TOSF Increase',
                 'days' => '20'
             ],
             [
-                'code'=> '23-09',
+                'code'=> '09',
                 'description' => 'Communication from/to CHED Central Office',
                 'days' => '3'
             ],
             [
-                'code'=> '23-10',
+                'code'=> '10',
                 'description' => 'Complaint',
                 'days' => '20'
             ],
             [
-                'code'=> '23-11',
+                'code'=> '11',
                 'description' => 'Communication from/to Other Agencies ',
                 'days' => '3'
             ],
             [
-                'code'=> '23-12',
+                'code'=> '12',
                 'description' => 'CHED Endorsement',
                 'days' => '3'
             ],
             [
-                'code'=> '23-13',
+                'code'=> '13',
                 'description' => 'Contract of Affiliation/MOA',
                 'days' => '3'
             ],
             [
-                'code'=> '23-14',
+                'code'=> '14',
                 'description' => 'Foreign Student Data',
                 'days' => '3'
             ],
             [
-                'code'=> '23-15',
+                'code'=> '15',
                 'description' => 'Email',
                 'days' => '3'
             ],
             [
-                'code'=> '23-16',
+                'code'=> '16',
                 'description' => 'Academic Calendar',
                 'days' => '3'
             ],
             [
-                'code'=> '23-17',
+                'code'=> '17',
                 'description' => 'Other Communications',
                 'days' => '3'
             ],
             [
-                'code'=> '23-18',
+                'code'=> '18',
                 'description' => 'CAV',
                 'days' => '7'
             ],
             [
-                'code'=> '23-19',
+                'code'=> '19',
                 'description' => 'Special Order',
                 'days' => '20'
             ],
             [
-                'code'=> '23-20',
+                'code'=> '20',
                 'description' => 'Scholarship concerns',
                 'days' => '3'
             ],
             [
-                'code'=> '23-21',
+                'code'=> '21',
                 'description' => 'Enrollemnt List',
                 'days' => '3'
             ],
             [
-                'code'=> '23-22',
+                'code'=> '22',
                 'description' => 'Office Memorandum',
                 'days' => '3'
             ],
             [
-                'code'=> '23-23',
+                'code'=> '23',
                 'description' => 'Contracts (COS and JO)',
                 'days' => '3'
             ],
             [
-                'code'=> '23-24',
+                'code'=> '24',
                 'description' => 'Other Administrative matters',
                 'days' => '3'
             ],
