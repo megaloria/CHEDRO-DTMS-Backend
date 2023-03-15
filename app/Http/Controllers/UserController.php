@@ -87,7 +87,7 @@ class UserController extends Controller
     }
 
     public function getUsers (Request $request) {
-         $allQuery = $request->query->all();
+        $allQuery = $request->query->all();
 
         $validator = Validator::make($allQuery, [
             'query' => 'present|nullable|string'
@@ -99,7 +99,7 @@ class UserController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-       $user = User::when($searchQuery, function ($query, $searchQuery) {
+        $user = User::when($searchQuery, function ($query, $searchQuery) {
         $query->where('username', 'like', "%$searchQuery%")
             ->orWhereHas('profile', function ($query) use ($searchQuery) {
                 $query->where(function ($query) use ($searchQuery) {
@@ -109,9 +109,9 @@ class UserController extends Controller
             ->orWhereHas('role', function ($query) use ($searchQuery) {
                 $query->where('description', 'like', "%$searchQuery%");
             });
-    })
-    ->with('profile', 'role')
-    ->paginate(6);
+        })
+        ->with('profile', 'role')
+        ->paginate(6);
         $roles = Role::get();
 
         return response()->json([
