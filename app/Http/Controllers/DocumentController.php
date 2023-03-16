@@ -19,6 +19,7 @@ use App\Models\Nga;
 use App\Models\ChedOffice;
 
 
+
 class DocumentController extends Controller 
 {
     public function addDocument (Request $request) {
@@ -166,12 +167,14 @@ class DocumentController extends Controller
         $documents = Document::with(['attachments','sender.receivable'])->paginate();
         $documentType = DocumentType::get();
         $category = Category::get();
+        $user = User::with(['profile'])->get();
 
         return response()->json([
             'data' => [
                 'documents' => $documents,
                 'documentType' => $documentType,
-                'category' => $category
+                'category' => $category,
+                'user' => $user
             ],
             'message' => 'Successfully fetched the documents.'
         ], 200);
