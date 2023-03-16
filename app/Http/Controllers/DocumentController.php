@@ -164,7 +164,7 @@ class DocumentController extends Controller
     }
     
     public function getDocuments (Request $request) {
-        $documents = Document::with(['attachments','sender.receivable'])->paginate();
+        $documents = Document::with(['attachments','sender.receivable'])->paginate(5);
         $documentType = DocumentType::get();
         $category = Category::get();
         $user = User::with(['profile'])->get();
