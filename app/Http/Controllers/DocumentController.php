@@ -164,7 +164,30 @@ class DocumentController extends Controller
     }
     
     public function getDocuments (Request $request) {
-        $documents = Document::with(['attachments','sender.receivable'])->paginate(5);
+        $allQuery = $request->query->all();
+
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+        $documents = Document::when($searchQuery, function ($query, $searchQuery) {
+            $query->whereHas('documentType', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            })
+            ->orWhereHas('sender', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            })
+            ->orWhereHas('category', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            });
+        })->with(['attachments','sender.receivable'])->paginate(5);
+
         $documentType = DocumentType::get();
         $category = Category::get();
         $user = User::with(['profile'])->get();
@@ -179,7 +202,6 @@ class DocumentController extends Controller
             'message' => 'Successfully fetched the documents.'
         ], 200);
     }
-
     
     public function getDocument (Request $request, $id) {
         $document = Document::find($id);
