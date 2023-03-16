@@ -195,7 +195,7 @@ class DocumentController extends Controller
         $document = Document::find($id);
 
         if (!$document) {
-            return response()->json(['message' => 'Role not found.'], 404);
+            return response()->json(['message' => 'Document not found.'], 404);
         }
 
         try {
