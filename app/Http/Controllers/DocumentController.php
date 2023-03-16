@@ -164,7 +164,7 @@ class DocumentController extends Controller
     }
     
     public function getDocuments (Request $request) {
-        $documents = Document::with(['attachments','sender.receivable'])->paginate();
+        $documents = Document::with(['attachments','sender.receivable'])->paginate(5);
         $documentType = DocumentType::get();
         $category = Category::get();
         $user = User::with(['profile'])->get();
@@ -195,7 +195,7 @@ class DocumentController extends Controller
         $document = Document::find($id);
 
         if (!$document) {
-            return response()->json(['message' => 'Role not found.'], 404);
+            return response()->json(['message' => 'Document not found.'], 404);
         }
 
         try {
