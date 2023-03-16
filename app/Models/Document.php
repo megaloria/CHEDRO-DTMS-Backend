@@ -40,6 +40,9 @@ class Document extends Model
          return $this->hasMany('App\Models\Attachment');
     }
 
+    public function category(){
+        return $this->belongsTo('App\Models\Category');
+    }
 
     public function sender(){
         return $this->belongsTo('App\Models\Sender');
