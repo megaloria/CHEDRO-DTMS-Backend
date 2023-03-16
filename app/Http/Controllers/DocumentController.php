@@ -181,12 +181,16 @@ class DocumentController extends Controller
                 $query->where('description', 'like', "%$searchQuery%");
             })
             ->orWhereHas('sender', function ($query) use ($searchQuery) {
-                $query->where('description', 'like', "%$searchQuery%");
+                $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class, Hei::class], function ($query) use ($searchQuery) {
+                    $query->where('description', 'like', "%$searchQuery%");
+                });
             })
             ->orWhereHas('category', function ($query) use ($searchQuery) {
                 $query->where('description', 'like', "%$searchQuery%");
             });
-        })->with(['attachments','sender.receivable'])->paginate(5);
+        })
+        ->with(['attachments', 'sender.receivable'])
+        ->paginate(5);
 
         $documentType = DocumentType::get();
         $category = Category::get();
