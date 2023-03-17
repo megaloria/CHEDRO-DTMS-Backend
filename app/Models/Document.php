@@ -45,6 +45,6 @@ class Document extends Model
     }
 
     public function sender(){
-        return $this->belongsTo('App\Models\Sender');
+        return $this->belongsTo('App\Models\Sender', 'sender_id');
     }
 }

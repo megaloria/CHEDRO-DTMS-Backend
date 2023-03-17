@@ -17,6 +17,6 @@ class Nga extends Model
     ];
 
     public function sender(){
-        return $this->morphOne('App\Models\Sender','receivable');
+        return $this->morphOne('App\Models\Sender','receivable')->cascadeOnDelete();
     }
 }
