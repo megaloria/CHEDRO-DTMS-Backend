@@ -219,6 +219,7 @@ class DocumentController extends Controller
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
+        
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -226,6 +227,7 @@ class DocumentController extends Controller
 
         try {
             $document->delete();
+            $document->sender()->delete();
 
             return response()->json(['message' => 'Successfully deleted the document.'], 200);
         } catch (\Exception $e) {
