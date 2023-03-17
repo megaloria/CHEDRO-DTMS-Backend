@@ -187,10 +187,18 @@ class DocumentController extends Controller
             })
             ->orWhereHas('category', function ($query) use ($searchQuery) {
                 $query->where('description', 'like', "%$searchQuery%");
+            })
+            ->orWhere(function ($query) use ($searchQuery) {
+                $month = date('m', strtotime($searchQuery));
+                $query->whereYear('date_received', $searchQuery)
+                    ->orWhereMonth('date_received', $month)
+                    ->orWhereDay('date_received', $searchQuery);
             });
         })
         ->with(['attachments', 'sender.receivable'])
         ->paginate(5);
+        
+
 
         $documentType = DocumentType::get();
         $category = Category::get();
