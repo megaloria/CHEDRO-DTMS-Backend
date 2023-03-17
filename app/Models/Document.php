@@ -37,7 +37,7 @@ class Document extends Model
     }
 
     public function attachments() {
-         return $this->hasMany('App\Models\Attachment');
+         return $this->hasOne('App\Models\Attachment');
     }
 
     public function category(){
