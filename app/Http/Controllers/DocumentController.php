@@ -189,6 +189,7 @@ class DocumentController extends Controller
                 $query->where('description', 'like', "%$searchQuery%");
             })
             ->orWhere(function ($query) use ($searchQuery) {
+                $date = date('Y-m-d', strtotime($searchQuery));
                 $month = date('m', strtotime($searchQuery));
                 $query->whereYear('date_received', $searchQuery)
                     ->orWhereMonth('date_received', $month)
