@@ -208,7 +208,7 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments','sender.receivable','user.profile','documentType','category'])->find($id);
+        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category'])->find($id);
         
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
