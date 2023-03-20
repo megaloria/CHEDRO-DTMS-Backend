@@ -124,14 +124,16 @@ class DocumentController extends Controller
 
 
     public function editDocument (Request $request,$id) {
-        $requestData = $request->only(['user_id', 'document_type_id','tracking_no', 'recieved_from','description', 'date_received']);
+        $requestData = $request->only(['document_type_id','attachment', 'date_received', 'receivable_type', 'receivable_name', 'receivable_id', 'description', 'category_id'   ]);
         $validator = Validator::make($requestData, [
-            'user_id' => 'required|integer|exists:users,id',
-            'document_type_id' => 'required|integer|exists:document_types,id',
-            'tracking_no' => 'required|string',
-            'recieved_from' => 'required|integer|min:3',
-            'description' => 'required|present|string',
+            'document_type_id' => 'required|integer',
+            'attachment' => 'nullable|file',
             'date_received' => 'required|date',
+            'receivable_type' => 'required|string|in:HEIs,NGAs,CHED Offices,Others',
+            'receivable_name' => 'required_if:receivable_type,Others',
+            'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
+            'description' => 'required|string',
+            'category_id' => 'required|integer|exists:categories,id'
         ]);
 
         if ($validator->fails()) {
@@ -151,6 +153,11 @@ class DocumentController extends Controller
             $document->sender_id = $requestData['sender_id'];
             $document->description = $requestData['description'];
             $document->date_received = $requestData['date_received']; 
+            $document->receivable_type = $requestData['receivable_type']; 
+            $document->receivable_name = $requestData['receivable_name']; 
+            $document->receivable_id = $requestData['receivable_id']; 
+            $document->description = $requestData['description']; 
+            $document->category_id = $requestData['category_id']; 
           
             if ($document->save()) {
                 return response()->json(['data' => $document, 'message' => 'Successfully updated the document.'], 201);
