@@ -161,9 +161,7 @@ class HEISController extends Controller
 
     public function getNames($municipality)
     {
-        $names = HEI::select('name')
-            ->where('city_municipality', '=', $municipality)
-            ->distinct()
+        $names = HEI::where('city_municipality', '=', $municipality)
             ->orderBy('name')
             ->get();
 
