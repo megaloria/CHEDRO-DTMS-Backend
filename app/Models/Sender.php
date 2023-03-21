@@ -11,7 +11,7 @@ class Sender extends Model
 
     protected $fillable = [
         'id',
-        'receivable_table',
+        'receivable_type',
         'receivable_id',
         'name'
     ];
