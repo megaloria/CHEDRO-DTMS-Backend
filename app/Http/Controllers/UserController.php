@@ -175,7 +175,7 @@ class UserController extends Controller
     }
 
     // RESET PASSWORD
-    public function editPass (Request $request,$id) {
+    public function resetPass (Request $request,$id) {
         $requestData = $request->only('reset_password');
 
         $validator = Validator::make($requestData, [
@@ -252,5 +252,9 @@ class UserController extends Controller
         $request->session()->regenerateToken();
         return response()->json(['message' => 'Successfully logged out.'], 200);
     }
+
+
+   
+    
 }
 

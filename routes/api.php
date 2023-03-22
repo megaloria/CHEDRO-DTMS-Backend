@@ -41,6 +41,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ], function () {
             Route::post('', [UserController::class, 'createUser']);
             Route::get('', [UserController::class, 'getUsers']);
+           
+          
         
             Route::group([
                 'prefix' => '/{user_id}',
@@ -49,6 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::delete('', [UserController::class, 'deleteUser']);
                 Route::get('', [UserController::class, 'getUser']);
                 Route::post('', [UserController::class, 'editUser']);
+                Route::post('/reset', [UserController::class, 'resetPass']);
             });
         });
         
