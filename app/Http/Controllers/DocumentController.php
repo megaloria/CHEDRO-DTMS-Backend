@@ -123,11 +123,12 @@ class DocumentController extends Controller
     }
 
 
-    public function editDocument (Request $request,$id) {
-        $requestData = $request->only(['document_type_id','attachment', 'date_received', 'receivable_type', 'receivable_name', 'receivable_id', 'description', 'category_id'   ]);
+    public function editDocument (Request $request, $id) {
+        $user = $request->user();
+
+        $requestData = $request->only(['document_type_id','attachment', 'date_received', 'receivable_type', 'receivable_name', 'receivable_id', 'description', 'category_id' ]);
         $validator = Validator::make($requestData, [
             'document_type_id' => 'required|integer',
-            'attachment' => 'nullable|file',
             'date_received' => 'required|date',
             'receivable_type' => 'required|string|in:HEIs,NGAs,CHED Offices,Others',
             'receivable_name' => 'required_if:receivable_type,Others',
@@ -146,26 +147,68 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
+        $documentType = DocumentType::find($requestData['document_type_id']);
+        if (!$documentType) {
+            return response()->json(['message' => 'Document type not found'], 404);
+        }
+
+        $dateReceived = Carbon::parse($requestData['date_received']);
+        $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
+        $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
+        $trackingNo = $dateReceived->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
+
         try {
-            $document->user_id = $requestData['user_id'];
-            $document->document_type_id = $requestData['document_type_id'];
-            $document->tracking_no = $requestData['tracking_no'];
-            $document->sender_id = $requestData['sender_id'];
-            $document->description = $requestData['description'];
+            DB::beginTransaction();
+            
+            $receivable = null;
+            switch ($requestData['receivable_type']) {
+                case 'HEIs':
+                    $receivable = Hei::find($requestData['receivable_id']);
+                    break;
+                case 'NGAs':
+                    $receivable = Nga::find($requestData['receivable_id']);
+                    break;
+                case 'CHED Offices':
+                    $receivable = ChedOffice::find($requestData['receivable_id']);
+                    break;
+                default:
+                    $receivable = 'Others';
+            }
+
+            if (!$receivable) {
+                return response()->json(['message' => 'Received from not found'], 404);
+            }
+
+            $sender = $document->sender;
+            if ($receivable === 'Others') {
+                $sender->name = $requestData['receivable_name'];
+                $sender->receivable_type = null;
+                $sender->receivable_id = null;
+            } else {
+                $sender->name = null;
+                $sender->receivable()->associate($receivable);
+            }
+            $sender->save();
+
+            $document->user_id = $user->id;
+            $document->document_type_id = $documentType->id;
+            $document->tracking_no = $trackingNo;
             $document->date_received = $requestData['date_received']; 
-            $document->receivable_type = $requestData['receivable_type']; 
-            $document->receivable_name = $requestData['receivable_name']; 
-            $document->receivable_id = $requestData['receivable_id']; 
-            $document->description = $requestData['description']; 
+            $document->description = $requestData['description'];
+            $document->receivable_type = $requestData['receivable_type'];
             $document->category_id = $requestData['category_id']; 
+            $document->series_no = $seriesNo;
           
             if ($document->save()) {
+                $document->load(['user', 'documentType', 'attachments']);
+                DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully updated the document.'], 201);
             }
         } catch (\Exception$e) {
             report($e);
         }
         
+        DB::rollBack();
         return response()->json(['message' => 'Failed to update the document.'], 400);
 
     }
