@@ -205,6 +205,41 @@ class UserController extends Controller
         return response()->json(['message' => 'Failed to update the password'], 400);
     }
 
+    public function changePass (Request $request) {
+        $requestData = $request->only('password','new_password');
+
+        $validator = Validator::make($requestData, [
+            'password' => 'required|string|min:8',
+            'new_password' => 'required|string|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+       $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized.'], 401);
+        }
+
+        if (!$user || !Hash::check($requestData['password'], $user->password)) {
+            return response()->json(['message' => 'Invalid credentials!'], 409);
+        }
+
+        try {
+            $user->password = Hash::make($requestData['new_password']);
+
+            if ($user->save()) {
+                return response()->json(['data' => $user, 'message' => 'Successfully updated the password.'], 201);
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+    
+        return response()->json(['message' => 'Failed to update the password'], 400);
+    }
+
 
     public function login(Request $request) {
         $requestData = $request->only(['username', 'password']);
