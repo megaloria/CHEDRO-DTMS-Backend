@@ -80,7 +80,10 @@ class DocumentController extends Controller
             $sender = new Sender();
             if ($receivable === 'Others') {
                 $sender->name = $requestData['receivable_name'];
+                $sender->receivable_type = null;
+                $sender->receivable_id = null;
             } else {
+                $sender->name = null;
                 $sender->receivable()->associate($receivable);
             }
             $sender->save();          
@@ -195,7 +198,7 @@ class DocumentController extends Controller
             $document->tracking_no = $trackingNo;
             $document->date_received = $requestData['date_received']; 
             $document->description = $requestData['description'];
-            $document->receivable_type = $requestData['receivable_type'];
+            // $document->receivable_type = $requestData['receivable_type'];
             $document->category_id = $requestData['category_id']; 
             $document->series_no = $seriesNo;
           
