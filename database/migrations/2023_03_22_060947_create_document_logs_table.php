@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('document_logs', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('document_id');
+            $table->bigInteger('from_id');
+            $table->bigInteger('to_id');
+            $table->bigInteger('action_id');
+            $table->bigInteger('acknowledge_id');
+            $table->string('comment');
+            $table->bigInteger('approved_id');
+            $table->bigInteger('rejected_id');
             $table->timestamps();
+
         });
     }
 
