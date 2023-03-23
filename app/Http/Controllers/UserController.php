@@ -217,7 +217,9 @@ class UserController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-       $user = $request->user();
+      
+        try {
+        $user = $request->user();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthorized.'], 401);
@@ -226,9 +228,10 @@ class UserController extends Controller
         if (!$user || !Hash::check($requestData['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials!'], 409);
         }
-
-        try {
-            $user->password = Hash::make($requestData['new_password']);
+             User::where('id', $user->id)->update([
+            'password' => Hash::make($requestData['new_password']),
+            'is_first_login' => false,
+        ]);
 
             if ($user->save()) {
                 return response()->json(['data' => $user, 'message' => 'Successfully updated the password.'], 201);
