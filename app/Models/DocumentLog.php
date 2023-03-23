@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class DocumentLog extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'to_id'
+    ];
 }

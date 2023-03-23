@@ -17,6 +17,7 @@ use App\Models\Sender;
 use App\Models\Hei;
 use App\Models\Nga;
 use App\Models\ChedOffice;
+use App\Models\DocumentLog;
 
 
 
@@ -25,7 +26,7 @@ class DocumentController extends Controller
     public function addDocument (Request $request) {
         $user = $request->user();
 
-        $requestData = $request->only(['document_type_id', 'date_received', 'receivable_type', 'receivable_id', 'receivable_name', 'description', 'category_id']);
+        $requestData = $request->only(['document_type_id', 'date_received', 'receivable_type', 'receivable_id', 'receivable_name', 'description', 'category_id', 'assign_to']);
         $requestFile = $request->file('attachment');
 
         $validator = Validator::make(array_merge($requestData, [
@@ -38,7 +39,9 @@ class DocumentController extends Controller
             'receivable_name' => 'required_if:receivable_type,Others',
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
-            'category_id' => 'required|integer|exists:categories,id'
+            'category_id' => 'required|integer|exists:categories,id',
+            'assign_to' => 'array',
+            'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -111,6 +114,16 @@ class DocumentController extends Controller
                         'file_title' => $requestFile->getClientOriginalName()
                     ]);
                     $attachment->save();
+                }
+
+                if ($requestData['assign_to']) {
+                    $logs = [];
+                    foreach($requestData['assign_to'] as $assignTo) {
+                        $logs[] = new DocumentLog([
+                            'to_id' => $assignTo,
+                        ]);
+                    }
+                    $document->logs()->saveMany($logs);
                 }
 
                 $document->load(['user', 'documentType', 'attachments']);

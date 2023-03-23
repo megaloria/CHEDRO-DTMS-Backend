@@ -47,4 +47,8 @@ class Document extends Model
     public function sender(){
         return $this->belongsTo('App\Models\Sender', 'sender_id');
     }
+
+    public function logs(){
+        return $this->hasMany('App\Models\DocumentLog');
+    }
 }

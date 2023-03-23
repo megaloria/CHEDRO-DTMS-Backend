@@ -13,16 +13,57 @@ return new class extends Migration
     {
         Schema::create('document_logs', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('document_id');
-            $table->bigInteger('from_id');
-            $table->bigInteger('to_id');
-            $table->bigInteger('action_id');
-            $table->bigInteger('acknowledge_id');
-            $table->string('comment');
-            $table->bigInteger('approved_id');
-            $table->bigInteger('rejected_id');
+            $table->bigInteger('document_id')->unsigned()->nullable();
+            $table->bigInteger('from_id')->unsigned()->nullable();
+            $table->bigInteger('to_id')->unsigned()->nullable();
+            $table->bigInteger('action_id')->unsigned()->nullable();
+            $table->bigInteger('acknowledge_id')->unsigned()->nullable();
+            $table->text('comment')->nullable();
+            $table->bigInteger('approved_id')->unsigned()->nullable();
+            $table->bigInteger('rejected_id')->unsigned()->nullable();
             $table->timestamps();
 
+            $table->foreign('document_id')
+                ->references('id')
+                ->on('documents')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreign('from_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
+
+            $table->foreign('to_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
+
+            $table->foreign('action_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
+
+            $table->foreign('acknowledge_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
+
+            $table->foreign('approved_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
+
+            $table->foreign('rejected_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
         });
     }
 
