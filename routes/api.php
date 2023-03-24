@@ -195,6 +195,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::get('', [DocumentController::class, 'getDocument']);
                 Route::post('', [DocumentController::class, 'editDocument']);
                 Route::delete('', [DocumentController::class, 'deleteDocument']);
+                Route::delete('', [DocumentController::class, 'deleteDocument']);
+                Route::delete('/attachment', [DocumentController::class, 'deleteAttachment']);
             });
     });
 });

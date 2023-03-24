@@ -334,6 +334,35 @@ class DocumentController extends Controller
     }
 
     
+public function deleteAttachment(Request $request,$id)
+{
+    $document = Document::find($id);
+    $attachment = Attachment::where('document_id', $document->id)->first();
+
+
+    if (!$attachment) {
+        return response()->json([
+            'message' => 'Attachment not found.'
+        ], 404);
+    }
+    
+    try {
+    $attachment->delete();
+    
+        return response()->json([
+            'message' => 'Successfully deleted the Attachment.'
+        ],200);
+        
+    }catch (\Exception $e) {
+        report($e);
+    }
+
+    return response()->json(['message' => 'Failed to delete the attachment.'], 400);
+
+
+}
+
+    
     
 
 }

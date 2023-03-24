@@ -124,6 +124,7 @@ class RoleController extends Controller
     public function deleteRole (Request $request, $id) {
         $role = Role::find($id);
 
+
         if (!$role) {
             return response()->json(['message' => 'Role not found.'], 404);
         }
