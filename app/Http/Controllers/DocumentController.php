@@ -211,7 +211,6 @@ class DocumentController extends Controller
             $document->tracking_no = $trackingNo;
             $document->date_received = $requestData['date_received']; 
             $document->description = $requestData['description'];
-            // $document->receivable_type = $requestData['receivable_type'];
             $document->category_id = $requestData['category_id']; 
             $document->series_no = $seriesNo;
           
@@ -284,12 +283,14 @@ class DocumentController extends Controller
     
     public function getDocument (Request $request, $id) {
         $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category'])->find($id);
+        $assignTo = DocumentLog::where('document_id', $document->id)->get();
         
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
         }
 
-        return response()->json(['data' => $document, 'message' => 'Successfully fetched the document.'], 200);
+        return response()->json(['data' => $document, 'assignTo' => $assignTo, 'message' => 'Successfully fetched the document.'], 200);
+
     }
 
     public function deleteDocument (Request $request, $id) {
