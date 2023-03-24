@@ -264,8 +264,6 @@ class DocumentController extends Controller
         ->with(['attachments', 'sender.receivable'])
         ->paginate(5);
         
-
-
         $documentType = DocumentType::get();
         $category = Category::get();
         $user = User::with(['profile'])->get();
@@ -282,16 +280,17 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category'])->find($id);
-        $assignTo = DocumentLog::where('document_id', $document->id)->get();
-        
+        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'logs'])->find($id);
+     
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
         }
 
-        return response()->json(['data' => $document, 'assignTo' => $assignTo, 'message' => 'Successfully fetched the document.'], 200);
+        return response()->json(['data' => $document, 'message' => 'Successfully fetched the document.'], 200);
 
     }
+
+   
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
@@ -336,6 +335,7 @@ class DocumentController extends Controller
         $users = User::with(['profile'])->get();
         $documentTypes = DocumentType::get();
         $categories = Category::get();
+        
 
             return response()->json([
                 'data' => [
