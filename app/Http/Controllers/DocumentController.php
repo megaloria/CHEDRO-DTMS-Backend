@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -294,7 +295,8 @@ class DocumentController extends Controller
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
-        
+        Storage::disk('document_files')->deleteDirectory($document->id);
+    
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -352,6 +354,7 @@ public function deleteAttachment(Request $request,$id)
 {
     $document = Document::find($id);
     $attachment = Attachment::where('document_id', $document->id)->first();
+    Storage::disk('document_files')->deleteDirectory($document->id);
 
 
     if (!$attachment) {
