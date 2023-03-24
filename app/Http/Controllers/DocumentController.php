@@ -17,6 +17,7 @@ use App\Models\Sender;
 use App\Models\Hei;
 use App\Models\Nga;
 use App\Models\ChedOffice;
+use App\Models\DocumentLog;
 
 
 
@@ -25,7 +26,7 @@ class DocumentController extends Controller
     public function addDocument (Request $request) {
         $user = $request->user();
 
-        $requestData = $request->only(['document_type_id', 'date_received', 'receivable_type', 'receivable_id', 'receivable_name', 'description', 'category_id']);
+        $requestData = $request->only(['document_type_id', 'date_received', 'receivable_type', 'receivable_id', 'receivable_name', 'description', 'category_id', 'assign_to']);
         $requestFile = $request->file('attachment');
 
         $validator = Validator::make(array_merge($requestData, [
@@ -38,7 +39,9 @@ class DocumentController extends Controller
             'receivable_name' => 'required_if:receivable_type,Others',
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
-            'category_id' => 'required|integer|exists:categories,id'
+            'category_id' => 'required|integer|exists:categories,id',
+            'assign_to' => 'array',
+            'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -111,6 +114,16 @@ class DocumentController extends Controller
                         'file_title' => $requestFile->getClientOriginalName()
                     ]);
                     $attachment->save();
+                }
+
+                if ($requestData['assign_to']) {
+                    $logs = [];
+                    foreach($requestData['assign_to'] as $assignTo) {
+                        $logs[] = new DocumentLog([
+                            'to_id' => $assignTo,
+                        ]);
+                    }
+                    $document->logs()->saveMany($logs);
                 }
 
                 $document->load(['user', 'documentType', 'attachments']);
@@ -198,7 +211,6 @@ class DocumentController extends Controller
             $document->tracking_no = $trackingNo;
             $document->date_received = $requestData['date_received']; 
             $document->description = $requestData['description'];
-            // $document->receivable_type = $requestData['receivable_type'];
             $document->category_id = $requestData['category_id']; 
             $document->series_no = $seriesNo;
           
@@ -252,8 +264,6 @@ class DocumentController extends Controller
         ->with(['attachments', 'sender.receivable'])
         ->paginate(5);
         
-
-
         $documentType = DocumentType::get();
         $category = Category::get();
         $user = User::with(['profile'])->get();
@@ -270,14 +280,17 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category'])->find($id);
-        
+        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'logs'])->find($id);
+     
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
         }
 
         return response()->json(['data' => $document, 'message' => 'Successfully fetched the document.'], 200);
+
     }
+
+   
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
@@ -322,6 +335,7 @@ class DocumentController extends Controller
         $users = User::with(['profile'])->get();
         $documentTypes = DocumentType::get();
         $categories = Category::get();
+        
 
             return response()->json([
                 'data' => [

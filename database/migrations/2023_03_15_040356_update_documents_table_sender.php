@@ -19,9 +19,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('senders')
                 ->restrictOnDelete()
-                ->restrictOnUpdate()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+                ->restrictOnUpdate();
         });
     }
 

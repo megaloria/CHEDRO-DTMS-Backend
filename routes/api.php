@@ -41,9 +41,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ], function () {
             Route::post('', [UserController::class, 'createUser']);
             Route::get('', [UserController::class, 'getUsers']);
+            Route::post('/change-password', [UserController::class, 'changePass']);
            
-          
-        
             Route::group([
                 'prefix' => '/{user_id}',
                 'where' => ['user_id' => '[0-9]+']
