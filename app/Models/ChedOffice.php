@@ -16,6 +16,14 @@ class ChedOffice extends Model
         'email'
     ];
 
+    protected $appends = [
+        'title'
+    ];
+
+    public function getTitleAttribute() {
+        return $this->description;
+    }
+
     public function sender(){
         return $this->morphOne('App\Models\Sender','receivable')->cascadeOnDelete();
     }
