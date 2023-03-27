@@ -176,10 +176,16 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document type not found'], 404);
         }
 
+        $seriesNo = $document->series_no;
+        $trackingNo = $document->tracking_no;
+
         $dateReceived = Carbon::parse($requestData['date_received']);
-        $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
-        $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
-        $trackingNo = $dateReceived->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
+        $dbDateReceived = Carbon::parse($document->date_received);
+        if (!$dateReceived->isSameDay($dbDateReceived) || $document->document_type_id !== $documentType->id) {
+            $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
+            $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
+            $trackingNo = $dateReceived->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
+        }
 
         try {
             DB::beginTransaction();
@@ -363,6 +369,7 @@ class DocumentController extends Controller
         $seriesNo = $document ? $document->series_no+1 : 1;
         return response()->json(['data' => $seriesNo, 'message' => 'Successfully fetched the latest series number.'], 200);
     }
+    
 
     public function getDocumentReceive (Request $request) {
         $users = User::with(['profile'])->get();
