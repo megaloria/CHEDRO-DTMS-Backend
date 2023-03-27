@@ -143,15 +143,22 @@ class DocumentController extends Controller
     public function editDocument (Request $request, $id) {
         $user = $request->user();
 
-        $requestData = $request->only(['document_type_id','attachment', 'date_received', 'receivable_type', 'receivable_name', 'receivable_id', 'description', 'category_id' ]);
-        $validator = Validator::make($requestData, [
+        $requestData = $request->only(['document_type_id','attachment', 'date_received', 'receivable_type', 'receivable_name', 'receivable_id', 'description', 'category_id', 'assign_to' ]);
+        $requestFile = $request->file('attachment');
+
+        $validator = Validator::make(array_merge($requestData, [
+            'attachment' => $requestFile
+        ]), [
             'document_type_id' => 'required|integer',
+            'attachment' => 'nullable|file',
             'date_received' => 'required|date',
             'receivable_type' => 'required|string|in:HEIs,NGAs,CHED Offices,Others',
             'receivable_name' => 'required_if:receivable_type,Others',
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
-            'category_id' => 'required|integer|exists:categories,id'
+            'category_id' => 'required|integer|exists:categories,id',
+            'assign_to' => 'array|nullable',
+            'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -216,6 +223,29 @@ class DocumentController extends Controller
             $document->series_no = $seriesNo;
           
             if ($document->save()) {
+
+                if ($requestFile) {
+                    $hash = Str::random(40);
+                    $ext = $requestFile->getClientOriginalExtension();
+                    $fileName = $requestFile->storeAs('/'.$document->id, $hash.'.'.$ext, 'document_files');
+                    $attachment = new Attachment([
+                        'document_id' => $document->id,
+                        'file_name' => $fileName,
+                        'file_title' => $requestFile->getClientOriginalName()
+                    ]);
+                    $attachment->save();
+                }
+
+                if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+                    $logs = [];
+                    foreach($requestData['assign_to'] as $assignTo) {
+                        $logs[] = new DocumentLog([
+                            'to_id' => $assignTo,
+                        ]);
+                    }
+                    $document->logs()->saveMany($logs);
+                }
+
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully updated the document.'], 201);
@@ -306,7 +336,7 @@ class DocumentController extends Controller
             $document->delete();
             $document->sender()->delete();
             Storage::disk('document_files')->deleteDirectory($document->id);
-            
+
             return response()->json(['message' => 'Successfully deleted the document.'], 200);
         } catch (\Exception $e) {
             report($e);
