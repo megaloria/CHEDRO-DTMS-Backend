@@ -295,7 +295,7 @@ class DocumentController extends Controller
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
-        Storage::disk('document_files')->deleteDirectory($document->id);
+       
     
 
         if (!$document) {
@@ -305,7 +305,8 @@ class DocumentController extends Controller
         try {
             $document->delete();
             $document->sender()->delete();
-
+            Storage::disk('document_files')->deleteDirectory($document->id);
+            
             return response()->json(['message' => 'Successfully deleted the document.'], 200);
         } catch (\Exception $e) {
             report($e);
@@ -350,22 +351,19 @@ class DocumentController extends Controller
     }
 
     
-public function deleteAttachment(Request $request,$id)
-{
+public function deleteAttachment(Request $request,$id) {
     $document = Document::find($id);
     $attachment = Attachment::where('document_id', $document->id)->first();
-    Storage::disk('document_files')->deleteDirectory($document->id);
-
 
     if (!$attachment) {
         return response()->json([
             'message' => 'Attachment not found.'
-        ], 404);
+        ], 404);        
     }
     
     try {
     $attachment->delete();
-    
+    Storage::disk('document_files')->deleteDirectory($document->id);
         return response()->json([
             'message' => 'Successfully deleted the Attachment.'
         ],200);
