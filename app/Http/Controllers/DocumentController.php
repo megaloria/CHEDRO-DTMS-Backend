@@ -242,12 +242,14 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
+                $document->logs()->delete();
+                
                 if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
                     $logs = [];
                     foreach($requestData['assign_to'] as $assignTo) {
-                        $logs[] = new DocumentLog([
-                            'to_id' => $assignTo,
-                        ]);
+                        $log = new DocumentLog();
+                        $log->to_id = $assignTo;
+                        $logs[] = $log;
                     }
                     $document->logs()->saveMany($logs);
                 }
