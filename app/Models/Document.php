@@ -51,4 +51,8 @@ class Document extends Model
     public function logs(){
         return $this->hasMany('App\Models\DocumentLog');
     }
+
+     public function assign(){
+        return $this->hasMany('App\Models\DocumentAssignation');
+    }
 }
