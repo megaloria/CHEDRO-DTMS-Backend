@@ -19,6 +19,7 @@ use App\Models\Hei;
 use App\Models\Nga;
 use App\Models\ChedOffice;
 use App\Models\DocumentLog;
+use App\Models\DocumentAssignation;
 
 
 
@@ -120,11 +121,11 @@ class DocumentController extends Controller
                 if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
                     $logs = [];
                     foreach($requestData['assign_to'] as $assignTo) {
-                        $logs[] = new DocumentLog([
-                            'to_id' => $assignTo,
+                        $logs[] = new DocumentAssignation([
+                            'assigned_id' => $assignTo,
                         ]);
                     }
-                    $document->logs()->saveMany($logs);
+                    $document->assign()->saveMany($logs);
                 }
 
                 $document->load(['user', 'documentType', 'attachments']);
@@ -242,15 +243,22 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
-                if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-                    $logs = [];
-                    foreach($requestData['assign_to'] as $assignTo) {
-                        $logs[] = new DocumentLog([
-                            'to_id' => $assignTo,
-                        ]);
+               $document->assign()->delete();
+
+                 if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+                    if ($requestData['category_id'] == 3) {
+                        unset($requestData['assign_to']);
+                    } else {
+                        $logs = [];
+                        foreach($requestData['assign_to'] as $assignTo) {
+                            $log = new DocumentAssignation();
+                            $log->assigned_id = $assignTo;
+                            $logs[] = $log;
+                        }
+                        $document->assign()->saveMany($logs);
                     }
-                    $document->logs()->saveMany($logs);
                 }
+
 
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
@@ -298,7 +306,7 @@ class DocumentController extends Controller
                     ->orWhereDay('date_received', $searchQuery);
             });
         })
-        ->with(['attachments', 'sender.receivable', 'logs'])
+        ->with(['attachments', 'sender.receivable', 'assign'])
         ->paginate(5);
         
         $documentType = DocumentType::get();
@@ -317,7 +325,7 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'logs'])->find($id);
+        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'assign'])->find($id);
      
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
