@@ -306,7 +306,7 @@ class DocumentController extends Controller
                     ->orWhereDay('date_received', $searchQuery);
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign'])
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile'])
         ->paginate(5);
         
         $documentType = DocumentType::get();
