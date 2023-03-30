@@ -40,9 +40,51 @@ class UserSeeder extends Seeder
 
         Profile::create([
             'id' => $user->id,
-            'first_name' => 'Records',
-            'last_name' => 'Officer',
+            'first_name' => 'Jun',
+            'last_name' => 'Magbanua',
             'position_designation' => 'Records Officer'
+        ]);
+
+        $division = Division::create([
+            'description' => 'Technical'
+        ]);
+
+        $role = Role::create([
+            'division_id' => $division->id,
+            'description' => 'Regional Director IV',
+            'level' => 2
+        ]);
+
+        $user = User::create([
+            'role_id' => $role->id,
+            'username' => 'chedro4_rd',
+            'password' => Hash::make('chedro1234')
+        ]);
+
+        Profile::create([
+            'id' => $user->id,
+            'first_name' => 'Virginia',
+            'last_name' => 'Akiate',
+            'position_designation' => 'Regional Director IV'
+        ]);
+
+        $role = Role::create([
+            'division_id' => $division->id,
+            'description' => 'Chief Administrative Officer',
+            'level' => 2
+        ]);
+
+        $user = User::create([
+            'role_id' => $role->id,
+            'username' => 'chedro4_cao',
+            'password' => Hash::make('chedro1234')
+        ]);
+
+        Profile::create([
+            'id' => $user->id,
+            'first_name' => 'Freddie',
+            'last_name' => 'Bulauan',
+            'position_designation' => 'Chief Administrative Officer'
         ]);
     }
 }
