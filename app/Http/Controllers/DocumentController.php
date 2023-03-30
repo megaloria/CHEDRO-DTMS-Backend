@@ -306,7 +306,7 @@ class DocumentController extends Controller
                     ->orWhereDay('date_received', $searchQuery);
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile'])
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
         ->paginate(5);
         
         $documentType = DocumentType::get();
@@ -335,7 +335,6 @@ class DocumentController extends Controller
 
     }
 
-   
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);

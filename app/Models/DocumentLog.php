@@ -12,4 +12,8 @@ class DocumentLog extends Model
     protected $fillable = [
         'to_id'
     ];
+
+    public function user() {
+        return $this->belongsTo('App\Models\User', 'to_id');
+    }
 }
