@@ -395,6 +395,47 @@ class DocumentController extends Controller
             ], 200);
     }
 
+public function forwardDocument (Request $request, $id) {
+    $requestData = $request->only(['assign_to' ]);
+   
+    $validator = Validator::make($requestData, [
+        'assign_to' => 'array|nullable',
+        'assign_to.*' => 'integer|min:1|exists:users,id'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['message' => $validator->errors()->first()], 409);
+    }
+
+    $document = Document::find($id);
+    if (!$document) {
+        return response()->json(['message' => 'Document not found.'], 404);
+    }
+
+    $document->assign()->delete();
+
+    if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+        $logs = [];
+        foreach($requestData['assign_to'] as $assignTo) {
+            $log = new DocumentAssignation();
+            $log->assigned_id = $assignTo;
+            $logs[] = $log;
+        }
+
+        foreach($requestData['assign_to'] as $assignTo) {
+            $log = new DocumentLog();
+            $log->to_id = $assignTo;
+            $logs[] = $log;
+        }
+
+    $document->assign()->saveMany($logs);
+    $document->logs()->saveMany($logs);
+
+    }
+    return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
+
+}
+
     
 public function deleteAttachment(Request $request, $id) {
     $document = Document::find($id);
