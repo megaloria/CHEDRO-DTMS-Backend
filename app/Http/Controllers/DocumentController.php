@@ -310,6 +310,8 @@ class DocumentController extends Controller
 
         $ongoing = Document::whereHas('assign', function ($query) {
             $query ->whereNotNull('assigned_id');
+        })->whereHas('logs', function ($query) {
+            $query ->whereNotNull('to_id');
         })->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
          ->paginate(5);
         
