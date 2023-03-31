@@ -140,6 +140,128 @@ class DocumentController extends Controller
         return response()->json(['message' => 'Failed to add a document.'], 400);
     }
 
+    public function forwardDocumentUponReceive (Request $request) {
+        $user = $request->user();
+
+        $requestData = $request->only(['document_type_id', 'date_received', 'receivable_type', 'receivable_id', 'receivable_name', 'description', 'category_id', 'assign_to']);
+        $requestFile = $request->file('attachment');
+
+        $validator = Validator::make(array_merge($requestData, [
+            'attachment' => $requestFile
+        ]), [
+            'document_type_id' => 'required|integer',
+            'attachment' => 'nullable|file',
+            'date_received' => 'required|date',
+            'receivable_type' => 'required|string|in:HEIs,NGAs,CHED Offices,Others',
+            'receivable_name' => 'required_if:receivable_type,Others',
+            'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
+            'description' => 'required|string',
+            'category_id' => 'required|integer|exists:categories,id',
+            'assign_to' => 'array|nullable',
+            'assign_to.*' => 'integer|min:1|exists:users,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $documentType = DocumentType::find($requestData['document_type_id']);
+        if (!$documentType) {
+            return response()->json(['message' => 'Document type not found'], 404);
+        }
+
+        $dateReceived = Carbon::parse($requestData['date_received']);
+        $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
+        $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
+        $trackingNo = $dateReceived->format('y') . '-' . $documentType->code . '-' . str_pad($seriesNo, 4, '0', STR_PAD_LEFT);
+
+        try {
+            DB::beginTransaction();
+            
+            $receivable = null;
+            switch ($requestData['receivable_type']) {
+                case 'HEIs':
+                    $receivable = Hei::find($requestData['receivable_id']);
+                    break;
+                case 'NGAs':
+                    $receivable = Nga::find($requestData['receivable_id']);
+                    break;
+                case 'CHED Offices':
+                    $receivable = ChedOffice::find($requestData['receivable_id']);
+                    break;
+                default:
+                    $receivable = 'Others';
+            }
+
+            if (!$receivable) {
+                return response()->json(['message' => 'Received from not found'], 404);
+            }
+
+            $sender = new Sender();
+            if ($receivable === 'Others') {
+                $sender->name = $requestData['receivable_name'];
+                $sender->receivable_type = null;
+                $sender->receivable_id = null;
+            } else {
+                $sender->name = null;
+                $sender->receivable()->associate($receivable);
+            }
+            $sender->save();          
+
+            $document = new Document([
+                'user_id' => $user->id,
+                'document_type_id' => $documentType->id,
+                'tracking_no' => $trackingNo,
+                'date_received' => $requestData['date_received'],
+                'sender_id' => $sender->id,
+                'description' => $requestData['description'],
+                'category_id' => $requestData['category_id'],
+                'series_no' => $seriesNo
+            ]);
+ 
+            if ($document->save()) {
+
+                if ($requestFile) {
+                    $hash = Str::random(40);
+                    $ext = $requestFile->getClientOriginalExtension();
+                    $fileName = $requestFile->storeAs('/'.$document->id, $hash.'.'.$ext, 'document_files');
+                    $attachment = new Attachment([
+                        'document_id' => $document->id,
+                        'file_name' => $fileName,
+                        'file_title' => $requestFile->getClientOriginalName()
+                    ]);
+                    $attachment->save();
+                }
+
+                if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+                    $logs = [];
+                    foreach($requestData['assign_to'] as $assignTo) {
+                        $logs[] = new DocumentAssignation([
+                            'assigned_id' => $assignTo,
+                        ]);
+                    }
+                    
+                    foreach($requestData['assign_to'] as $assignTo) {
+                        $logs[] = new DocumentLog([
+                            'to_id' => $assignTo,
+                        ]);
+                    }
+                    $document->assign()->saveMany($logs);
+                    $document->logs()->saveMany($logs);
+                }
+
+                $document->load(['user', 'documentType', 'attachments']);
+                DB::commit();
+                return response()->json(['data' => $document, 'message' => 'Successfully added and forwarded the document.'], 201);
+            }
+        } catch (\Exception$e) {
+            report($e);
+        }
+
+        DB::rollBack();
+        return response()->json(['message' => 'Failed to add a document.'], 400);
+    }
+
 
     public function editDocument (Request $request, $id) {
         $user = $request->user();
