@@ -299,7 +299,6 @@ class DocumentController extends Controller
                 $query->where('description', 'like', "%$searchQuery%");
             })
             ->orWhere(function ($query) use ($searchQuery) {
-                $date = date('Y-m-d', strtotime($searchQuery));
                 $month = date('m', strtotime($searchQuery));
                 $query->whereYear('date_received', $searchQuery)
                     ->orWhereMonth('date_received', $month)
@@ -308,17 +307,24 @@ class DocumentController extends Controller
         })
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
         ->paginate(5);
+
+        $ongoing = Document::whereHas('assign', function ($query) {
+            $query ->whereNotNull('assigned_id');
+        })->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
+         ->paginate(5);
         
         $documentType = DocumentType::get();
         $category = Category::get();
         $user = User::with(['profile'])->get();
+
 
         return response()->json([
             'data' => [
                 'documents' => $documents,
                 'documentType' => $documentType,
                 'category' => $category,
-                'user' => $user
+                'user' => $user,
+                'ongoing' => $ongoing
             ],
             'message' => 'Successfully fetched the documents.'
         ], 200);
