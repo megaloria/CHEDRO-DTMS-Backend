@@ -398,7 +398,7 @@ public function forwardDocument (Request $request, $id) {
     $requestData = $request->only(['assign_to' ]);
    
     $validator = Validator::make($requestData, [
-        'assign_to' => 'array|nullable',
+        'assign_to' => 'array|required',
         'assign_to.*' => 'integer|min:1|exists:users,id'
     ]);
 
