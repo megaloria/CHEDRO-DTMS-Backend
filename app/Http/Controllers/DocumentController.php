@@ -451,6 +451,12 @@ class DocumentController extends Controller
             ->orWhereHas('category', function ($query) use ($searchQuery) {
                 $query->where('description', 'like', "%$searchQuery%");
             })
+            ->whereHas('assign', function ($query) {
+                $query ->whereNotNull('assigned_id');
+            })
+            ->whereHas('logs', function ($query) {
+                $query ->whereNotNull('to_id');
+            })
             ->orWhere(function ($query) use ($searchQuery) {
                 $month = date('m', strtotime($searchQuery));
                 $query->whereYear('date_received', $searchQuery)
@@ -458,6 +464,7 @@ class DocumentController extends Controller
                     ->orWhereDay('date_received', $searchQuery);
             });
         })
+
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
          ->paginate(5);
         
