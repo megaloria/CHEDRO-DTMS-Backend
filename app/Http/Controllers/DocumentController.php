@@ -434,15 +434,18 @@ class DocumentController extends Controller
             $query ->whereNotNull('assigned_id');
         })->whereHas('logs', function ($query) {
             $query ->whereNotNull('to_id');
-
         })
         ->when($searchQuery, function ($query, $searchQuery) {
             $query->whereHas('documentType', function ($query) use ($searchQuery) {
                 $query->where('description', 'like', "%$searchQuery%");
             })
             ->orWhereHas('sender', function ($query) use ($searchQuery) {
-                $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class, Hei::class], function ($query) use ($searchQuery) {
+                $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class], function ($query) use ($searchQuery) {
                     $query->where('description', 'like', "%$searchQuery%");
+                });
+            })->orWhereHas('sender', function ($query) use ($searchQuery) {
+                $query->whereHasMorph('receivable', [Hei::class], function ($query) use ($searchQuery) {
+                    $query->where('name', 'like', "%$searchQuery%");
                 });
             })
             ->orWhereHas('category', function ($query) use ($searchQuery) {
