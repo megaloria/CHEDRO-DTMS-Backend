@@ -434,7 +434,28 @@ class DocumentController extends Controller
             $query ->whereNotNull('assigned_id');
         })->whereHas('logs', function ($query) {
             $query ->whereNotNull('to_id');
-        })->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
+
+        })
+        ->when($searchQuery, function ($query, $searchQuery) {
+            $query->whereHas('documentType', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            })
+            ->orWhereHas('sender', function ($query) use ($searchQuery) {
+                $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class, Hei::class], function ($query) use ($searchQuery) {
+                    $query->where('description', 'like', "%$searchQuery%");
+                });
+            })
+            ->orWhereHas('category', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            })
+            ->orWhere(function ($query) use ($searchQuery) {
+                $month = date('m', strtotime($searchQuery));
+                $query->whereYear('date_received', $searchQuery)
+                    ->orWhereMonth('date_received', $month)
+                    ->orWhereDay('date_received', $searchQuery);
+            });
+        })
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
          ->paginate(5);
         
         $documentType = DocumentType::get();
