@@ -434,8 +434,7 @@ class DocumentController extends Controller
             $query ->whereNotNull('assigned_id');
         })->whereHas('logs', function ($query) {
             $query ->whereNotNull('to_id');
-        })
-        ->when($searchQuery, function ($query, $searchQuery) {
+        })->when($searchQuery, function ($query, $searchQuery) {
             $query->whereHas('documentType', function ($query) use ($searchQuery) {
                 $query->where('description', 'like', "%$searchQuery%");
             })
@@ -463,9 +462,7 @@ class DocumentController extends Controller
                     ->orWhereMonth('date_received', $month)
                     ->orWhereDay('date_received', $searchQuery);
             });
-        })
-
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
+        })->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
          ->paginate(5);
         
         $documentType = DocumentType::get();
