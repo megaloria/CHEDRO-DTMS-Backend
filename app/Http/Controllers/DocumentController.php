@@ -433,9 +433,6 @@ class DocumentController extends Controller
                             $query->where('name', 'like', "%$searchQuery%");
                         })->orWhere('name', 'like', "%$searchQuery%");
                     })
-                    ->orWhereHas('category', function ($query) use ($searchQuery) {
-                        $query->where('description', 'like', "%$searchQuery%");
-                    })
                 ->orWhereHas('category', function ($query) use ($searchQuery) {
                     $query->where('description', 'like', "%$searchQuery%");
                 })
