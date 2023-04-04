@@ -279,7 +279,7 @@ class DocumentController extends Controller
             'receivable_name' => 'required_if:receivable_type,Others',
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
-            'category_id' => 'required|integer|exists:categories,id',
+            'category_id' => 'required|integer',
             'assign_to' => 'array|nullable',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
@@ -297,6 +297,11 @@ class DocumentController extends Controller
         $documentType = DocumentType::find($requestData['document_type_id']);
         if (!$documentType) {
             return response()->json(['message' => 'Document type not found'], 404);
+        }
+
+        $category = Category::find($requestData['category_id']);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
         }
 
         $seriesNo = $document->series_no;
@@ -368,9 +373,7 @@ class DocumentController extends Controller
                $document->assign()->delete();
 
                  if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-                    if ($requestData['category_id'] == 3) {
-                        unset($requestData['assign_to']);
-                    } else {
+                    if ($category -> is_assignable) {
                         $logs = [];
                         foreach($requestData['assign_to'] as $assignTo) {
                             $log = new DocumentAssignation();
@@ -378,10 +381,8 @@ class DocumentController extends Controller
                             $logs[] = $log;
                         }
                         $document->assign()->saveMany($logs);
-                    }
+                    } 
                 }
-
-
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully updated the document.'], 201);
@@ -395,11 +396,14 @@ class DocumentController extends Controller
 
     }
     
-    public function getDocuments (Request $request) {
+    public function getDocuments (Request $request, $status = null) {
         $allQuery = $request->query->all();
 
-        $validator = Validator::make($allQuery, [
-            'query' => 'present|nullable|string'
+        $validator = Validator::make(array_merge($allQuery, [
+            'status' => $status
+        ]), [
+            'query' => 'present|nullable|string',
+            'status' => 'nullable|string|in:ongoing,releasing,done'
         ]);
 
         if ($validator->fails()) {
@@ -408,66 +412,44 @@ class DocumentController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        $documents = Document::when($searchQuery, function ($query, $searchQuery) {
-            $query->whereHas('documentType', function ($query) use ($searchQuery) {
-                $query->where('description', 'like', "%$searchQuery%");
-            })
-            ->orWhereHas('sender', function ($query) use ($searchQuery) {
-                $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class, Hei::class], function ($query) use ($searchQuery) {
-                    $query->where('description', 'like', "%$searchQuery%");
+        $documents = Document::when($status === 'ongoing', function ($query) {
+            $query->where(function ($query) {
+                $query->whereHas('assign', function ($query) {
+                    $query->whereNotNull('assigned_id');
+                })->whereHas('logs', function ($query) {
+                    $query->whereNotNull('to_id');
                 });
-            })
-            ->orWhereHas('category', function ($query) use ($searchQuery) {
-                $query->where('description', 'like', "%$searchQuery%");
-            })
-            ->orWhere(function ($query) use ($searchQuery) {
-                $month = date('m', strtotime($searchQuery));
-                $query->whereYear('date_received', $searchQuery)
-                    ->orWhereMonth('date_received', $month)
-                    ->orWhereDay('date_received', $searchQuery);
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
-        ->paginate(5);
-
-        $ongoing = Document::when($searchQuery, function ($query, $searchQuery) {
-            $query->whereHas('assign', function ($query) {
-                $query->whereNotNull('assigned_id');
-            })
-            ->whereHas('logs', function ($query) {
-                $query->whereNotNull('to_id');
-            })
-            ->where(function ($query) use ($searchQuery) {
-                $query->whereHas('documentType', function ($query) use ($searchQuery) {
+        ->when($searchQuery, function ($query, $searchQuery) {
+            $query->where(function ($query) use ($searchQuery) {
+                    $query->whereHas('documentType', function ($query) use ($searchQuery) {
                     $query->where('description', 'like', "%$searchQuery%");
                 })
                 ->orWhereHas('sender', function ($query) use ($searchQuery) {
-                    $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class], function ($query) use ($searchQuery) {
+                        $query->whereHasMorph('receivable', [ChedOffice::class, Nga::class], function ($query) use ($searchQuery) {
+                            $query->where('description', 'like', "%$searchQuery%");
+                        })-> orWhereHasMorph('receivable', [Hei::class], function ($query) use ($searchQuery) {
+                            $query->where('name', 'like', "%$searchQuery%");
+                        })->orWhere('name', 'like', "%$searchQuery%");
+                    })
+                    ->orWhereHas('category', function ($query) use ($searchQuery) {
                         $query->where('description', 'like', "%$searchQuery%");
-                    });
-                })
-                ->orWhereHas('sender', function ($query) use ($searchQuery) {
-                    $query->whereHasMorph('receivable', [Hei::class], function ($query) use ($searchQuery) {
-                        $query->where('name', 'like', "%$searchQuery%");
-                    });
-                })
+                    })
                 ->orWhereHas('category', function ($query) use ($searchQuery) {
                     $query->where('description', 'like', "%$searchQuery%");
                 })
                 ->orWhere(function ($query) use ($searchQuery) {
                     $month = date('m', strtotime($searchQuery));
                     $query->whereYear('date_received', $searchQuery)
-                ->orWhereMonth('date_received', $month)
-                ->orWhereDay('date_received', $searchQuery);
+                        ->orWhereMonth('date_received', $month)
+                        ->orWhereDay('date_received', $searchQuery);
                 });
             });
-            })->whereHas('assign', function ($query) {
-                $query->whereNotNull('assigned_id');
-            })->whereHas('logs', function ($query) {
-                $query->whereNotNull('to_id');
-            })->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
-            ->paginate(5);
-
+        })
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
+        ->paginate(5);
+        
         
         $documentType = DocumentType::get();
         $category = Category::get();
@@ -479,8 +461,7 @@ class DocumentController extends Controller
                 'documents' => $documents,
                 'documentType' => $documentType,
                 'category' => $category,
-                'user' => $user,
-                'ongoing' => $ongoing
+                'user' => $user
             ],
             'message' => 'Successfully fetched the documents.'
         ], 200);
