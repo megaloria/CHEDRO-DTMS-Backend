@@ -157,7 +157,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable',
+            'assign_to' => 'required|array|nullable',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -449,7 +449,7 @@ class DocumentController extends Controller
         })
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile'])
         ->paginate(5);
-        
+
         
         $documentType = DocumentType::get();
         $category = Category::get();
