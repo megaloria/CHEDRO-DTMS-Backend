@@ -534,82 +534,78 @@ class DocumentController extends Controller
             ], 200);
     }
 
-public function forwardDocument (Request $request, $id) {
-    $requestData = $request->only(['assign_to' ]);
-   
-    $validator = Validator::make($requestData, [
-        'assign_to' => 'array|required',
-        'assign_to.*' => 'integer|min:1|exists:users,id'
-    ]);
+    public function forwardDocument (Request $request, $id) {
+        $requestData = $request->only(['assign_to' ]);
+    
+        $validator = Validator::make($requestData, [
+            'assign_to' => 'array|required',
+            'assign_to.*' => 'integer|min:1|exists:users,id'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['message' => $validator->errors()->first()], 409);
-    }
-
-    $document = Document::find($id);
-    if (!$document) {
-        return response()->json(['message' => 'Document not found.'], 404);
-    }
-
-    $document->assign()->delete();
-
-    if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-        $logs = [];
-        foreach($requestData['assign_to'] as $assignTo) {
-            $log = new DocumentAssignation();
-            $log->assigned_id = $assignTo;
-            $logs[] = $log;
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        foreach($requestData['assign_to'] as $assignTo) {
-            $log = new DocumentLog();
-            $log->to_id = $assignTo;
-            $logs[] = $log;
+        $document = Document::find($id);
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.'], 404);
         }
 
-    $document->assign()->saveMany($logs);
-    $document->logs()->saveMany($logs);
+        $document->assign()->delete();
+
+        if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+            $logs = [];
+            foreach($requestData['assign_to'] as $assignTo) {
+                $log = new DocumentAssignation();
+                $log->assigned_id = $assignTo;
+                $logs[] = $log;
+            }
+
+            foreach($requestData['assign_to'] as $assignTo) {
+                $log = new DocumentLog();
+                $log->to_id = $assignTo;
+                $logs[] = $log;
+            }
+
+        $document->assign()->saveMany($logs);
+        $document->logs()->saveMany($logs);
+
+        }
+        return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
 
     }
-    return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
-
-}
 
     
-public function deleteAttachment(Request $request, $id) {
-    $document = Document::find($id);
+    public function deleteAttachment(Request $request, $id) {
+        $document = Document::find($id);
 
-    if (!$document) {
-        return response()->json([
-            'message' => 'Document not found.'
-        ], 404);        
-    }
+        if (!$document) {
+            return response()->json([
+                'message' => 'Document not found.'
+            ], 404);        
+        }
 
-    $attachment = Attachment::where('document_id', $document->id)->first();
+        $attachment = Attachment::where('document_id', $document->id)->first();
 
-    if (!$attachment) {
-        return response()->json([
-            'message' => 'Attachment not found.'
-        ], 404);        
-    }
-    
-    try {
-        $attachment->delete();
-        Storage::disk('document_files')->deleteDirectory($document->id);
+        if (!$attachment) {
+            return response()->json([
+                'message' => 'Attachment not found.'
+            ], 404);        
+        }
         
-        return response()->json([
-            'message' => 'Successfully deleted the Attachment.'
-        ],200);
-        
-    } catch (\Exception $e) {
-        report($e);     
-        return response()->json([
-            'message' => 'Failed to delete the attachment.'
-        ], 400);
+        try {
+            $attachment->delete();
+            Storage::disk('document_files')->deleteDirectory($document->id);
+            
+            return response()->json([
+                'message' => 'Successfully deleted the Attachment.'
+            ],200);
+            
+        } catch (\Exception $e) {
+            report($e);     
+            return response()->json([
+                'message' => 'Failed to delete the attachment.'
+            ], 400);
+        }
     }
-}
-
-    
-    
-
 }
