@@ -210,3 +210,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);
     });
 });
+
