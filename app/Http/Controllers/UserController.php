@@ -67,7 +67,8 @@ class UserController extends Controller
         return response()->json(['message' => 'Failed to create a user.'], 400);
     }
 
-    public function deleteUser (Request $Request, $id) {
+    public function deleteUser (Request $request, $id) {
+        $currentUser = $request -> user();
         $user = User::find($id);
         // $profile = Profile::get();
 
@@ -76,6 +77,10 @@ class UserController extends Controller
         }
 
         try {
+
+            if ($currentUser->id === $user -> id){
+                return response()->json(['message' => 'Unable to delete the current user.'], 409);
+            }
             $user->delete();
 
             return response()->json(['message' => 'Successfully deleted the user.'], 200);
@@ -206,11 +211,12 @@ class UserController extends Controller
     }
 
     public function changePass (Request $request) {
-        $requestData = $request->only('password','new_password');
+        $requestData = $request->only('password','new_password', 'confirm_password');
 
         $validator = Validator::make($requestData, [
             'password' => 'required|string|min:8',
-            'new_password' => 'required|string|min:8'
+            'new_password' => 'required|string|min:8|same:confirm_password|different:password',
+            'confirm_password' => 'required|string|min:8|same:new_password'
         ]);
 
         if ($validator->fails()) {
@@ -269,7 +275,7 @@ class UserController extends Controller
             }
 
             Auth::guard('web')->login($user);
-            $user->load('profile');
+            $user->load(['profile', 'role']);
             return response()->json(['message' => 'Successfully logged in.', 'data' => $user], 200);
         } catch (\Exception $e) {
             report($e);
@@ -280,7 +286,7 @@ class UserController extends Controller
 
     public function getCurrentUser (Request $request) {
         $user = $request->user();
-        $user->load('profile');
+        $user->load(['profile', 'role']);
         return response()->json(['data' => $user, 'message' => 'Successfully fetched current user.'], 200);
     }
 

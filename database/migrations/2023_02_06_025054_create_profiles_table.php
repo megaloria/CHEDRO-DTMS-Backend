@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('profiles', function (Blueprint $table) {
-            $table->bigInteger('id')->unsigned();
+            $table->bigInteger('id')->unsigned()->unique();
             $table->string('prefix')->nullable();
             $table->string('first_name');
             $table->string('middle_name')->nullable();

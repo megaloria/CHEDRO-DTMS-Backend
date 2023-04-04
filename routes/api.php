@@ -32,6 +32,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         'prefix' => '/user'
     ], function () {
         Route::get('', [UserController::class, 'getCurrentUser']);
+        Route::post('/change-password', [UserController::class, 'changePass']);
         Route::delete('', [UserController::class, 'logout']);
     });
 
@@ -41,7 +42,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ], function () {
             Route::post('', [UserController::class, 'createUser']);
             Route::get('', [UserController::class, 'getUsers']);
-            Route::post('/change-password', [UserController::class, 'changePass']);
            
             Route::group([
                 'prefix' => '/{user_id}',
@@ -176,9 +176,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                                     });
                                 }); 
         });
-    });
-    
-    Route::group([
+         Route::group([
         'prefix' => '/document'
     ], function () {
         Route::post('', [DocumentController::class, 'addDocument']);
@@ -191,11 +189,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 'prefix' => '/{document_id}',
                 'where' => ['document_id' => '[0-9]+']
             ], function () {
-                Route::get('', [DocumentController::class, 'getDocument']);
                 Route::post('', [DocumentController::class, 'editDocument']);
-                  Route::post('/forward', [DocumentController::class, 'forwardDocument']);
                 Route::delete('', [DocumentController::class, 'deleteDocument']);
                 Route::delete('/attachment', [DocumentController::class, 'deleteAttachment']);
+            });
+    });
+    });
+    
+    Route::group([
+        'prefix' => '/document'
+    ], function () {
+        Route::group([
+                'prefix' => '/{document_id}',
+                'where' => ['document_id' => '[0-9]+']
+            ], function () {
+                Route::get('', [DocumentController::class, 'getDocument']);
+                  Route::post('/forward', [DocumentController::class, 'forwardDocument']);
             });
         
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);
