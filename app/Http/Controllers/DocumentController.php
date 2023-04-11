@@ -476,7 +476,7 @@ class DocumentController extends Controller
             });
         })
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'documentType', 'category'])
-        ->orderBy('date_received', 'desc')
+        ->orderBy('id', 'desc')
         ->paginate(5);
         }
 
