@@ -239,9 +239,9 @@ class UserController extends Controller
             'is_first_login' => false,
         ]);
 
-            if ($user->save()) {
-                return response()->json(['data' => $user, 'message' => 'Successfully updated the password.'], 201);
-            }
+        if ($user->save()) {
+            return response()->json(['data' => $user, 'message' => 'Successfully updated the password.'], 201);
+        }
         } catch (\Exception $e) {
             report($e);
         }
