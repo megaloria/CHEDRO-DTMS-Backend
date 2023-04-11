@@ -204,7 +204,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 'where' => ['document_id' => '[0-9]+']
             ], function () {
                 Route::get('', [DocumentController::class, 'getDocument']);
-                  Route::post('/forward', [DocumentController::class, 'forwardDocument']);
+                Route::post('/forward', [DocumentController::class, 'forwardDocument']);
+                Route::post('/acknowledge', [DocumentController::class, 'acknowledgeDocument']);
             });
         
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);

@@ -444,7 +444,7 @@ class DocumentController extends Controller
         ->paginate(5);
 
         } else {
-             $documents = Document::when($status === 'ongoing', function ($query) {
+            $documents = Document::when($status === 'ongoing', function ($query) {
             $query->where(function ($query) {
                 $query->whereHas('assign', function ($query) {
                     $query->whereNotNull('assigned_id');
@@ -496,7 +496,7 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'assign.assignedUser.profile', 'logs'])->find($id);
+        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'assign.assignedUser.profile', 'logs.user.profile'])->find($id);
      
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
@@ -604,6 +604,34 @@ class DocumentController extends Controller
         }
         return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
 
+    }
+
+    public function acknowledgeDocument(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $document = Document::find($id);
+
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.'], 404);
+        }
+
+        $log = DocumentLog::where('document_id', $document->id)
+                        ->where('to_id', $user->id)
+                        ->first();
+
+        if (!$log) {
+            return response()->json(['message' => 'Document Log not found.'], 404);
+        }
+
+        $log->acknowledge_id = $user->id;
+        $log->save();
+
+        return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
     }
 
     
