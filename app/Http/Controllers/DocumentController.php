@@ -476,7 +476,7 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'documentType', 'category'])
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
         ->orderBy('id', 'desc')
         ->paginate(5);
 
@@ -513,7 +513,7 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'documentType', 'category'])
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
         ->orderBy('id', 'desc')
         ->paginate(5);
         }
@@ -533,7 +533,7 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'assign.assignedUser.profile', 'logs.user.profile'])->find($id);
+        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile'])->find($id);
      
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
