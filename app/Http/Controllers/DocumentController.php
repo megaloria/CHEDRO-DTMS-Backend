@@ -55,6 +55,11 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document type not found'], 404);
         }
 
+        $category = Category::find($requestData['category_id']);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+
         $dateReceived = Carbon::parse($requestData['date_received']);
         $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
         $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
@@ -118,15 +123,24 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
-                if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+                if (!$category->is_assignable) {
+                    $assignTo = '2';
+                    $log      = new DocumentAssignation([
+                        'assigned_id' => $assignTo,
+                    ]);
+                    $document->assign()->save($log);
+                } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
                     $logs = [];
-                    foreach($requestData['assign_to'] as $assignTo) {
+                    foreach ($requestData['assign_to'] as $assignTo) {
                         $logs[] = new DocumentAssignation([
                             'assigned_id' => $assignTo,
                         ]);
                     }
-                    $document->assign()->saveMany($logs);
+                    if (!empty($logs)) {
+                        $document->assign()->saveMany($logs);
+                    }
                 }
+
 
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
@@ -157,7 +171,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'required|array|nullable',
+            'assign_to' => 'array|nullable',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -168,6 +182,11 @@ class DocumentController extends Controller
         $documentType = DocumentType::find($requestData['document_type_id']);
         if (!$documentType) {
             return response()->json(['message' => 'Document type not found'], 404);
+        }
+
+        $category = Category::find($requestData['category_id']);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
         }
 
         $dateReceived = Carbon::parse($requestData['date_received']);
@@ -233,7 +252,19 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
-                if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+                if (!$category->is_assignable) {
+                    $assignTo = '2';
+                    $assign      = new DocumentAssignation([
+                        'assigned_id' => $assignTo,
+                    ]);
+
+                    $log      = new DocumentLog([
+                        'to_id' => $assignTo,
+                    ]);
+                    $document->assign()->save($assign);
+                    $document->logs()->save($log);
+
+                } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
                     $logs = [];
                     foreach($requestData['assign_to'] as $assignTo) {
                         $logs[] = new DocumentAssignation([
@@ -372,7 +403,13 @@ class DocumentController extends Controller
 
                $document->assign()->delete();
 
-                 if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+               if (!$category->is_assignable) {
+                    $assignTo = '2';
+                    $log      = new DocumentAssignation([
+                        'assigned_id' => $assignTo,
+                    ]);
+                    $document->assign()->save($log);
+                } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
                     if ($category -> is_assignable) {
                         $logs = [];
                         foreach($requestData['assign_to'] as $assignTo) {
