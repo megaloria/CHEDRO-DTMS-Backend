@@ -20,8 +20,7 @@ use App\Models\Nga;
 use App\Models\ChedOffice;
 use App\Models\DocumentLog;
 use App\Models\DocumentAssignation;
-
-
+use App\Models\Profile;
 
 class DocumentController extends Controller 
 {
@@ -124,7 +123,9 @@ class DocumentController extends Controller
                 }
 
                 if (!$category->is_assignable) {
-                    $assignTo = '2';
+                    $assignTo = Profile::where(function ($query) {
+                            $query->where('position_designation', 'ilike', 'Regional Director%');
+                    })->value('id');
                     $log      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
                     ]);
@@ -253,7 +254,9 @@ class DocumentController extends Controller
                 }
 
                 if (!$category->is_assignable) {
-                    $assignTo = '2';
+                    $assignTo = Profile::where(function ($query) {
+                            $query->where('position_designation', 'ilike', 'Regional Director%');
+                    })->value('id');
                     $assign      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
                     ]);
@@ -404,7 +407,10 @@ class DocumentController extends Controller
                $document->assign()->delete();
 
                if (!$category->is_assignable) {
-                    $assignTo = '2';
+                    $assignTo = Profile::where(function ($query) {
+                            $query->where('position_designation', 'ilike', 'Regional Director%');
+                    })->value('id');
+
                     $log      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
                     ]);
@@ -533,7 +539,26 @@ class DocumentController extends Controller
     }
     
     public function getDocument (Request $request, $id) {
-        $document = Document::with(['attachments', 'sender.receivable', 'user.profile', 'documentType', 'category', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile'])->find($id);
+        $user = $request->user();
+
+        $document = Document::with([
+            'attachments',
+             'sender.receivable', 
+             'user.profile',
+              'documentType',
+               'category',
+                'assign.assignedUser.profile',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                },
+                 'logs.user.profile',
+                  'logs.acknowledgeUser.profile'])
+            ->when($user->role->level !== 1, function($query) use ($user){
+                $query -> whereHas('logs', function ($query) use ($user) {
+                $query->where('to_id', $user->id);
+            });
+            })
+            ->find($id);
      
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
