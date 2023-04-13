@@ -447,7 +447,7 @@ class DocumentController extends Controller
             'status' => $status
         ]), [
             'query' => 'present|nullable|string',
-            'status' => 'nullable|string|in:ongoing,releasing,done'
+            'status' => 'nullable|string|in:ongoing,mydocument,releasing,done'
         ]);
 
         if ($validator->fails()) {
@@ -496,6 +496,17 @@ class DocumentController extends Controller
                 });
             });
         })
+        ->when($status === 'mydocument', function ($query) use ($user) {
+            $query->where(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                    ->orWhereHas('logs', function ($query) use ($user) {
+                        $query->where('to_id', $user->id);
+                    })
+                    ->orWhereHas('assign', function ($query) use ($user) {
+                        $query->where('assigned_id', $user->id);
+                    });
+            });
+        })
         ->when($searchQuery, function ($query, $searchQuery) {
             $query->where(function ($query) use ($searchQuery) {
                     $query->whereHas('documentType', function ($query) use ($searchQuery) {
@@ -522,9 +533,8 @@ class DocumentController extends Controller
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
         ->orderBy('id', 'desc')
         ->paginate(5);
-        }
 
-       
+        }
 
         $user = User::with(['profile'])->get();
 
