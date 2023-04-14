@@ -120,11 +120,12 @@ class DocumentController extends Controller
                         'file_title' => $requestFile->getClientOriginalName()
                     ]);
                     $attachment->save();
+                    $fileUrl = Storage::url($fileName);
                 }
 
                 if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
-                            $query->where('position_designation', 'ilike', 'Regional Director%');
+                            $query->where('position_designation', 'like', 'Regional Director%');
                     })->value('id');
                     $log      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
@@ -255,7 +256,7 @@ class DocumentController extends Controller
 
                 if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
-                            $query->where('position_designation', 'ilike', 'Regional Director%');
+                            $query->where('position_designation', 'like', 'Regional Director%');
                     })->value('id');
                     $assign      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
@@ -393,6 +394,7 @@ class DocumentController extends Controller
             if ($document->save()) {
 
                 if ($requestFile) {
+                    Storage::disk('document_files')->deleteDirectory($document->id);
                     $hash = Str::random(40);
                     $ext = $requestFile->getClientOriginalExtension();
                     $fileName = $requestFile->storeAs('/'.$document->id, $hash.'.'.$ext, 'document_files');
@@ -401,6 +403,7 @@ class DocumentController extends Controller
                         'file_name' => $fileName,
                         'file_title' => $requestFile->getClientOriginalName()
                     ]);
+                    
                     $attachment->save();
                 }
 
@@ -408,7 +411,7 @@ class DocumentController extends Controller
 
                if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
-                            $query->where('position_designation', 'ilike', 'Regional Director%');
+                            $query->where('position_designation', 'like', 'Regional Director%');
                     })->value('id');
 
                     $log      = new DocumentAssignation([
@@ -483,7 +486,7 @@ class DocumentController extends Controller
             });
         })
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
-        ->orderBy('id', 'desc')
+        ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
         } else {
@@ -531,7 +534,7 @@ class DocumentController extends Controller
             });
         })
         ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
-        ->orderBy('id', 'desc')
+        ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
         }
@@ -550,13 +553,16 @@ class DocumentController extends Controller
     
     public function getDocument (Request $request, $id) {
         $user = $request->user();
-
+        
         $document = Document::with([
             'attachments',
              'sender.receivable', 
              'user.profile',
               'documentType',
                'category',
+               'assign'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                },
                 'assign.assignedUser.profile',
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
@@ -567,14 +573,17 @@ class DocumentController extends Controller
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             });
-            })
+            })          
             ->find($id);
-     
+            
+           $fileUrl = Storage::url($document->attachments?->file_name);
+           
+
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
         }
 
-        return response()->json(['data' => $document, 'message' => 'Successfully fetched the document.'], 200);
+        return response()->json(['data' => $document, 'url' => $fileUrl, 'message' => 'Successfully fetched the document.'], 200);
 
     }
 
