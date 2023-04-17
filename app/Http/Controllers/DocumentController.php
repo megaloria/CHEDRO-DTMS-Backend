@@ -539,7 +539,19 @@ class DocumentController extends Controller
 
         }
 
-        $user = User::with(['profile'])->get();
+       if ($user->role->level === 3) {
+            $user = User::whereHas('role', function ($query) {
+                $query->where('level', '>', 3);
+            })->with('profile')->get();
+        } else if ($user->role->level === 4) {
+            $user = User::whereHas('role', function ($query) {
+                $query->where('level', '>', 4 );
+            })->with('profile')->get();
+        } else {
+             $user = User::with(['profile'])->get();
+        }
+
+       
 
 
         return response()->json([
