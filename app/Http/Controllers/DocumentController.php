@@ -551,9 +551,6 @@ class DocumentController extends Controller
              $user = User::with(['profile'])->get();
         }
 
-       
-
-
         return response()->json([
             'data' => [
                 'documents' => $documents,
@@ -603,8 +600,6 @@ class DocumentController extends Controller
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
        
-    
-
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
@@ -660,6 +655,7 @@ class DocumentController extends Controller
 
     public function forwardDocument (Request $request, $id) {
         $requestData = $request->only(['assign_to' ]);
+        $user = $request->user();
     
         $validator = Validator::make($requestData, [
             'assign_to' => 'array|required',
@@ -678,18 +674,31 @@ class DocumentController extends Controller
         $document->assign()->delete();
 
         if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-            $logs = [];
-            foreach($requestData['assign_to'] as $assignTo) {
-                $log = new DocumentAssignation();
-                $log->assigned_id = $assignTo;
-                $logs[] = $log;
-            }
+            if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
+                $logs = [];
+               
+                foreach ($requestData['assign_to'] as $assignTo) {
+                    $log        = new DocumentLog();
+                    $log->from_id = $user->id;
+                    $log->to_id = $assignTo;
+                    $logs[]     = $log;
+                }
 
-            foreach($requestData['assign_to'] as $assignTo) {
-                $log = new DocumentLog();
-                $log->to_id = $assignTo;
-                $logs[] = $log;
+            } else {
+                $logs = [];
+                foreach($requestData['assign_to'] as $assignTo) {
+                    $log = new DocumentAssignation();
+                    $log->assigned_id = $assignTo;
+                    $logs[] = $log;
+                }
+
+                foreach($requestData['assign_to'] as $assignTo) {
+                    $log = new DocumentLog();
+                    $log->to_id = $assignTo;
+                    $logs[] = $log;
+                }
             }
+            
 
         $document->assign()->saveMany($logs);
         $document->logs()->saveMany($logs);
