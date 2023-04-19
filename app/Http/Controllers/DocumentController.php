@@ -407,8 +407,7 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
-               $document->assign()->delete();
-
+              
                if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
                             $query->where('position_designation', 'like', 'Regional Director%');
@@ -671,7 +670,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $document->assign()->delete();
+        
 
         if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
             if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
