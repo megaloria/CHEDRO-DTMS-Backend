@@ -670,8 +670,6 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        
-
         if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
             if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
                 $logs = [];
@@ -685,12 +683,7 @@ class DocumentController extends Controller
 
             } else {
                 $logs = [];
-                foreach($requestData['assign_to'] as $assignTo) {
-                    $log = new DocumentAssignation();
-                    $log->assigned_id = $assignTo;
-                    $logs[] = $log;
-                }
-
+                
                 foreach($requestData['assign_to'] as $assignTo) {
                     $log = new DocumentLog();
                     $log->to_id = $assignTo;
@@ -698,7 +691,6 @@ class DocumentController extends Controller
                 }
             }
             
-
         $document->assign()->saveMany($logs);
         $document->logs()->saveMany($logs);
 
@@ -721,15 +713,14 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $log = DocumentLog::where('document_id', $document->id)
-                        ->where('to_id', $user->id)
-                        ->first();
+        $log = new DocumentLog();
 
         if (!$log) {
             return response()->json(['message' => 'Document Log not found.'], 404);
         }
 
         $log->acknowledge_id = $user->id;
+        $log->document_id = $document->id;
         $log->save();
 
         return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
