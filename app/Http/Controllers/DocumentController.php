@@ -458,7 +458,7 @@ class DocumentController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        if ($user->role->level !== 1) {
+        if (!$user->role->level >= 2) {
             $documents = Document::whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             })->when($searchQuery, function ($query, $searchQuery) {
@@ -548,7 +548,7 @@ class DocumentController extends Controller
                 $minLevel = $user->role->level;
                 $divisionId = $user->role->division_id;
                 $user     = User::whereHas('role', function ($query) use ($minLevel) {
-                        $query->where('level', '>=', $minLevel)
+                        $query->where('level', '=', $minLevel +1)
                             ->where('level', '<>', 2);
                     })
                     ->whereHas('role', function ($query) use ($divisionId) {
@@ -584,7 +584,7 @@ class DocumentController extends Controller
                 },
                  'logs.user.profile',
                   'logs.acknowledgeUser.profile'])
-            ->when($user->role->level !== 1, function($query) use ($user){
+            ->when(!$user->role->level >= 2, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             });
@@ -655,8 +655,8 @@ class DocumentController extends Controller
                 $minLevel   = $users->role->level;
                 $divisionId = $users->role->division_id;
                 $users       = User::whereHas('role', function ($query) use ($minLevel) {
-                $query->where('level', '>=', $minLevel)
-                    ->where('level', '<>', 2);
+                    $query->where('level', '=', $minLevel +1)
+                      ->where('level', '<>', 2);
                 })
                 ->whereHas('role', function ($query) use ($divisionId) {
                     $query->where('division_id', $divisionId);
