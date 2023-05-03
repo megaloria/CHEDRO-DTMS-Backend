@@ -538,16 +538,23 @@ class DocumentController extends Controller
 
         }
 
-       if ($user->role->level === 3) {
-            $user = User::whereHas('role', function ($query) {
-                $query->where('level', '>', 3);
-            })->with('profile')->get();
-        } else if ($user->role->level === 4) {
-            $user = User::whereHas('role', function ($query) {
-                $query->where('level', '>', 4 );
-            })->with('profile')->get();
-        } else {
-             $user = User::with(['profile'])->get();
+        switch ($user->role->level) {
+            case 1:
+                $user = User::whereHas('role', function ($query) {
+                        $query->where('level', '<>', 2);
+                    })->with('profile')->get();
+                break;
+            default:
+                $minLevel = $user->role->level;
+                $divisionId = $user->role->division_id;
+                $user     = User::whereHas('role', function ($query) use ($minLevel) {
+                        $query->where('level', '>=', $minLevel)
+                            ->where('level', '<>', 2);
+                    })
+                    ->whereHas('role', function ($query) use ($divisionId) {
+                        $query->where('division_id', $divisionId);
+                    })->with('profile')->get();
+                    break;
         }
 
         return response()->json([
@@ -637,7 +644,26 @@ class DocumentController extends Controller
     
 
     public function getDocumentReceive (Request $request) {
-        $users = User::with(['profile'])->get();
+        $users = $request->user();
+        switch ($users->role->level) {
+            case 1:
+                $users = User::whereHas('role', function ($query) {
+                $query->where('level', '<>', 2);
+                })->with('profile')->get();
+                break;
+            default:
+                $minLevel   = $users->role->level;
+                $divisionId = $users->role->division_id;
+                $users       = User::whereHas('role', function ($query) use ($minLevel) {
+                $query->where('level', '>=', $minLevel)
+                    ->where('level', '<>', 2);
+                })
+                ->whereHas('role', function ($query) use ($divisionId) {
+                    $query->where('division_id', $divisionId);
+                })->with('profile')->get();
+                break;
+        }
+
         $documentTypes = DocumentType::get();
         $categories = Category::get();
         
@@ -699,8 +725,7 @@ class DocumentController extends Controller
 
     }
 
-    public function acknowledgeDocument(Request $request, $id)
-    {
+    public function acknowledgeDocument(Request $request, $id) {
         $user = $request->user();
 
         if (!$user) {
@@ -715,15 +740,71 @@ class DocumentController extends Controller
 
         $log = new DocumentLog();
 
-        if (!$log) {
-            return response()->json(['message' => 'Document Log not found.'], 404);
-        }
+        try {
+            DB::beginTransaction();
 
         $log->acknowledge_id = $user->id;
         $log->document_id = $document->id;
-        $log->save();
+        
+        if ($log->save()) {
+            DB::commit();
+            return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
+        }
 
-        return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
+        } catch (\Exception$e) {
+            report($e);
+        }
+
+        DB::rollBack();
+
+        return response()->json(['message' => 'Failed to acknowledge the document.'], 400);
+
+    }
+
+    public function actionDocument(Request $request, $id) {
+        $requestData = $request->only(['comment']);
+
+        $validator = Validator::make($requestData, [
+            'comment' => 'required|string',
+        ]);
+
+         if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $document = Document::find($id);
+
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.'], 404);
+        }
+
+        $log = new DocumentLog();
+
+        try {
+            DB::beginTransaction();
+
+        $log->action_id = $user->id;
+        $log->comment = $requestData['comment'];
+        $log->document_id = $document->id;
+
+        if ($log->save()) {
+            DB::commit();
+            return response()->json(['data' => $log, 'message' => 'Successfully took action on the document.'], 201);
+        }
+
+        } catch (\Exception$e) {
+            report($e);
+        }
+
+        DB::rollBack();
+
+        return response()->json(['message' => 'Failed to acknowledge the document.'], 400);
     }
 
     
