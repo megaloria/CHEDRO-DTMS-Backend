@@ -108,7 +108,7 @@ class UserSeeder extends Seeder
             'first_name' => 'Judith Mary Ann',
             'last_name' => 'Chan',
             'suffix' => '',
-            'position_designation' => 'Chief Education Program Specialist'
+            'position_designation' => 'OIC,Chief Education Program Specialist'
         ]);
 
         $role = Role::create([
