@@ -277,13 +277,24 @@ class DocumentController extends Controller
                     }
                     
                     foreach($requestData['assign_to'] as $assignTo) {
-                        $logs[] = new DocumentLog([
-                            'to_id' => $assignTo,
-                        ]);
+                        $log = new DocumentLog();
+                        $log->to_id = Profile::where(function ($query) {
+                                $query->where('position_designation', 'like', 'Regional Director%');
+                        })->value('id');
+                        $logs[] = $log;
                     }
-                    $document->assign()->saveMany($logs);
-                    $document->logs()->saveMany($logs);
-                }
+                    
+                    foreach($requestData['assign_to'] as $assignTo) {
+                        $log = new DocumentLog();
+                        $log->to_id = $assignTo;
+                        $log->from_id = Profile::where(function ($query) {
+                                $query->where('position_designation', 'like', 'Regional Director%');
+                        })->value('id');
+                        $logs[] = $log;
+                    }
+                        $document->assign()->saveMany($logs);
+                        $document->logs()->saveMany($logs);
+                    }
 
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
@@ -709,10 +720,21 @@ class DocumentController extends Controller
 
             } else {
                 $logs = [];
+
+                foreach($requestData['assign_to'] as $assignTo) {
+                    $log = new DocumentLog();
+                    $log->to_id = Profile::where(function ($query) {
+                            $query->where('position_designation', 'like', 'Regional Director%');
+                    })->value('id');
+                    $logs[] = $log;
+                }
                 
                 foreach($requestData['assign_to'] as $assignTo) {
                     $log = new DocumentLog();
                     $log->to_id = $assignTo;
+                    $log->from_id = Profile::where(function ($query) {
+                            $query->where('position_designation', 'like', 'Regional Director%');
+                    })->value('id');
                     $logs[] = $log;
                 }
             }
