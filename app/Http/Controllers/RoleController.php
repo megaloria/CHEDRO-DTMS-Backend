@@ -64,7 +64,9 @@ class RoleController extends Controller
                     ->orWhereHas('division', function ($query) use ($searchQuery) {
                         $query->where('description', 'like', "%$searchQuery%");
                     });
-            })->paginate(6);
+            })
+            ->orderBy('level')
+            ->paginate(6);
         $divisions = Division::get();
 
         return response()->json([
