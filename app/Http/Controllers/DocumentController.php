@@ -18,6 +18,7 @@ use App\Models\Sender;
 use App\Models\Hei;
 use App\Models\Nga;
 use App\Models\ChedOffice;
+use App\Models\Division;
 use App\Models\DocumentLog;
 use App\Models\DocumentAssignation;
 use App\Models\Profile;
@@ -174,7 +175,7 @@ class DocumentController extends Controller
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
             'assign_to' => 'array|nullable',
-            'assign_to.*' => 'integer|min:1|exists:users,id'
+            'assign_to.*' => 'integer|min:1'
         ]);
 
         if ($validator->fails()) {
@@ -189,6 +190,11 @@ class DocumentController extends Controller
         $category = Category::find($requestData['category_id']);
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        $users = User::with('role')->whereIn('id', $requestData['assign_to']) -> get();
+        if($users->count() !== count($requestData['assign_to'])) {
+            return response()->json(['message' => 'User not found.'], 404);
         }
 
         $dateReceived = Carbon::parse($requestData['date_received']);
@@ -269,30 +275,51 @@ class DocumentController extends Controller
                     $document->logs()->save($log);
 
                 } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-                    $logs = [];
+                    $assignations = [];
                     foreach($requestData['assign_to'] as $assignTo) {
-                        $logs[] = new DocumentAssignation([
+                        $assignations[] = new DocumentAssignation([
                             'assigned_id' => $assignTo,
                         ]);
                     }
+
+                    $logs = [];
+                    $logs = [];
+                $divisions = Division::with([
+                    'role' => function($query) {
+                        $query -> where('level', 3);
+                    }, 
+                    'role.user'
+                ])->get();
+
+                    $log = new DocumentLog();
+                    $log->to_id = Profile::where(function ($query) {
+                            $query->where('position_designation', 'like', 'Regional Director%');
+                    })->value('id');
+                    $logs[] = $log;
+
+                foreach($divisions as $division) {
+                    $filteredUsers = $users->filter(function ($value, int $key) use($division) {
+                        return $value->role->division_id === $division->id;
+                    });
                     
-                    foreach($requestData['assign_to'] as $assignTo) {
+                    if($filteredUsers->count() > 0){
                         $log = new DocumentLog();
-                        $log->to_id = Profile::where(function ($query) {
-                                $query->where('position_designation', 'like', 'Regional Director%');
-                        })->value('id');
-                        $logs[] = $log;
-                    }
-                    
-                    foreach($requestData['assign_to'] as $assignTo) {
-                        $log = new DocumentLog();
-                        $log->to_id = $assignTo;
+
+                        $log->to_id = $division->role->user->id;
                         $log->from_id = Profile::where(function ($query) {
                                 $query->where('position_designation', 'like', 'Regional Director%');
                         })->value('id');
                         $logs[] = $log;
+
+                        foreach($filteredUsers as $assignTo) {
+                            $log = new DocumentLog();
+                            $log->to_id = $assignTo->id;
+                            $log->from_id = $division->role->user->id;
+                            $logs[] = $log;
+                        }
                     }
-                        $document->assign()->saveMany($logs);
+                }
+                        $document->assign()->saveMany($assignations);
                         $document->logs()->saveMany($logs);
                     }
 
@@ -572,6 +599,7 @@ class DocumentController extends Controller
             'data' => [
                 'documents' => $documents,
                 'user' => $user
+               
             ],
             'message' => 'Successfully fetched the documents.'
         ], 200);
@@ -695,7 +723,7 @@ class DocumentController extends Controller
     
         $validator = Validator::make($requestData, [
             'assign_to' => 'array|required',
-            'assign_to.*' => 'integer|min:1|exists:users,id'
+            'assign_to.*' => 'integer|min:1'
         ]);
 
         if ($validator->fails()) {
@@ -705,6 +733,12 @@ class DocumentController extends Controller
         $document = Document::find($id);
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
+        }
+
+        $users = User::with('role')->whereIn('id', $requestData['assign_to']) -> get();
+
+        if($users->count() !== count($requestData['assign_to'])) {
+            return response()->json(['message' => 'User not found.'], 404);
         }
 
         if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
@@ -720,23 +754,43 @@ class DocumentController extends Controller
 
             } else {
                 $logs = [];
+                $divisions = Division::with([
+                    'role' => function($query) {
+                        $query -> where('level', 3);
+                    }, 
+                    'role.user'
+                ])->get();
 
-                foreach($requestData['assign_to'] as $assignTo) {
                     $log = new DocumentLog();
                     $log->to_id = Profile::where(function ($query) {
                             $query->where('position_designation', 'like', 'Regional Director%');
                     })->value('id');
                     $logs[] = $log;
+
+                foreach($divisions as $division) {
+                    $filteredUsers = $users->filter(function ($value, int $key) use($division) {
+                        return $value->role->division_id === $division->id;
+                    });
+                    
+                    if($filteredUsers->count() > 0){
+                        $log = new DocumentLog();
+
+                        $log->to_id = $division->role->user->id;
+                        $log->from_id = 1;
+                        // $log->from_id = Profile::where(function ($query) {
+                        //         $query->where('position_designation', 'like', 'Regional Director%');
+                        // })->value('id');
+                        $logs[] = $log;
+
+                        foreach($filteredUsers as $assignTo) {
+                            $log = new DocumentLog();
+                            $log->to_id = $assignTo->id;
+                            $log->from_id = $division->role->user->id;
+                            $logs[] = $log;
+                        }
+                    }
                 }
-                
-                foreach($requestData['assign_to'] as $assignTo) {
-                    $log = new DocumentLog();
-                    $log->to_id = $assignTo;
-                    $log->from_id = Profile::where(function ($query) {
-                            $query->where('position_designation', 'like', 'Regional Director%');
-                    })->value('id');
-                    $logs[] = $log;
-                }
+                    
             }
             
         $document->assign()->saveMany($logs);
