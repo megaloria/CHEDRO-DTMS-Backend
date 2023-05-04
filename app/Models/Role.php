@@ -24,4 +24,8 @@ class Role extends Model
         return $this->belongsTo('App\Models\Division');
     }
 
+    public function user() {
+        return $this->hasOne('App\Models\User');
+    }
+
 }
