@@ -11,7 +11,13 @@ class DocumentLog extends Model
 
     protected $fillable = [
         'to_id',
-        'acknowledge_id'
+        'from_id',
+        'acknowledge_id',
+        'action_id',
+        'comment',
+        'approved_id',
+        'rejected_id',
+        'released_at'
     ];
 
     public function user() {

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('document_logs', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('document_id')->unsigned()->nullable();
+            $table->bigInteger('assigned_id')->unsigned()->nullable();
             $table->bigInteger('from_id')->unsigned()->nullable();
             $table->bigInteger('to_id')->unsigned()->nullable();
             $table->bigInteger('action_id')->unsigned()->nullable();
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->bigInteger('approved_id')->unsigned()->nullable();
             $table->bigInteger('rejected_id')->unsigned()->nullable();
+            $table->date('released_at')->nullable();
             $table->timestamps();
 
             $table->foreign('document_id')
@@ -28,6 +30,12 @@ return new class extends Migration
                 ->on('documents')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
+
+            $table->foreign('assigned_id')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete()
+                ->restrictOnUpdate();
 
             $table->foreign('from_id')
                 ->references('id')
