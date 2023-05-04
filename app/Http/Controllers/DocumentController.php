@@ -496,7 +496,7 @@ class DocumentController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        if (!$user->role->level >= 2) {
+        if (!$user->role->level === 1) {
             $documents = Document::whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             })->when($searchQuery, function ($query, $searchQuery) {
@@ -538,8 +538,7 @@ class DocumentController extends Controller
         })
         ->when($status === 'mydocument', function ($query) use ($user) {
             $query->where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhereHas('logs', function ($query) use ($user) {
+                $query->whereHas('logs', function ($query) use ($user) {
                         $query->where('to_id', $user->id);
                     })
                     ->orWhereHas('assign', function ($query) use ($user) {
@@ -623,7 +622,7 @@ class DocumentController extends Controller
                 },
                  'logs.user.profile',
                   'logs.acknowledgeUser.profile'])
-            ->when(!$user->role->level >= 2, function($query) use ($user){
+            ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             });
@@ -687,7 +686,7 @@ class DocumentController extends Controller
         switch ($users->role->level) {
             case 1:
                 $users = User::whereHas('role', function ($query) {
-                $query->where('level', '<>', 2);
+                    $query->where('level', '<>', 2);
                 })->with('profile')->get();
                 break;
             default:
@@ -776,10 +775,9 @@ class DocumentController extends Controller
                         $log = new DocumentLog();
 
                         $log->to_id = $division->role->user->id;
-                        $log->from_id = 1;
-                        // $log->from_id = Profile::where(function ($query) {
-                        //         $query->where('position_designation', 'like', 'Regional Director%');
-                        // })->value('id');
+                        $log->from_id = Profile::where(function ($query) {
+                                $query->where('position_designation', 'like', 'Regional Director%');
+                        })->value('id');
                         $logs[] = $log;
 
                         foreach($filteredUsers as $assignTo) {
