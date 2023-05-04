@@ -13,4 +13,8 @@ class Division extends Model
         'id',
         'description'
     ];
+
+    public function role() {
+        return $this->hasOne('App\Models\Role');
+    }
 }
