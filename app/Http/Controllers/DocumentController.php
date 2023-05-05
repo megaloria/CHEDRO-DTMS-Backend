@@ -192,11 +192,13 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Category not found'], 404);
         }
 
-        $users = User::with('role')->whereIn('id', $requestData['assign_to']) -> get();
-        if($users->count() !== count($requestData['assign_to'])) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
-
+         if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+            $users = User::with('role')->whereIn('id', $requestData['assign_to'])->get();
+            if ($users->count() !== count($requestData['assign_to'])) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+         }
+        
         $dateReceived = Carbon::parse($requestData['date_received']);
         $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
         $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
@@ -734,6 +736,8 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
+        $category = $document->category_id;
+
         $users = User::with('role')->whereIn('id', $requestData['assign_to']) -> get();
 
         if($users->count() !== count($requestData['assign_to'])) {
@@ -765,8 +769,8 @@ class DocumentController extends Controller
                             $query->where('position_designation', 'like', 'Regional Director%');
                     })->value('id');
                     $logs[] = $log;
-
-                foreach($divisions as $division) {
+                if (!$category !== 3) {
+                    foreach($divisions as $division) {
                     $filteredUsers = $users->filter(function ($value, int $key) use($division) {
                         return $value->role->division_id === $division->id;
                     });
@@ -787,15 +791,16 @@ class DocumentController extends Controller
                             $logs[] = $log;
                         }
 
-                        $assigned = [];
-                        $document->assign()->delete();
+                        }
+                    }
+                }
+                
+                }
+                $assigned = [];
                         foreach($requestData['assign_to'] as $assignTo) {
                             $log = new DocumentAssignation();
                             $log->assigned_id = $assignTo;
                             $assigned[] = $log;
-                        }
-                    }
-                }
                     
             }
             
