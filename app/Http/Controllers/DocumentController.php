@@ -786,12 +786,20 @@ class DocumentController extends Controller
                             $log->from_id = $division->role->user->id;
                             $logs[] = $log;
                         }
+
+                        $assigned = [];
+                        $document->assign()->delete();
+                        foreach($requestData['assign_to'] as $assignTo) {
+                            $log = new DocumentAssignation();
+                            $log->assigned_id = $assignTo;
+                            $assigned[] = $log;
+                        }
                     }
                 }
                     
             }
             
-        $document->assign()->saveMany($logs);
+        $document->assign()->saveMany($assigned);
         $document->logs()->saveMany($logs);
 
         }
