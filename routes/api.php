@@ -207,6 +207,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::post('/forward', [DocumentController::class, 'forwardDocument']);
                 Route::post('/acknowledge', [DocumentController::class, 'acknowledgeDocument']);
                 Route::post('/action', [DocumentController::class, 'actionDocument']);
+                Route::post('/approve', [DocumentController::class, 'approveDocument']);
+                Route::post('/reject', [DocumentController::class, 'rejectDocument']);
+                Route::post('/release', [DocumentController::class, 'releaseDocument']);
             });
         
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);

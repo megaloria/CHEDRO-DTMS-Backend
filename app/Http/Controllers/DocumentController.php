@@ -285,7 +285,7 @@ class DocumentController extends Controller
                     }
 
                     $logs = [];
-                    $logs = [];
+
                 $divisions = Division::with([
                     'role' => function($query) {
                         $query -> where('level', 3);
@@ -314,10 +314,14 @@ class DocumentController extends Controller
                         $logs[] = $log;
 
                         foreach($filteredUsers as $assignTo) {
-                            $log = new DocumentLog();
-                            $log->to_id = $assignTo->id;
-                            $log->from_id = $division->role->user->id;
-                            $logs[] = $log;
+                            if (!$assignTo->id === $division->role->user->id) {
+                                $log = new DocumentLog();
+                                $log->assigned_id = $assignTo->id;
+                                $log->to_id = $assignTo->id;
+                                $log->from_id = $division->role->user->id;
+                                $logs[] = $log;
+                            }
+
                         }
                     }
                 }
@@ -498,7 +502,7 @@ class DocumentController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        if (!$user->role->level === 1) {
+        if ($user->role->level >= 2) {
             $documents = Document::whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             })->when($searchQuery, function ($query, $searchQuery) {
@@ -896,19 +900,29 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
+        $return = $document->logs()->where('to_id', $user->id)->last();
+        $actioned = $document->logs()->where('action_id', $return->from_id)->exists();
+        $logs = [];
 
-        $log = new DocumentLog();
 
         try {
             DB::beginTransaction();
 
-        $log->acknowledge_id = $user->id;
-        $log->document_id = $document->id;
+            if ($actioned) {
+                $log = new DocumentLog();
+                $log->action_id = $return->from_id;
+                $log->acknowledge_id = $user->id;
+                $logs[] = $log;
+            } else {
+                $log = new DocumentLog();
+                $log->acknowledge_id = $user->id;
+                $logs[] = $log;
+            }
 
-        if ($log->save()) {
-            DB::commit();
-            return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
-        }
+            if ($document->logs()->saveMany($logs)) {
+                DB::commit();
+                return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
+            }
 
         } catch (\Exception$e) {
             report($e);
@@ -942,20 +956,28 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
-
-        $log = new DocumentLog();
+        $return = $document->logs()->where('to_id', $user->id)->first();
+        $logs = [];
 
         try {
             DB::beginTransaction();
 
-        $log->action_id = $user->id;
-        $log->comment = $requestData['comment'];
-        $log->document_id = $document->id;
+            $log = new DocumentLog();
+            $log->action_id = $user->id;
+            $log->comment = $requestData['comment'];
+            $logs[] = $log;
 
-        if ($log->save()) {
-            DB::commit();
-            return response()->json(['data' => $log, 'message' => 'Successfully took action on the document.'], 201);
-        }
+            $log = new DocumentLog();
+            $log->from_id = $user->id;
+            $log->to_id = $return->from_id;
+            $log->action_id = $user->id;
+            $logs[] = $log;
+
+
+            if ($document->logs()->saveMany($logs)) {
+                DB::commit();
+                return response()->json(['data' => $log, 'message' => 'Successfully took action on the document.'], 201);
+            }
 
         } catch (\Exception$e) {
             report($e);
@@ -963,9 +985,169 @@ class DocumentController extends Controller
 
         DB::rollBack();
 
-        return response()->json(['message' => 'Failed to acknowledge the document.'], 400);
+        return response()->json(['message' => 'Failed to take action on the document.'], 400);
     }
 
+    public function approveDocument(Request $request, $id) {
+        $requestData = $request->only(['comment']);
+
+        $validator = Validator::make($requestData, [
+            'comment' => 'nullable|string',
+        ]);
+
+         if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $document = Document::find($id);
+
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.'], 404);
+        }
+        $action = $document->logs()->where('acknowledge_id', $user->id)
+                                ->whereNotNull('action_id')->first();
+        $return = $document->logs()->where('to_id', $user->id)
+                                ->whereNull('action_id')->first();
+        $logs = [];
+
+        try {
+            DB::beginTransaction();
+
+                $log = new DocumentLog();
+                $log->action_id = $action->action_id;
+                $log->approved_id = $user->id;
+                $log->comment = $requestData['comment'];
+                $logs[] = $log;
+
+                $log = new DocumentLog();
+                $log->from_id = $user->id;
+                $log->to_id = $return->from_id;
+                $log->action_id = $action->action_id;
+                $log->approved_id = $user->id;
+                $log->comment = $requestData['comment'];
+                $logs[] = $log;
+
+            if ($document->logs()->saveMany($logs)) {
+                DB::commit();
+                return response()->json(['data' => $log, 'message' => 'Successfully approved the document.'], 201);
+            }
+
+        } catch (\Exception$e) {
+            report($e);
+        }
+
+        DB::rollBack();
+
+        return response()->json(['message' => 'Failed to approve the document.'], 400);
+
+    }
+
+    public function rejectDocument(Request $request, $id) {
+        $requestData = $request->only(['comment']);
+
+        $validator = Validator::make($requestData, [
+            'comment' => 'nullable|string',
+        ]);
+
+         if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $document = Document::find($id);
+
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.'], 404);
+        }
+        $action = $document->logs()->where('acknowledge_id', $user->id)
+                                ->whereNotNull('action_id')->first();
+        $return = $document->logs()->where('to_id', $user->id)
+                                ->whereNotNull('action_id')->first();
+        $logs   = [];
+
+        try {
+            DB::beginTransaction();
+
+            $log = new DocumentLog();
+            $log->action_id = $action->action_id;
+            $log->rejected_id = $user->id;
+            $log->comment = $requestData['comment'];
+            $logs[] = $log;
+
+            $log = new DocumentLog();
+            $log->from_id = $user->id;
+            $log->to_id = $return->from_id;
+            $log->action_id = $action->action_id;
+            $log->rejected_id = $user->id;
+            $log->comment = $requestData['comment'];
+            $logs[] = $log;
+
+            if ($document->logs()->saveMany($logs)) {
+                DB::commit();
+                return response()->json(['data' => $log, 'message' => 'Successfully rejected the document.'], 201);
+            }
+
+        } catch (\Exception$e) {
+            report($e);
+        }
+
+        DB::rollBack();
+
+        return response()->json(['message' => 'Failed to approve the document.'], 400);
+
+    }
+
+    public function releaseDocument(Request $request, $id) {
+        $requestData = $request->only(['date_released']);
+
+        $validator = Validator::make($requestData, [
+            'date_released' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $document = Document::find($id);
+
+        if (!$document) {
+            return response()->json([
+                'message' => 'Document not found.'
+            ], 404);
+        }
+
+        $release = $document->logs()->where('from_id', 2)
+                                    ->whereNull('to_id')
+                                    ->whereNotNull('approved_id')
+                                    ->first();
+
+        try {
+            DB::beginTransaction();
+
+            $release->released_at = Carbon::parse($requestData['date_released']);
+
+            if ($release->save()) {
+                DB::commit();
+                return response()->json(['data' => $release, 'message' => 'Successfully released the document.'], 201);
+            }
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json([
+                'message' => 'Failed to release the document.'
+            ], 400);
+        }
+    }
 
     public function deleteAttachment(Request $request, $id) {
         $document = Document::find($id);
