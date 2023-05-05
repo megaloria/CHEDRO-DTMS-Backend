@@ -22,6 +22,27 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+
+        $role = Role::create([
+            'description' => 'Regional Director IV',
+            'level' => 2
+        ]);
+
+        $user = User::create([
+            'role_id' => $role->id,
+            'username' => 'chedro4_rd',
+            'password' => Hash::make('chedro1234')
+        ]);
+
+        Profile::create([
+            'id' => $user->id,
+            'prefix' => 'Dr.',
+            'first_name' => 'Virginia',
+            'last_name' => 'Akiate',
+            'suffix' => ', CESO III',
+            'position_designation' => 'Regional Director IV'
+        ]);
+
         $division = Division::create([
             'description' => 'Administrative'
         ]);
@@ -40,33 +61,10 @@ class UserSeeder extends Seeder
 
         Profile::create([
             'id' => $user->id,
+            'prefix' => 'Mr.',
             'first_name' => 'Jun',
             'last_name' => 'Magbanua',
-            'position_designation' => 'Records Officer'
-        ]);
-
-        $division = Division::create([
-            'description' => 'Technical'
-        ]);
-
-        $role = Role::create([
-            'description' => 'Regional Director IV',
-            'level' => 2
-        ]);
-
-        $user = User::create([
-            'role_id' => $role->id,
-            'username' => 'chedro4_rd',
-            'password' => Hash::make('chedro1234')
-        ]);
-
-        Profile::create([
-            'id' => $user->id,
-            'prefix' => 'Dr.',
-            'first_name' => 'Virginia',
-            'last_name' => 'Akiate',
-            'suffix' => ', CES0 III',
-            'position_designation' => 'Regional Director IV'
+            'position_designation' => 'Administrative Officer III (Records Officer)'
         ]);
 
         $role = Role::create([
@@ -89,7 +87,32 @@ class UserSeeder extends Seeder
             'suffix' => ', DPA',
             'position_designation' => 'Chief Administrative Officer'
         ]);
-        
+        //start
+        $role = Role::create([
+            'division_id' => $division->id,
+            'description' => 'Accountant II',
+            'level' => 5
+        ]);
+
+        $user = User::create([
+            'role_id' => $role->id,
+            'username' => 'chedro4_accountant',
+            'password' => Hash::make('chedro1234')
+        ]);
+
+        Profile::create([
+            'id' => $user->id,
+            'prefix' => 'Ms.',
+            'first_name' => 'Danica',
+            'last_name' => 'De Silva',
+            'suffix' => '',
+            'position_designation' => 'Accountant II'
+        ]);
+
+        $division = Division::create([
+            'description' => 'Technical'
+        ]);
+
         $role = Role::create([
             'division_id' => $division->id,
             'description' => 'Chief Education Program Specialist',
@@ -104,7 +127,7 @@ class UserSeeder extends Seeder
 
         Profile::create([
             'id' => $user->id,
-            'prefix' => 'Maam',
+            'prefix' => 'Mrs.',
             'first_name' => 'Judith Mary Ann',
             'last_name' => 'Chan',
             'suffix' => '',
@@ -125,7 +148,7 @@ class UserSeeder extends Seeder
 
         Profile::create([
             'id' => $user->id,
-            'prefix' => 'Sir',
+            'prefix' => 'Mr.',
             'first_name' => 'Loupel',
             'last_name' => 'Gueta',
             'suffix' => '',
@@ -152,7 +175,5 @@ class UserSeeder extends Seeder
             'suffix' => '',
             'position_designation' => 'Education Supervisor II'
         ]);
-
-        
     }
 }
