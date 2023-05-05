@@ -498,7 +498,7 @@ class DocumentController extends Controller
 
         $searchQuery = $allQuery['query'];
 
-        if (!$user->role->level === 1) {
+        if ($user->role->level >= 2) {
             $documents = Document::whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             })->when($searchQuery, function ($query, $searchQuery) {
