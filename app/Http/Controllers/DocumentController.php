@@ -769,6 +769,7 @@ class DocumentController extends Controller
                             $query->where('position_designation', 'like', 'Regional Director%');
                     })->value('id');
                     $logs[] = $log;
+
                 if (!$category !== 3) {
                     foreach($divisions as $division) {
                     $filteredUsers = $users->filter(function ($value, int $key) use($division) {
@@ -785,10 +786,13 @@ class DocumentController extends Controller
                         $logs[] = $log;
 
                         foreach($filteredUsers as $assignTo) {
-                            $log = new DocumentLog();
-                            $log->to_id = $assignTo->id;
-                            $log->from_id = $division->role->user->id;
-                            $logs[] = $log;
+                            if (!$assignTo->id === $division->role->user->id) {
+                                $log = new DocumentLog();
+                                $log->to_id = $assignTo->id;
+                                $log->from_id = $division->role->user->id;
+                                $logs[] = $log;
+                            }
+                            
                         }
 
                         }
