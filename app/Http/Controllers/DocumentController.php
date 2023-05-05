@@ -23,7 +23,7 @@ use App\Models\DocumentLog;
 use App\Models\DocumentAssignation;
 use App\Models\Profile;
 
-class DocumentController extends Controller 
+class DocumentController extends Controller
 {
     public function addDocument (Request $request) {
         $user = $request->user();
@@ -67,7 +67,7 @@ class DocumentController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $receivable = null;
             switch ($requestData['receivable_type']) {
                 case 'HEIs':
@@ -96,7 +96,7 @@ class DocumentController extends Controller
                 $sender->name = null;
                 $sender->receivable()->associate($receivable);
             }
-            $sender->save();          
+            $sender->save();
 
             $document = new Document([
                 'user_id' => $user->id,
@@ -108,7 +108,7 @@ class DocumentController extends Controller
                 'category_id' => $requestData['category_id'],
                 'series_no' => $seriesNo
             ]);
- 
+
             if ($document->save()) {
 
                 if ($requestFile) {
@@ -198,7 +198,7 @@ class DocumentController extends Controller
                 return response()->json(['message' => 'User not found.'], 404);
             }
          }
-        
+
         $dateReceived = Carbon::parse($requestData['date_received']);
         $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
         $seriesNo = $latestDocument ? $latestDocument->series_no+1 : 1;
@@ -206,7 +206,7 @@ class DocumentController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $receivable = null;
             switch ($requestData['receivable_type']) {
                 case 'HEIs':
@@ -235,7 +235,7 @@ class DocumentController extends Controller
                 $sender->name = null;
                 $sender->receivable()->associate($receivable);
             }
-            $sender->save();          
+            $sender->save();
 
             $document = new Document([
                 'user_id' => $user->id,
@@ -247,7 +247,7 @@ class DocumentController extends Controller
                 'category_id' => $requestData['category_id'],
                 'series_no' => $seriesNo
             ]);
- 
+
             if ($document->save()) {
 
                 if ($requestFile) {
@@ -289,7 +289,7 @@ class DocumentController extends Controller
                 $divisions = Division::with([
                     'role' => function($query) {
                         $query -> where('level', 3);
-                    }, 
+                    },
                     'role.user'
                 ])->get();
 
@@ -303,7 +303,7 @@ class DocumentController extends Controller
                     $filteredUsers = $users->filter(function ($value, int $key) use($division) {
                         return $value->role->division_id === $division->id;
                     });
-                    
+
                     if($filteredUsers->count() > 0){
                         $log = new DocumentLog();
 
@@ -392,7 +392,7 @@ class DocumentController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $receivable = null;
             switch ($requestData['receivable_type']) {
                 case 'HEIs':
@@ -426,11 +426,11 @@ class DocumentController extends Controller
             $document->user_id = $user->id;
             $document->document_type_id = $documentType->id;
             $document->tracking_no = $trackingNo;
-            $document->date_received = $requestData['date_received']; 
+            $document->date_received = $requestData['date_received'];
             $document->description = $requestData['description'];
-            $document->category_id = $requestData['category_id']; 
+            $document->category_id = $requestData['category_id'];
             $document->series_no = $seriesNo;
-          
+
             if ($document->save()) {
 
                 if ($requestFile) {
@@ -443,11 +443,11 @@ class DocumentController extends Controller
                         'file_name' => $fileName,
                         'file_title' => $requestFile->getClientOriginalName()
                     ]);
-                    
+
                     $attachment->save();
                 }
 
-              
+
                if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
                             $query->where('position_designation', 'like', 'Regional Director%');
@@ -466,7 +466,7 @@ class DocumentController extends Controller
                             $logs[] = $log;
                         }
                         $document->assign()->saveMany($logs);
-                    } 
+                    }
                 }
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
@@ -475,12 +475,12 @@ class DocumentController extends Controller
         } catch (\Exception$e) {
             report($e);
         }
-        
+
         DB::rollBack();
         return response()->json(['message' => 'Failed to update the document.'], 400);
 
     }
-    
+
     public function getDocuments (Request $request, $status = null) {
         $user = $request -> user();
         $allQuery = $request->query->all();
@@ -579,20 +579,34 @@ class DocumentController extends Controller
 
         switch ($user->role->level) {
             case 1:
-                $user = User::whereHas('role', function ($query) {
+                $user = User::with([
+                        'profile',
+                        'role.division.role' => function ($query) {
+                            $query->where('level', 3);
+                        },
+                        'role.division.role.user'
+                    ])
+                    ->whereHas('role', function ($query) {
                         $query->where('level', '<>', 2);
-                    })->with('profile')->get();
+                    })
+                    ->get();
                 break;
             default:
                 $minLevel = $user->role->level;
                 $divisionId = $user->role->division_id;
-                $user     = User::whereHas('role', function ($query) use ($minLevel) {
+                $user = User::with([
+                        'profile',
+                        'role.division.role' => function ($query) {
+                            $query->where('level', 3);
+                        },
+                        'role.division.role.user'
+                    ])
+                    ->whereHas('role', function ($query) use ($minLevel, $divisionId) {
                         $query->where('level', '=', $minLevel +1)
-                            ->where('level', '<>', 2);
+                            ->where('level', '<>', 2)
+                            ->where('division_id', $divisionId);
                     })
-                    ->whereHas('role', function ($query) use ($divisionId) {
-                        $query->where('division_id', $divisionId);
-                    })->with('profile')->get();
+                    ->get();
                     break;
         }
 
@@ -600,18 +614,18 @@ class DocumentController extends Controller
             'data' => [
                 'documents' => $documents,
                 'user' => $user
-               
+
             ],
             'message' => 'Successfully fetched the documents.'
         ], 200);
     }
-    
+
     public function getDocument (Request $request, $id) {
         $user = $request->user();
-        
+
         $document = Document::with([
             'attachments',
-             'sender.receivable', 
+             'sender.receivable',
              'user.profile',
               'documentType',
                'category',
@@ -628,11 +642,11 @@ class DocumentController extends Controller
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
             });
-            })          
+            })
             ->find($id);
-            
+
            $fileUrl = Storage::url($document->attachments?->file_name);
-           
+
 
         if (!$document) {
             return response()->json(['message' => 'Document Type not found.'], 404);
@@ -645,7 +659,7 @@ class DocumentController extends Controller
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
-       
+
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
@@ -681,32 +695,46 @@ class DocumentController extends Controller
         $seriesNo = $document ? $document->series_no+1 : 1;
         return response()->json(['data' => $seriesNo, 'message' => 'Successfully fetched the latest series number.'], 200);
     }
-    
+
 
     public function getDocumentReceive (Request $request) {
-        $users = $request->user();
-        switch ($users->role->level) {
+        $user = $request->user();
+        switch ($user->role->level) {
             case 1:
-                $users = User::whereHas('role', function ($query) {
-                    $query->where('level', '<>', 2);
-                })->with('profile')->get();
+                $users = User::with([
+                        'profile',
+                        'role.division.role' => function ($query) {
+                            $query->where('level', 3);
+                        },
+                        'role.division.role.user'
+                    ])
+                    ->whereHas('role', function ($query) {
+                        $query->where('level', '<>', 2);
+                    })
+                    ->get();
                 break;
             default:
                 $minLevel   = $users->role->level;
                 $divisionId = $users->role->division_id;
-                $users       = User::whereHas('role', function ($query) use ($minLevel) {
-                    $query->where('level', '=', $minLevel +1)
-                      ->where('level', '<>', 2);
-                })
-                ->whereHas('role', function ($query) use ($divisionId) {
-                    $query->where('division_id', $divisionId);
-                })->with('profile')->get();
+                $users = User::with([
+                        'profile',
+                        'role.division.role' => function ($query) {
+                            $query->where('level', 3);
+                        },
+                        'role.division.role.user'
+                    ])
+                    ->whereHas('role', function ($query) use ($minLevel, $divisionId) {
+                        $query->where('level', '=', $minLevel +1)
+                            ->where('level', '<>', 2)
+                            ->where('division_id', $divisionId);
+                    })
+                    ->get();
                 break;
         }
 
         $documentTypes = DocumentType::get();
         $categories = Category::get();
-        
+
 
             return response()->json([
                 'data' => [
@@ -719,11 +747,11 @@ class DocumentController extends Controller
     }
 
     public function forwardDocument (Request $request, $id) {
-        $requestData = $request->only(['assign_to' ]);
+        $requestData = $request->only(['assign_to']);
         $user = $request->user();
-    
+
         $validator = Validator::make($requestData, [
-            'assign_to' => 'array|required',
+            'assign_to' => 'array|required|min:1',
             'assign_to.*' => 'integer|min:1'
         ]);
 
@@ -731,89 +759,129 @@ class DocumentController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $document = Document::find($id);
+        $document = Document::with(['assign.assignedUser', 'logs'])->find($id);
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $category = $document->category_id;
+        $usersToAssign = User::with('role')->whereIn('id', $requestData['assign_to'])->get();
 
-        $users = User::with('role')->whereIn('id', $requestData['assign_to']) -> get();
-
-        if($users->count() !== count($requestData['assign_to'])) {
+        if($usersToAssign->count() !== count($requestData['assign_to'])) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-            if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
-                $logs = [];
-               
-                foreach ($requestData['assign_to'] as $assignTo) {
-                    $log        = new DocumentLog();
-                    $log->from_id = $user->id;
-                    $log->to_id = $assignTo;
-                    $logs[]     = $log;
+        $usersAcknowledged = $document->logs->whereNotNull('acknowledge_id')->pluck('acknowledge_id');
+
+        $divisions = Division::with([
+            'role' => function ($query) {
+                $query->where('level', 3);
+            },
+            'role.user'
+        ])
+        ->get();
+
+        $director = Profile::where(function ($query) {
+                $query->where('position_designation', 'like', 'Regional Director%');
+            })
+            ->first();
+
+        try {
+            DB::beginTransaction();
+
+            $toRemove = collect([]);
+            foreach ($document->assign as $assigned) {
+                if (!$usersToAssign->where('id', $assigned->assigned_id)->first() && !$usersAcknowledged->search($assigned->assigned_id)) {
+                    $assigned->delete();
+                    $toRemove->push($assigned->assignedUser);
                 }
+            }
 
-            } else {
-                $logs = [];
-                $divisions = Division::with([
-                    'role' => function($query) {
-                        $query -> where('level', 3);
-                    }, 
-                    'role.user'
-                ])->get();
+            $assigned = [];
+            $logs = [];
 
-                    $log = new DocumentLog();
-                    $log->to_id = Profile::where(function ($query) {
-                            $query->where('position_designation', 'like', 'Regional Director%');
-                    })->value('id');
-                    $logs[] = $log;
+            if ($document->logs->count() === 0) {
+                $log = new DocumentLog();
+                $log->to_id = $director->id;
+                $logs[] = $log;
+            }
 
-                if (!$category !== 3) {
-                    foreach($divisions as $division) {
-                    $filteredUsers = $users->filter(function ($value, int $key) use($division) {
-                        return $value->role->division_id === $division->id;
-                    });
-                    
-                    if($filteredUsers->count() > 0){
+            foreach($divisions as $division) {
+
+                $chiefLogRow = $document->logs->where('to_id', $division->role->user->id)->where('from_id', $director->id)->first();
+
+                // Adding users
+                $filteredToAddUsers = $usersToAssign->filter(function ($value, int $key) use ($division) {
+                    return $value->role->division_id === $division->id;
+                });
+
+                if ($filteredToAddUsers->count() > 0) {
+                    if (!$chiefLogRow) {
                         $log = new DocumentLog();
-
                         $log->to_id = $division->role->user->id;
-                        $log->from_id = Profile::where(function ($query) {
-                                $query->where('position_designation', 'like', 'Regional Director%');
-                        })->value('id');
+                        $log->from_id = $director->id;
                         $logs[] = $log;
+                    }
 
-                        foreach($filteredUsers as $assignTo) {
-                            if (!$assignTo->id === $division->role->user->id) {
+                    foreach($filteredToAddUsers as $assignTo) {
+                        if ($assignTo->id !== $division->role->user->id) {
+                            if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
+                                $log = new DocumentLog();
+                                $log->to_id = $assignTo->id;
+                                $log->from_id = $division->role->user->id;
+                                $logs[] = $log;
+
+                                $documentAssignation = new DocumentAssignation();
+                                $documentAssignation->assigned_id = $assignTo->id;
+                                $assigned[] = $documentAssignation;
+                            } else if (!$document->logs->where('from_id', $division->role->user->id)->where('to_id', $assignTo->id)->first()) {
                                 $log = new DocumentLog();
                                 $log->to_id = $assignTo->id;
                                 $log->from_id = $division->role->user->id;
                                 $logs[] = $log;
                             }
-                            
-                        }
-
+                        } else {
+                            $documentAssignation = new DocumentAssignation();
+                            $documentAssignation->assigned_id = $assignTo->id;
+                            $assigned[] = $documentAssignation;
                         }
                     }
                 }
-                
+
+                $document->assign()->saveMany($assigned);
+                $document->logs()->saveMany($logs);
+
+                // Removing users
+                $filteredToRemoveUsers = $toRemove->filter(function ($value, int $key) use ($division) {
+                    return $value->role->division_id === $division->id;
+                });
+
+                if ($filteredToRemoveUsers->count() > 0) {
+                    $removeIds = [];
+                    foreach($filteredToRemoveUsers as $assignTo) {
+                        if ($assignTo->id !== $division->role->user->id) {
+                            $removeIds[] = $assignTo->id;
+                        }
+                    }
+
+                    $document->logs()
+                        ->whereIn('to_id', $removeIds)
+                        ->where('from_id', $division->role->user->id)
+                        ->delete();
+
+                    if ($chiefLogRow && $document->logs()->where('from_id', $division->role->user->id)->count() === 0) {
+                        $chiefLogRow->delete();
+                    }
                 }
-                $assigned = [];
-                        foreach($requestData['assign_to'] as $assignTo) {
-                            $log = new DocumentAssignation();
-                            $log->assigned_id = $assignTo;
-                            $assigned[] = $log;
-                    
             }
-            
-        $document->assign()->saveMany($assigned);
-        $document->logs()->saveMany($logs);
 
+            DB::commit();
+            return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
+        } catch (\Exception $e) {
+            report($e);
         }
-        return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
 
+        DB::rollBack();
+        return response()->json(['message' => 'Failed to forward document.'], 400);
     }
 
     public function acknowledgeDocument(Request $request, $id) {
@@ -836,7 +904,7 @@ class DocumentController extends Controller
 
         $log->acknowledge_id = $user->id;
         $log->document_id = $document->id;
-        
+
         if ($log->save()) {
             DB::commit();
             return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
@@ -898,14 +966,14 @@ class DocumentController extends Controller
         return response()->json(['message' => 'Failed to acknowledge the document.'], 400);
     }
 
-    
+
     public function deleteAttachment(Request $request, $id) {
         $document = Document::find($id);
 
         if (!$document) {
             return response()->json([
                 'message' => 'Document not found.'
-            ], 404);        
+            ], 404);
         }
 
         $attachment = Attachment::where('document_id', $document->id)->first();
@@ -913,19 +981,19 @@ class DocumentController extends Controller
         if (!$attachment) {
             return response()->json([
                 'message' => 'Attachment not found.'
-            ], 404);        
+            ], 404);
         }
-        
+
         try {
             $attachment->delete();
             Storage::disk('document_files')->deleteDirectory($document->id);
-            
+
             return response()->json([
                 'message' => 'Successfully deleted the Attachment.'
             ],200);
-            
+
         } catch (\Exception $e) {
-            report($e);     
+            report($e);
             return response()->json([
                 'message' => 'Failed to delete the attachment.'
             ], 400);
