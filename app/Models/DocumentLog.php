@@ -27,4 +27,8 @@ class DocumentLog extends Model
     public function acknowledgeUser() {
         return $this->belongsTo('App\Models\User', 'acknowledge_id');
     }
+    
+    public function actionUser() {
+        return $this->belongsTo('App\Models\User', 'action_id');
+    }
 }
