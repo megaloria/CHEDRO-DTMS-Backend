@@ -1127,7 +1127,12 @@ class DocumentController extends Controller
             ], 404);
         }
 
-        $release = $document->logs()->where('from_id', 2)
+        $director = Profile::where(function ($query) {
+                $query->where('position_designation', 'like', 'Regional Director%');
+            })
+            ->first();
+
+        $release = $document->logs()->where('from_id', $director->id)
                                     ->whereNull('to_id')
                                     ->whereNotNull('approved_id')
                                     ->first();
