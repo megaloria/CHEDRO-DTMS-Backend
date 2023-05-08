@@ -314,7 +314,7 @@ class DocumentController extends Controller
                         $logs[] = $log;
 
                         foreach($filteredUsers as $assignTo) {
-                            if (!$assignTo->id === $division->role->user->id) {
+                            if ($assignTo->id !== $division->role->user->id) {
                                 $log = new DocumentLog();
                                 $log->assigned_id = $assignTo->id;
                                 $log->to_id = $assignTo->id;
@@ -718,8 +718,8 @@ class DocumentController extends Controller
                     ->get();
                 break;
             default:
-                $minLevel   = $users->role->level;
-                $divisionId = $users->role->division_id;
+                $minLevel   = $user->role->level;
+                $divisionId = $user->role->division_id;
                 $users = User::with([
                         'profile',
                         'role.division.role' => function ($query) {
@@ -900,7 +900,7 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
-        $return = $document->logs()->where('to_id', $user->id)->last();
+        $return = $document->logs()->where('to_id', $user->id)->orderBy('id','desc')->first();
         $actioned = $document->logs()->where('action_id', $return->from_id)->exists();
         $logs = [];
 
