@@ -528,7 +528,16 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'logs.actionUser.profile', 'documentType', 'category'])
+        ->with(['attachments',
+                'sender.receivable',
+                'assign.assignedUser.profile', 
+                'logs.user.profile', 
+                'logs.acknowledgeUser.profile', 
+                'documentType', 
+                'category',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                }])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
@@ -575,7 +584,16 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'logs.actionUser.profile', 'documentType', 'category'])
+        ->with(['attachments', 
+                'sender.receivable', 
+                'assign.assignedUser.profile', 
+                'logs.user.profile', 
+                'logs.acknowledgeUser.profile', 
+                'documentType', 
+                'category',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                }])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
@@ -641,8 +659,7 @@ class DocumentController extends Controller
                     $query -> orderBy('id', 'desc');
                 },
                  'logs.user.profile',
-                  'logs.acknowledgeUser.profile', 
-                  'logs.actionUser.profile'])
+                  'logs.acknowledgeUser.profile'])
             ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
@@ -1128,7 +1145,12 @@ class DocumentController extends Controller
             ], 404);
         }
 
-        $release = $document->logs()->where('from_id', 2)
+        $director = Profile::where(function ($query) {
+                $query->where('position_designation', 'like', 'Regional Director%');
+            })
+            ->first();
+
+        $release = $document->logs()->where('from_id', $director->id)
                                     ->whereNull('to_id')
                                     ->whereNotNull('approved_id')
                                     ->first();
