@@ -286,12 +286,12 @@ class DocumentController extends Controller
 
                     $logs = [];
 
-                $divisions = Division::with([
-                    'role' => function($query) {
-                        $query -> where('level', 3);
-                    },
-                    'role.user'
-                ])->get();
+                    $divisions = Division::with([
+                        'role' => function($query) {
+                            $query -> where('level', 3);
+                        },
+                        'role.user'
+                    ])->get();
 
                     $log = new DocumentLog();
                     $log->to_id = Profile::where(function ($query) {
@@ -299,35 +299,56 @@ class DocumentController extends Controller
                     })->value('id');
                     $logs[] = $log;
 
-                foreach($divisions as $division) {
-                    $filteredUsers = $users->filter(function ($value, int $key) use($division) {
-                        return $value->role->division_id === $division->id;
-                    });
+                    foreach($divisions as $division) {
+                        $filteredUsers = $users->filter(function ($value, int $key) use($division) {
+                            return $value->role->division_id === $division->id;
+                        });
 
-                    if($filteredUsers->count() > 0){
-                        $log = new DocumentLog();
+                        if($filteredUsers->count() > 0){
+                            $log = new DocumentLog();
 
-                        $log->to_id = $division->role->user->id;
-                        $log->from_id = Profile::where(function ($query) {
-                                $query->where('position_designation', 'like', 'Regional Director%');
-                        })->value('id');
-                        $logs[] = $log;
+                            $log->to_id = $division->role->user->id;
+                            $log->from_id = Profile::where(function ($query) {
+                                    $query->where('position_designation', 'like', 'Regional Director%');
+                            })->value('id');
+                            $logs[] = $log;
 
-                        foreach($filteredUsers as $assignTo) {
-                            if ($assignTo->id !== $division->role->user->id) {
+                            $subordinateLevel = $division->role->user->role->level+1;
+
+                            $filteredLevel = $filteredUsers->filter(function ($value) use ($subordinateLevel) {
+                                return $value->role->level === $subordinateLevel;
+                            });
+
+                            $superiorId = $division->role->user->id;
+
+                            if ($filteredLevel->count() === 0) {
+                                $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel) {
+                                    $query->where('level', $subordinateLevel);
+                                })->first();
+
                                 $log = new DocumentLog();
-                                $log->assigned_id = $assignTo->id;
-                                $log->to_id = $assignTo->id;
-                                $log->from_id = $division->role->user->id;
+                                $log->to_id = $subordinate->id;
+                                $log->from_id = $superiorId;
                                 $logs[] = $log;
+
+                                $superiorId = $subordinate->id;
                             }
 
+                            foreach($filteredUsers as $assignTo) {
+                                if ($assignTo->id !== $superiorId) {
+                                    $log = new DocumentLog();
+                                    $log->assigned_id = $assignTo->id;
+                                    $log->to_id = $assignTo->id;
+                                    $log->from_id = $superiorId;
+                                    $logs[] = $log;
+                                }
+                            }
                         }
                     }
+
+                    $document->assign()->saveMany($assignations);
+                    $document->logs()->saveMany($logs);
                 }
-                        $document->assign()->saveMany($assignations);
-                        $document->logs()->saveMany($logs);
-                    }
 
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
@@ -826,21 +847,42 @@ class DocumentController extends Controller
                         $logs[] = $log;
                     }
 
+                    $subordinateLevel = $division->role->user->role->level+1;
+
+                    $filteredLevel = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
+                        return $value->role->level === $subordinateLevel;
+                    });
+
+                    $superiorId = $division->role->user->id;
+
+                    if ($filteredLevel->count() === 0) {
+                        $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel) {
+                            $query->where('level', $subordinateLevel);
+                        })->first();
+
+                        $log = new DocumentLog();
+                        $log->to_id = $subordinate->id;
+                        $log->from_id = $superiorId;
+                        $logs[] = $log;
+
+                        $superiorId = $subordinate->id;
+                    }
+
                     foreach($filteredToAddUsers as $assignTo) {
-                        if ($assignTo->id !== $division->role->user->id) {
+                        if ($assignTo->id !== $superiorId) {
                             if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
                                 $log = new DocumentLog();
                                 $log->to_id = $assignTo->id;
-                                $log->from_id = $division->role->user->id;
+                                $log->from_id = $superiorId;
                                 $logs[] = $log;
 
                                 $documentAssignation = new DocumentAssignation();
                                 $documentAssignation->assigned_id = $assignTo->id;
                                 $assigned[] = $documentAssignation;
-                            } else if (!$document->logs->where('from_id', $division->role->user->id)->where('to_id', $assignTo->id)->first()) {
+                            } else if (!$document->logs->where('from_id', $superiorId)->where('to_id', $assignTo->id)->first()) {
                                 $log = new DocumentLog();
                                 $log->to_id = $assignTo->id;
-                                $log->from_id = $division->role->user->id;
+                                $log->from_id = $superiorId;
                                 $logs[] = $log;
                             }
                         } else {
@@ -1184,7 +1226,7 @@ class DocumentController extends Controller
             return response()->json([
                 'message' => 'Failed to delete the attachment.'
             ], 400);
-            
+
         }
     }
 }
