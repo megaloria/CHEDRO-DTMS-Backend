@@ -549,7 +549,16 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
+        ->with(['attachments',
+                'sender.receivable',
+                'assign.assignedUser.profile', 
+                'logs.user.profile', 
+                'logs.acknowledgeUser.profile', 
+                'documentType', 
+                'category',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                }])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
@@ -596,7 +605,16 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
+        ->with(['attachments', 
+                'sender.receivable', 
+                'assign.assignedUser.profile', 
+                'logs.user.profile', 
+                'logs.acknowledgeUser.profile', 
+                'documentType', 
+                'category',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                }])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
@@ -1230,4 +1248,3 @@ class DocumentController extends Controller
         }
     }
 }
-
