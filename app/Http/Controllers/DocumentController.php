@@ -1179,6 +1179,7 @@ class DocumentController extends Controller
             return response()->json([
                 'message' => 'Failed to delete the attachment.'
             ], 400);
+            
         }
     }
 }
