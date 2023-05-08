@@ -528,7 +528,7 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'logs.actionUser.profile', 'documentType', 'category'])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
@@ -575,7 +575,7 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'documentType', 'category'])
+        ->with(['attachments', 'sender.receivable', 'assign.assignedUser.profile', 'logs.user.profile', 'logs.acknowledgeUser.profile', 'logs.actionUser.profile', 'documentType', 'category'])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
 
@@ -641,7 +641,8 @@ class DocumentController extends Controller
                     $query -> orderBy('id', 'desc');
                 },
                  'logs.user.profile',
-                  'logs.acknowledgeUser.profile'])
+                  'logs.acknowledgeUser.profile', 
+                  'logs.actionUser.profile'])
             ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
