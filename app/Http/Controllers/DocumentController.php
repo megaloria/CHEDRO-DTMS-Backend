@@ -306,6 +306,9 @@ class DocumentController extends Controller
 
                         if($filteredUsers->count() > 0){
                             $log = new DocumentLog();
+                            if ($filteredUsers->where('id', $division->role->user->id)->first()) {
+                                $log->assigned_id = $division->role->user->id;
+                            }
                             $log->to_id = $division->role->user->id;
                             $log->from_id = Profile::where(function ($query) {
                                                 $query->where('position_designation', 'like', 'Regional Director%');
@@ -557,14 +560,14 @@ class DocumentController extends Controller
         })
         ->with(['attachments',
                 'sender.receivable',
-                'assign.assignedUser.profile', 
-                'logs.user.profile', 
+                'assign.assignedUser.profile',
+                'logs.user.profile',
                 'logs.acknowledgeUser.profile',
                 'logs.actionUser.profile',
                 'logs.approvedUser.profile',
                 'logs.rejectedUser.profile',
                 'logs.fromUser.profile',
-                'documentType', 
+                'documentType',
                 'category',
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
@@ -615,16 +618,16 @@ class DocumentController extends Controller
                 });
             });
         })
-        ->with(['attachments', 
-                'sender.receivable', 
-                'assign.assignedUser.profile', 
-                'logs.user.profile', 
+        ->with(['attachments',
+                'sender.receivable',
+                'assign.assignedUser.profile',
+                'logs.user.profile',
                 'logs.acknowledgeUser.profile',
-                'logs.actionUser.profile', 
+                'logs.actionUser.profile',
                 'logs.approvedUser.profile',
                 'logs.rejectedUser.profile',
                 'logs.fromUser.profile',
-                'documentType', 
+                'documentType',
                 'category',
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
@@ -694,7 +697,7 @@ class DocumentController extends Controller
                     $query -> orderBy('id', 'desc');
                 },
                   'logs.user.profile',
-                  'logs.acknowledgeUser.profile', 
+                  'logs.acknowledgeUser.profile',
                   'logs.actionUser.profile',
                   'logs.approvedUser.profile',
                   'logs.rejectedUser.profile',
@@ -716,7 +719,6 @@ class DocumentController extends Controller
         return response()->json(['data' => $document, 'url' => $fileUrl, 'message' => 'Successfully fetched the document.'], 200);
 
     }
-
 
     public function deleteDocument (Request $request, $id) {
         $document = Document::find($id);
@@ -756,7 +758,6 @@ class DocumentController extends Controller
         $seriesNo = $document ? $document->series_no+1 : 1;
         return response()->json(['data' => $seriesNo, 'message' => 'Successfully fetched the latest series number.'], 200);
     }
-
 
     public function getDocumentReceive (Request $request) {
         $user = $request->user();
@@ -878,6 +879,9 @@ class DocumentController extends Controller
                 if ($filteredToAddUsers->count() > 0) {
                     if (!$chiefLogRow) {
                         $log = new DocumentLog();
+                        if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
+                            $log->assigned_id = $division->role->user->id;
+                        }
                         $log->to_id = $division->role->user->id;
                         $log->from_id = $director->id;
                         $logs[] = $log;
@@ -914,6 +918,7 @@ class DocumentController extends Controller
                         if ($assignTo->id !== $superiorId) {
                             if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
                                 $log = new DocumentLog();
+                                $log->assigned_id = $assignTo->id;
                                 $log->to_id = $assignTo->id;
                                 $log->from_id = $superiorId;
                                 $logs[] = $log;
@@ -923,10 +928,11 @@ class DocumentController extends Controller
                                 $assigned[] = $documentAssignation;
                             } else if (!$document->logs->where('from_id', $superiorId)->where('to_id', $assignTo->id)->first()) {
                                 $log = new DocumentLog();
+                                $log->assigned_id = $assignTo->id;
                                 $log->to_id = $assignTo->id;
                                 $log->from_id = $superiorId;
                                 $logs[] = $log;
-                            } 
+                            }
                         } else if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
                                 $documentAssignation = new DocumentAssignation();
                                 $documentAssignation->assigned_id = $assignTo->id;
@@ -994,11 +1000,13 @@ class DocumentController extends Controller
 
             if ($actioned) {
                 $log = new DocumentLog();
+                $log->assigned_id = $return->assigned_id;
                 $log->action_id = $return->from_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
             } else {
                 $log = new DocumentLog();
+                $log->assigned_id = $return->assigned_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
             }
@@ -1047,11 +1055,13 @@ class DocumentController extends Controller
             DB::beginTransaction();
 
             $log = new DocumentLog();
+            $log->assigned_id = $return->assigned_id;
             $log->action_id = $user->id;
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
             $log = new DocumentLog();
+            $log->assigned_id = $return->assigned_id;
             $log->from_id = $user->id;
             $log->to_id = $return->from_id;
             $log->action_id = $user->id;
@@ -1104,12 +1114,14 @@ class DocumentController extends Controller
             DB::beginTransaction();
 
                 $log = new DocumentLog();
+                $log->assigned_id = $return->assigned_id;
                 $log->action_id = $action->action_id;
                 $log->approved_id = $user->id;
                 $log->comment = $requestData['comment'];
                 $logs[] = $log;
 
                 $log = new DocumentLog();
+                $log->assigned_id = $return->assigned_id;
                 $log->from_id = $user->id;
                 $log->to_id = $return->from_id;
                 $log->action_id = $action->action_id;
@@ -1164,12 +1176,14 @@ class DocumentController extends Controller
             DB::beginTransaction();
 
             $log = new DocumentLog();
+            $log->assigned_id = $return->assigned_id;
             $log->action_id = $action->action_id;
             $log->rejected_id = $user->id;
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
             $log = new DocumentLog();
+            $log->assigned_id = $return->assigned_id;
             $log->from_id = $user->id;
             $log->to_id = $return->from_id;
             $log->action_id = $action->action_id;
