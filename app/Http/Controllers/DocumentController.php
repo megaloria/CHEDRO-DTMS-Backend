@@ -555,6 +555,9 @@ class DocumentController extends Controller
                 'logs.user.profile', 
                 'logs.acknowledgeUser.profile',
                 'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
                 'documentType', 
                 'category',
                 'logs'=> function ($query){
@@ -612,6 +615,9 @@ class DocumentController extends Controller
                 'logs.user.profile', 
                 'logs.acknowledgeUser.profile',
                 'logs.actionUser.profile', 
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
                 'documentType', 
                 'category',
                 'logs'=> function ($query){
@@ -681,9 +687,12 @@ class DocumentController extends Controller
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
                 },
-                 'logs.user.profile',
+                  'logs.user.profile',
                   'logs.acknowledgeUser.profile', 
-                  'logs.actionUser.profile'])
+                  'logs.actionUser.profile',
+                  'logs.approvedUser.profile',
+                  'logs.rejectedUser.profile',
+                  'logs.fromUser.profile'])
             ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);

@@ -31,4 +31,16 @@ class DocumentLog extends Model
     public function actionUser() {
         return $this->belongsTo('App\Models\User', 'action_id');
     }
+
+    public function approvedUser() {
+        return $this->belongsTo('App\Models\User', 'approved_id');
+    }
+
+    public function rejectedUser() {
+        return $this->belongsTo('App\Models\User', 'rejected_id');
+    }
+
+    public function fromUser() {
+        return $this->belongsTo('App\Models\User', 'from_id');
+    }
 }
