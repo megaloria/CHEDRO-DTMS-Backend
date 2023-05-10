@@ -854,120 +854,136 @@ class DocumentController extends Controller
         try {
             DB::beginTransaction();
 
-            $toRemove = collect([]);
-            foreach ($document->assign as $assigned) {
-                if (!$usersToAssign->where('id', $assigned->assigned_id)->first() && !$usersAcknowledged->search($assigned->assigned_id)) {
-                    $assigned->delete();
-                    $toRemove->push($assigned->assignedUser);
-                }
-            }
-
-            $assigned = [];
-            $logs = [];
-
-            if ($document->logs->count() === 0) {
-                $log = new DocumentLog();
-                $log->to_id = $director->id;
-                $logs[] = $log;
-            }
-
-            foreach($divisions as $division) {
-
-                $chiefLogRow = $document->logs->where('to_id', $division->role->user->id)->where('from_id', $director->id)->first();
-
-                // Adding users
-                $filteredToAddUsers = $usersToAssign->filter(function ($value, int $key) use ($division) {
-                    return $value->role->division_id === $division->id;
-                });
-
-                if ($filteredToAddUsers->count() > 0) {
-                    if (!$chiefLogRow) {
-                        $log = new DocumentLog();
-                        if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
-                            $log->assigned_id = $division->role->user->id;
-                        }
-                        $log->to_id = $division->role->user->id;
-                        $log->from_id = $director->id;
-                        $logs[] = $log;
-                    }
-
-                    $subordinateLevel = $division->role->user->role->level+1;
-
-                    $filteredLevel = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
-                        return $value->role->level === $subordinateLevel;
-                    });
-
-                    $superiorId = $division->role->user->id;
-
-                    if ($filteredLevel->count() === 0) {
-                        $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
-                            $query->where('level', $subordinateLevel)->where('division_id', $division->id);
-                        })->first();
-
-                        $filtered = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
-                            return $value->role->level > $subordinateLevel;
-                        });
-
-                        if ($filtered->count() > 0) {
-                            $log = new DocumentLog();
-                            $log->to_id = $subordinate->id;
-                            $log->from_id = $superiorId;
-                            $logs[] = $log;
-
-                            $superiorId = $subordinate->id;
-                        }
-                    }
-
-                    foreach($filteredToAddUsers as $assignTo) {
-                        if ($assignTo->id !== $superiorId) {
-                            if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
-                                $log = new DocumentLog();
-                                $log->assigned_id = $assignTo->id;
-                                $log->to_id = $assignTo->id;
-                                $log->from_id = $superiorId;
-                                $logs[] = $log;
-
-                                $documentAssignation = new DocumentAssignation();
-                                $documentAssignation->assigned_id = $assignTo->id;
-                                $assigned[] = $documentAssignation;
-                            } else if (!$document->logs->where('from_id', $superiorId)->where('to_id', $assignTo->id)->first()) {
-                                $log = new DocumentLog();
-                                $log->assigned_id = $assignTo->id;
-                                $log->to_id = $assignTo->id;
-                                $log->from_id = $superiorId;
-                                $logs[] = $log;
-                            }
-                        } else if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
-                                $documentAssignation = new DocumentAssignation();
-                                $documentAssignation->assigned_id = $assignTo->id;
-                                $assigned[] = $documentAssignation;
-                          }
-                    }
+            if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
+                $logs = [];
+               
+                foreach ($requestData['assign_to'] as $assignTo) {
+                    $log        = new DocumentLog();
+                    $log->assigned_id = $assignTo;
+                    $log->from_id = $user->id;
+                    $log->to_id = $assignTo;
+                    $logs[]     = $log;
                 }
 
-                $document->assign()->saveMany($assigned);
                 $document->logs()->saveMany($logs);
 
-                // Removing users
-                $filteredToRemoveUsers = $toRemove->filter(function ($value, int $key) use ($division) {
-                    return $value->role->division_id === $division->id;
-                });
+            } else {
 
-                if ($filteredToRemoveUsers->count() > 0) {
-                    $removeIds = [];
-                    foreach($filteredToRemoveUsers as $assignTo) {
-                        if ($assignTo->id !== $division->role->user->id) {
-                            $removeIds[] = $assignTo->id;
+                $toRemove = collect([]);
+                foreach ($document->assign as $assigned) {
+                    if (!$usersToAssign->where('id', $assigned->assigned_id)->first() && !$usersAcknowledged->search($assigned->assigned_id)) {
+                        $assigned->delete();
+                        $toRemove->push($assigned->assignedUser);
+                    }
+                }
+
+                $assigned = [];
+                $logs = [];
+
+                if ($document->logs->count() === 0) {
+                    $log = new DocumentLog();
+                    $log->to_id = $director->id;
+                    $logs[] = $log;
+                }
+
+                foreach($divisions as $division) {
+
+                    $chiefLogRow = $document->logs->where('to_id', $division->role->user->id)->where('from_id', $director->id)->first();
+
+                    // Adding users
+                    $filteredToAddUsers = $usersToAssign->filter(function ($value, int $key) use ($division) {
+                        return $value->role->division_id === $division->id;
+                    });
+
+                    if ($filteredToAddUsers->count() > 0) {
+                        if (!$chiefLogRow) {
+                            $log = new DocumentLog();
+                            if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
+                                $log->assigned_id = $division->role->user->id;
+                            }
+                            $log->to_id = $division->role->user->id;
+                            $log->from_id = $director->id;
+                            $logs[] = $log;
+                        }
+
+                        $subordinateLevel = $division->role->user->role->level+1;
+
+                        $filteredLevel = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
+                            return $value->role->level === $subordinateLevel;
+                        });
+
+                        $superiorId = $division->role->user->id;
+
+                        if ($filteredLevel->count() === 0) {
+                            $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
+                                $query->where('level', $subordinateLevel)->where('division_id', $division->id);
+                            })->first();
+
+                            $filtered = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
+                                return $value->role->level > $subordinateLevel;
+                            });
+
+                            if ($filtered->count() > 0) {
+                                $log = new DocumentLog();
+                                $log->to_id = $subordinate->id;
+                                $log->from_id = $superiorId;
+                                $logs[] = $log;
+
+                                $superiorId = $subordinate->id;
+                            }
+                        }
+
+                        foreach($filteredToAddUsers as $assignTo) {
+                            if ($assignTo->id !== $superiorId) {
+                                if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
+                                    $log = new DocumentLog();
+                                    $log->assigned_id = $assignTo->id;
+                                    $log->to_id = $assignTo->id;
+                                    $log->from_id = $superiorId;
+                                    $logs[] = $log;
+
+                                    $documentAssignation = new DocumentAssignation();
+                                    $documentAssignation->assigned_id = $assignTo->id;
+                                    $assigned[] = $documentAssignation;
+                                } else if (!$document->logs->where('from_id', $superiorId)->where('to_id', $assignTo->id)->first()) {
+                                    $log = new DocumentLog();
+                                    $log->assigned_id = $assignTo->id;
+                                    $log->to_id = $assignTo->id;
+                                    $log->from_id = $superiorId;
+                                    $logs[] = $log;
+                                }
+                            } else if (!$document->assign->where('assigned_id', $assignTo->id)->first()) {
+                                    $documentAssignation = new DocumentAssignation();
+                                    $documentAssignation->assigned_id = $assignTo->id;
+                                    $assigned[] = $documentAssignation;
+                            }
                         }
                     }
 
-                    $document->logs()
-                        ->whereIn('to_id', $removeIds)
-                        ->where('from_id', $division->role->user->id)
-                        ->delete();
+                    $document->assign()->saveMany($assigned);
+                    $document->logs()->saveMany($logs);
 
-                    if ($chiefLogRow && $document->logs()->where('from_id', $division->role->user->id)->count() === 0) {
-                        $chiefLogRow->delete();
+                    // Removing users
+                    $filteredToRemoveUsers = $toRemove->filter(function ($value, int $key) use ($division) {
+                        return $value->role->division_id === $division->id;
+                    });
+
+                    if ($filteredToRemoveUsers->count() > 0) {
+                        $removeIds = [];
+                        foreach($filteredToRemoveUsers as $assignTo) {
+                            if ($assignTo->id !== $division->role->user->id) {
+                                $removeIds[] = $assignTo->id;
+                            }
+                        }
+
+                        $document->logs()
+                            ->whereIn('to_id', $removeIds)
+                            ->where('from_id', $division->role->user->id)
+                            ->delete();
+
+                        if ($chiefLogRow && $document->logs()->where('from_id', $division->role->user->id)->count() === 0) {
+                            $chiefLogRow->delete();
+                        }
                     }
                 }
             }
