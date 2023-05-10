@@ -859,7 +859,7 @@ class DocumentController extends Controller
                
                 foreach ($requestData['assign_to'] as $assignTo) {
                     $log        = new DocumentLog();
-                    $log->assigned_id = $assignTo;
+                    $log->assigned_id = $user->id;
                     $log->from_id = $user->id;
                     $log->to_id = $assignTo;
                     $logs[]     = $log;
