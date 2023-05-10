@@ -570,7 +570,7 @@ class DocumentController extends Controller
                 'documentType',
                 'category',
                 'logs'=> function ($query){
-                    $query -> orderBy('id', 'desc');
+                    $query -> orderBy('id', 'desc');    
                 }])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
@@ -669,6 +669,10 @@ class DocumentController extends Controller
                     ->get();
                     break;
         }
+             $documents->each(function($doc){
+                 $doc->logs_grouped = $doc->logs->groupBy('assigned_id')->sortByDesc('id');
+             });
+        
 
         return response()->json([
             'data' => [
