@@ -297,6 +297,7 @@ class DocumentController extends Controller
                     $log->to_id = Profile::where(function ($query) {
                                     $query->where('position_designation', 'like', 'Regional Director%');
                                   })->value('id');
+                    $log->assigned_id = $assignTo;
                     $logs[] = $log;
 
                     foreach($divisions as $division) {
@@ -1010,8 +1011,10 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
-        $return = $document->logs()->where('to_id', $user->id)->orderBy('id','desc')->first();
-        $actioned = $document->logs()->where('action_id', $return->from_id)->exists();
+        $receive = $document->logs()->where('to_id', $user->id)->orderBy('id', 'desc')->whereNull('action_id')->first();
+
+        $return = $document->logs()->where('to_id', $user->id)->orderBy('id','desc')->whereNotNull('action_id')->first();
+        $actioned = $document->logs()->whereNotNull('action_id')->whereNull('rejected_id')->exists();
         $logs = [];
 
 
@@ -1020,13 +1023,15 @@ class DocumentController extends Controller
 
             if ($actioned) {
                 $log = new DocumentLog();
-                $log->assigned_id = $return->assigned_id;
-                $log->action_id = $return->from_id;
+                $log->assigned_id = $return ? $return->assigned_id : $receive->assigned_id;
+                if ($return) {
+                    $log->action_id = $return->action_id;
+                }
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
             } else {
                 $log = new DocumentLog();
-                $log->assigned_id = $return->assigned_id;
+                $log->assigned_id = $receive->assigned_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
             }
@@ -1128,30 +1133,30 @@ class DocumentController extends Controller
                                 ->whereNotNull('action_id')->first();
         $return = $document->logs()->where('to_id', $user->id)
                                 ->whereNull('action_id')->first();
-        $logs = [];
-
+        
         try {
             DB::beginTransaction();
+            $logs = [];
 
-                $log = new DocumentLog();
-                $log->assigned_id = $return->assigned_id;
-                $log->action_id = $action->action_id;
-                $log->approved_id = $user->id;
-                $log->comment = $requestData['comment'];
-                $logs[] = $log;
+            $log = new DocumentLog();
+            $log->assigned_id = $return->assigned_id;
+            $log->action_id = $action->action_id;
+            $log->approved_id = $user->id;
+            $log->comment = $requestData['comment'];
+            $logs[] = $log;
 
-                $log = new DocumentLog();
-                $log->assigned_id = $return->assigned_id;
-                $log->from_id = $user->id;
-                $log->to_id = $return->from_id;
-                $log->action_id = $action->action_id;
-                $log->approved_id = $user->id;
-                $log->comment = $requestData['comment'];
-                $logs[] = $log;
+            $log = new DocumentLog();
+            $log->assigned_id = $return->assigned_id;
+            $log->from_id = $user->id;
+            $log->to_id = $return->from_id;
+            $log->action_id = $action->action_id;
+            $log->approved_id = $user->id;
+            $log->comment = $requestData['comment'];
+            $logs[] = $log;
 
             if ($document->logs()->saveMany($logs)) {
                 DB::commit();
-                return response()->json(['data' => $log, 'message' => 'Successfully approved the document.'], 201);
+                return response()->json(['data' => $logs, 'message' => 'Successfully approved the document.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -1206,7 +1211,6 @@ class DocumentController extends Controller
             $log->assigned_id = $return->assigned_id;
             $log->from_id = $user->id;
             $log->to_id = $return->from_id;
-            $log->action_id = $action->action_id;
             $log->rejected_id = $user->id;
             $log->comment = $requestData['comment'];
             $logs[] = $log;
