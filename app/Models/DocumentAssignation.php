@@ -13,7 +13,7 @@ class DocumentAssignation extends Model
         'assigned_id'
     ];
 
-    public function assignedUser() {
+    public function assigned_user() {
         return $this->belongsTo('App\Models\User', 'assigned_id');
     }
 

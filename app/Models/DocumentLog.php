@@ -24,23 +24,27 @@ class DocumentLog extends Model
         return $this->belongsTo('App\Models\User', 'to_id');
     }
 
-    public function acknowledgeUser() {
+    public function acknowledge_user() {
         return $this->belongsTo('App\Models\User', 'acknowledge_id');
     }
     
-    public function actionUser() {
+    public function action_user() {
         return $this->belongsTo('App\Models\User', 'action_id');
     }
 
-    public function approvedUser() {
+    public function approved_user() {
         return $this->belongsTo('App\Models\User', 'approved_id');
     }
 
-    public function rejectedUser() {
+    public function rejected_user() {
         return $this->belongsTo('App\Models\User', 'rejected_id');
     }
 
-    public function fromUser() {
+    public function from_user() {
         return $this->belongsTo('App\Models\User', 'from_id');
+    }
+
+    public function assigned_user() {
+        return $this->belongsTo('App\Models\User', 'assigned_id');
     }
 }
