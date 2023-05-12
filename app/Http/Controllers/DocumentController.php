@@ -309,16 +309,6 @@ class DocumentController extends Controller
                         });
 
                         if($filteredUsers->count() > 0){
-                            $log = new DocumentLog();
-                            if ($filteredUsers->where('id', $division->role->user->id)->first()) {
-                                $log->assigned_id = $division->role->user->id;
-                            } else {
-                                $log->assigned_id = $division->role->user->id;
-                            }
-                            $log->to_id = $division->role->user->id;
-                            $log->from_id = Profile::where(function ($query) {
-                                                $query->where('position_designation', 'like', 'Regional Director%');
-                                            })->value('id');
                             $logs[] = $log;
 
                             $subordinateLevel = $division->role->user->role->level+1;
@@ -337,6 +327,17 @@ class DocumentController extends Controller
                                 $filtered = $filteredUsers->filter(function ($value) use ($subordinateLevel) {
                                     return $value->role->level > $subordinateLevel;
                                 });
+
+                                $log = new DocumentLog();
+                                if ($filteredUsers->where('id', $division->role->user->id)->first()) {
+                                    $log->assigned_id = $division->role->user->id;
+                                } else {
+                                    $log->assigned_id = $subordinate->id;
+                                }
+                                $log->to_id = $division->role->user->id;
+                                $log->from_id = Profile::where(function ($query) {
+                                                    $query->where('position_designation', 'like', 'Regional Director%');
+                                                })->value('id');
 
                                  if ($filtered->count() > 0) {
                                     $log = new DocumentLog();
@@ -908,19 +909,6 @@ class DocumentController extends Controller
                         return $value->role->division_id === $division->id;
                     });
 
-                    if ($filteredToAddUsers->count() > 0) {
-                        if (!$chiefLogRow) {
-                            $log = new DocumentLog();
-                            if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
-                                $log->assigned_id = $division->role->user->id;
-                            } else {
-                                $log->assigned_id = $division->role->user->id;
-                            }
-                            $log->to_id = $division->role->user->id;
-                            $log->from_id = $director->id;
-                            $logs[] = $log;
-                        }
-
                         $subordinateLevel = $division->role->user->role->level+1;
 
                         $filteredLevel = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
@@ -931,6 +919,19 @@ class DocumentController extends Controller
                         $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
                             $query->where('level', $subordinateLevel)->where('division_id', $division->id);
                         })->first();
+
+                        if ($filteredToAddUsers->count() > 0) {
+                        if (!$chiefLogRow) {
+                            $log = new DocumentLog();
+                            if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
+                                $log->assigned_id = $division->role->user->id;
+                            } else {
+                                $log->assigned_id = $subordinate->id;
+                            }
+                            $log->to_id = $division->role->user->id;
+                            $log->from_id = $director->id;
+                            $logs[] = $log;
+                        }
 
                         if ($filteredLevel->count() === 0) {
 
