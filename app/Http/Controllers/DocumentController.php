@@ -310,6 +310,7 @@ class DocumentController extends Controller
                             if ($filteredUsers->where('id', $division->role->user->id)->first()) {
                                 $log->assigned_id = $division->role->user->id;
                             }
+                            $log->assigned_id = $assignTo;
                             $log->to_id = $division->role->user->id;
                             $log->from_id = Profile::where(function ($query) {
                                                 $query->where('position_designation', 'like', 'Regional Director%');
@@ -1130,7 +1131,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
         $action = $document->logs()->where('acknowledge_id', $user->id)
-                                ->whereNotNull('action_id')->first();
+                                ->whereNotNull('action_id')->orderBy('id', 'desc')->first();
         $return = $document->logs()->where('to_id', $user->id)
                                 ->whereNull('action_id')->first();
         
@@ -1139,14 +1140,14 @@ class DocumentController extends Controller
             $logs = [];
 
             $log = new DocumentLog();
-            $log->assigned_id = $return->assigned_id;
+            $log->assigned_id = $action->assigned_id;
             $log->action_id = $action->action_id;
             $log->approved_id = $user->id;
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
             $log = new DocumentLog();
-            $log->assigned_id = $return->assigned_id;
+            $log->assigned_id = $action->assigned_id;
             $log->from_id = $user->id;
             $log->to_id = $return->from_id;
             $log->action_id = $action->action_id;
