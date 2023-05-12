@@ -175,5 +175,25 @@ class UserSeeder extends Seeder
             'suffix' => '',
             'position_designation' => 'Education Supervisor II'
         ]);
+        $role = Role::create([
+            'division_id' => $division->id,
+            'description' => 'Education Program Specialist II',
+            'level' => 6
+        ]);
+
+        $user = User::create([
+            'role_id' => $role->id,
+            'username' => 'chedro4_eps2mendoza',
+            'password' => Hash::make('chedro1234')
+        ]);
+
+        Profile::create([
+            'id' => $user->id,
+            'prefix' => 'Ms.',
+            'first_name' => 'Agnes',
+            'last_name' => 'Mendoza',
+            'suffix' => '',
+            'position_designation' => 'Education Program Specialist II'
+        ]);
     }
 }
