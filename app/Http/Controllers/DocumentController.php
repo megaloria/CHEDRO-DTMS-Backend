@@ -915,11 +915,11 @@ class DocumentController extends Controller
                         });
 
                         $superiorId = $division->role->user->id;
+                        $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
+                            $query->where('level', $subordinateLevel)->where('division_id', $division->id);
+                        })->first();
 
                         if ($filteredLevel->count() === 0) {
-                            $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
-                                $query->where('level', $subordinateLevel)->where('division_id', $division->id);
-                            })->first();
 
                             $filtered = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
                                 return $value->role->level > $subordinateLevel;
