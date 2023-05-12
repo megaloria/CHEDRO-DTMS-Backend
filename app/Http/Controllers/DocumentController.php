@@ -572,7 +572,7 @@ class DocumentController extends Controller
                 'documentType',
                 'category',
                 'logs'=> function ($query){
-                    $query -> orderBy('id', 'desc');    
+                    $query -> orderBy('id', 'desc');
                 }])
         ->orderBy('updated_at', 'desc')
         ->paginate(5);
@@ -674,7 +674,7 @@ class DocumentController extends Controller
              $documents->each(function($doc){
                  $doc->logs_grouped = $doc->logs->groupBy('assigned_id')->sortByDesc('id');
              });
-        
+
 
         return response()->json([
             'data' => [
@@ -858,7 +858,7 @@ class DocumentController extends Controller
 
             if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
                 $logs = [];
-               
+
                 foreach ($requestData['assign_to'] as $assignTo) {
                     $log        = new DocumentLog();
                     $log->assigned_id = $user->id;
@@ -915,11 +915,11 @@ class DocumentController extends Controller
                         });
 
                         $superiorId = $division->role->user->id;
+                        $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
+                            $query->where('level', $subordinateLevel)->where('division_id', $division->id);
+                        })->first();
 
                         if ($filteredLevel->count() === 0) {
-                            $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
-                                $query->where('level', $subordinateLevel)->where('division_id', $division->id);
-                            })->first();
 
                             $filtered = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
                                 return $value->role->level > $subordinateLevel;
@@ -973,15 +973,19 @@ class DocumentController extends Controller
                     if ($filteredToRemoveUsers->count() > 0) {
                         $removeIds = [];
                         foreach($filteredToRemoveUsers as $assignTo) {
-                            if ($assignTo->id !== $division->role->user->id) {
+                            if ($assignTo->id !== $superiorId) {
                                 $removeIds[] = $assignTo->id;
                             }
                         }
 
                         $document->logs()
                             ->whereIn('to_id', $removeIds)
-                            ->where('from_id', $division->role->user->id)
+                            ->where('from_id', $superiorId)
                             ->delete();
+
+                        if ($subordinate && $document->logs()->where('from_id', $subordinate->id)->count() === 0) {
+                            $subordinate->delete();
+                        }
 
                         if ($chiefLogRow && $document->logs()->where('from_id', $division->role->user->id)->count() === 0) {
                             $chiefLogRow->delete();
@@ -1134,7 +1138,7 @@ class DocumentController extends Controller
                                 ->whereNotNull('action_id')->orderBy('id', 'desc')->first();
         $return = $document->logs()->where('to_id', $user->id)
                                 ->whereNull('action_id')->first();
-        
+
         try {
             DB::beginTransaction();
             $logs = [];
