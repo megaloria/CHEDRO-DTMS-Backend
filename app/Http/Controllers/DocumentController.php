@@ -294,15 +294,12 @@ class DocumentController extends Controller
                         'role.user'
                     ])->get();
                     
-                    foreach($requestData['assign_to'] as $assignTo) {
                     $log = new DocumentLog();
                     $log->to_id = Profile::where(function ($query) {
                                     $query->where('position_designation', 'like', 'Regional Director%');
                                   })->value('id');
-                    $log->assigned_id = $assignTo;
                     $logs[] = $log;
-                    }
-
+                    
                     foreach($divisions as $division) {
                         $filteredUsers = $users->filter(function ($value, int $key) use($division) {
                             return $value->role->division_id === $division->id;
@@ -331,9 +328,7 @@ class DocumentController extends Controller
                                 $log = new DocumentLog();
                                 if ($filteredUsers->where('id', $division->role->user->id)->first()) {
                                     $log->assigned_id = $division->role->user->id;
-                                } else {
-                                    $log->assigned_id = $subordinate->id;
-                                }
+                                } 
                                 $log->to_id = $division->role->user->id;
                                 $log->from_id = Profile::where(function ($query) {
                                                     $query->where('position_designation', 'like', 'Regional Director%');
@@ -342,7 +337,6 @@ class DocumentController extends Controller
                                  if ($filtered->count() > 0) {
                                     $log = new DocumentLog();
                                     $log->to_id = $subordinate->id;
-                                    $log->assigned_id = $subordinate->id;
                                     $log->from_id = $superiorId;
                                     $logs[] = $log;
 
@@ -891,14 +885,11 @@ class DocumentController extends Controller
                 $assigned = [];
                 $logs = [];
 
-                foreach ($requestData['assign_to'] as $assignTo) {
                     if ($document->logs->count() === 0) {
                         $log = new DocumentLog();
-                        $log->assigned_id = $assignTo;
                         $log->to_id = $director->id;
                         $logs[] = $log;
                     }
-                }
 
                 foreach($divisions as $division) {
 
@@ -925,9 +916,7 @@ class DocumentController extends Controller
                             $log = new DocumentLog();
                             if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
                                 $log->assigned_id = $division->role->user->id;
-                            } else {
-                                $log->assigned_id = $subordinate->id;
-                            }
+                            } 
                             $log->to_id = $division->role->user->id;
                             $log->from_id = $director->id;
                             $logs[] = $log;
@@ -942,7 +931,6 @@ class DocumentController extends Controller
                             if ($filtered->count() > 0) {
                                 $log = new DocumentLog();
                                 $log->to_id = $subordinate->id;
-                                $log->assigned_id = $subordinate->id;
                                 $log->from_id = $superiorId;
                                 $logs[] = $log;
 
