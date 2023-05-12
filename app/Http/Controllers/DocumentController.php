@@ -272,7 +272,6 @@ class DocumentController extends Controller
 
                     $log      = new DocumentLog([
                         'to_id' => $assignTo,
-                        'assigned_id' => 1
                     ]);
                     $document->assign()->save($assign);
                     $document->logs()->save($log);
@@ -305,7 +304,16 @@ class DocumentController extends Controller
                             return $value->role->division_id === $division->id;
                         });
 
-                        if($filteredUsers->count() > 0){
+                        if($filteredUsers->count() > 0){  
+                             $log = new DocumentLog();
+                            if ($filteredUsers->where('id', $division->role->user->id)->first()) {
+                                $log->assigned_id = $division->role->user->id;
+                            }
+                            $log->to_id = $division->role->user->id;
+                            $log->from_id = Profile::where(function ($query) {
+                                                $query->where('position_designation', 'like', 'Regional Director%');
+                                            })->value('id');
+                            
                             $logs[] = $log;
 
                             $subordinateLevel = $division->role->user->role->level+1;
@@ -324,15 +332,6 @@ class DocumentController extends Controller
                                 $filtered = $filteredUsers->filter(function ($value) use ($subordinateLevel) {
                                     return $value->role->level > $subordinateLevel;
                                 });
-
-                                $log = new DocumentLog();
-                                if ($filteredUsers->where('id', $division->role->user->id)->first()) {
-                                    $log->assigned_id = $division->role->user->id;
-                                } 
-                                $log->to_id = $division->role->user->id;
-                                $log->from_id = Profile::where(function ($query) {
-                                                    $query->where('position_designation', 'like', 'Regional Director%');
-                                                })->value('id');
 
                                  if ($filtered->count() > 0) {
                                     $log = new DocumentLog();
