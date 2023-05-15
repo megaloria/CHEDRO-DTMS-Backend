@@ -1048,8 +1048,13 @@ class DocumentController extends Controller
         }
         $receive = $document->logs()->where('to_id', $user->id)->orderBy('id', 'desc')->whereNull('action_id')->first();
 
-        $return = $document->logs()->where('to_id', $user->id)->orderBy('id','desc')->whereNotNull('action_id')->first();
-        $actioned = $document->logs()->whereNotNull('action_id')->whereNull('rejected_id')->exists();
+        $return = $document->logs()->where('to_id', $user->id)
+            ->orderBy('id','desc')
+            ->whereNotNull('action_id')
+            ->first();
+        $actioned = $document->logs()->whereNotNull('action_id')
+            ->whereNull('rejected_id')
+            ->exists();
         $logs = [];
 
 
@@ -1108,7 +1113,7 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
-        $return = $document->logs()->where('to_id', $user->id)->first();
+        $return = $document->logs()->where('to_id', $user->id)->orderBy('id', 'DESC')->first();
         $logs = [];
 
         try {
