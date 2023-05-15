@@ -292,19 +292,19 @@ class DocumentController extends Controller
                         },
                         'role.user'
                     ])->get();
-                    
+
                     $log = new DocumentLog();
                     $log->to_id = Profile::where(function ($query) {
                                     $query->where('position_designation', 'like', 'Regional Director%');
                                   })->value('id');
                     $logs[] = $log;
-                    
+
                     foreach($divisions as $division) {
                         $filteredUsers = $users->filter(function ($value, int $key) use($division) {
                             return $value->role->division_id === $division->id;
                         });
 
-                        if($filteredUsers->count() > 0){  
+                        if($filteredUsers->count() > 0){
                              $log = new DocumentLog();
                             if ($filteredUsers->where('id', $division->role->user->id)->first()) {
                                 $log->assigned_id = $division->role->user->id;
@@ -313,7 +313,7 @@ class DocumentController extends Controller
                             $log->from_id = Profile::where(function ($query) {
                                                 $query->where('position_designation', 'like', 'Regional Director%');
                                             })->value('id');
-                            
+
                             $logs[] = $log;
 
                             $subordinateLevel = $division->role->user->role->level+1;
@@ -709,7 +709,9 @@ class DocumentController extends Controller
                 'logs.approved_user.profile',
                 'logs.rejected_user.profile',
                 'logs.from_user.profile',
-                'logs.assigned_user.profile',])
+                'logs.assigned_user.profile',
+                'logs.assigned_user.role'
+            ])
             ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
                 $query->where('to_id', $user->id);
@@ -915,7 +917,7 @@ class DocumentController extends Controller
                             $log = new DocumentLog();
                             if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
                                 $log->assigned_id = $division->role->user->id;
-                            } 
+                            }
                             $log->to_id = $division->role->user->id;
                             $log->from_id = $director->id;
                             $logs[] = $log;
