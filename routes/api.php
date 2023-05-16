@@ -192,6 +192,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::post('', [DocumentController::class, 'editDocument']);
                 Route::delete('', [DocumentController::class, 'deleteDocument']);
                 Route::delete('/attachment', [DocumentController::class, 'deleteAttachment']);
+                Route::post('/release', [DocumentController::class, 'releaseDocument']);
             });
     });
     });
@@ -209,7 +210,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::post('/action', [DocumentController::class, 'actionDocument']);
                 Route::post('/approve', [DocumentController::class, 'approveDocument']);
                 Route::post('/reject', [DocumentController::class, 'rejectDocument']);
-                Route::post('/release', [DocumentController::class, 'releaseDocument']);
+                
             });
         
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);
