@@ -42,7 +42,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable|present|size:1',
+            'assign_to' => 'array|nullable|present|max:1',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -172,7 +172,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable|present|size:1',
+            'assign_to' => 'array|nullable|present|max:1',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -388,7 +388,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer',
-            'assign_to' => 'array|nullable',
+            'assign_to' => 'array|nullable|max:1',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -480,7 +480,6 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
-
                if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
                             $query->where('position_designation', 'like', 'Regional Director%');
@@ -489,8 +488,9 @@ class DocumentController extends Controller
                     $log      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
                     ]);
+                    $document->assign()->delete();
                     $document->assign()->save($log);
-                } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+                } else if ($requestData['assign_to']) {
                     if ($category -> is_assignable) {
                         $logs = [];
                         foreach($requestData['assign_to'] as $assignTo) {
@@ -498,6 +498,7 @@ class DocumentController extends Controller
                             $log->assigned_id = $assignTo;
                             $logs[] = $log;
                         }
+                        $document->assign()->delete();
                         $document->assign()->saveMany($logs);
                     }
                 }
@@ -647,9 +648,6 @@ class DocumentController extends Controller
                         },
                         'role.division.role.user'
                     ])
-                    ->whereHas('role', function ($query) {
-                        $query->where('level', '<>', 2);
-                    })
                     ->get();
                 break;
             default:
