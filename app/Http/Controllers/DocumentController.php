@@ -42,7 +42,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable',
+            'assign_to' => 'array|nullable|present|size:1',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -121,7 +121,6 @@ class DocumentController extends Controller
                         'file_title' => $requestFile->getClientOriginalName()
                     ]);
                     $attachment->save();
-                    $fileUrl = Storage::url($fileName);
                 }
 
                 if (!$category->is_assignable) {
@@ -132,8 +131,8 @@ class DocumentController extends Controller
                         'assigned_id' => $assignTo,
                     ]);
                     $document->assign()->save($log);
-                } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-                    $logs = [];
+                } else if ($requestData['assign_to']) {
+                         $logs = [];
                     foreach ($requestData['assign_to'] as $assignTo) {
                         $logs[] = new DocumentAssignation([
                             'assigned_id' => $assignTo,
@@ -143,7 +142,6 @@ class DocumentController extends Controller
                         $document->assign()->saveMany($logs);
                     }
                 }
-
 
                 $document->load(['user', 'documentType', 'attachments']);
                 DB::commit();
@@ -174,8 +172,8 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable',
-            'assign_to.*' => 'integer|min:1'
+            'assign_to' => 'array|nullable|present|size:1',
+            'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
         if ($validator->fails()) {
@@ -192,7 +190,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Category not found'], 404);
         }
 
-         if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
+         if ($requestData['assign_to']) {
             $users = User::with('role')->whereIn('id', $requestData['assign_to'])->get();
             if ($users->count() !== count($requestData['assign_to'])) {
                 return response()->json(['message' => 'User not found.'], 404);
@@ -276,8 +274,8 @@ class DocumentController extends Controller
                     $document->assign()->save($assign);
                     $document->logs()->save($log);
 
-                } else if (array_key_exists('assign_to', $requestData) && $requestData['assign_to']) {
-                    $assignations = [];
+                } else if ($requestData['assign_to']) {
+                     $assignations = [];
                     foreach($requestData['assign_to'] as $assignTo) {
                         $assignations[] = new DocumentAssignation([
                             'assigned_id' => $assignTo,
@@ -1046,6 +1044,12 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
+
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
+        if ($latest->to_id !== $user->id || $latest->acknowledge_id === $user->id) {
+            return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
+        }
+
         $receive = $document->logs()->where('to_id', $user->id)->orderBy('id', 'desc')->whereNull('action_id')->first();
 
         $return = $document->logs()->where('to_id', $user->id)
@@ -1113,6 +1117,12 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
+
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
+        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+            return response()->json(['message' => 'Unable to take action on this document.'], 401);
+        }
+
         $return = $document->logs()->where('to_id', $user->id)->orderBy('id', 'DESC')->first();
         $logs = [];
 
@@ -1169,6 +1179,12 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
+
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
+        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+            return response()->json(['message' => 'Unable to approve this document.'], 401);
+        }
+
         $action = $document->logs()->where('acknowledge_id', $user->id)
                                 ->whereNotNull('action_id')->orderBy('id', 'desc')->first();
         $return = $document->logs()->where('to_id', $user->id)
@@ -1231,6 +1247,12 @@ class DocumentController extends Controller
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
+
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
+        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+            return response()->json(['message' => 'Unable to reject this document.'], 401);
+        }
+
         $action = $document->logs()->where('acknowledge_id', $user->id)
                                 ->whereNotNull('action_id')->first();
         $return = $document->logs()->where('to_id', $user->id)
@@ -1271,6 +1293,7 @@ class DocumentController extends Controller
     }
 
     public function releaseDocument(Request $request, $id) {
+        
         $requestData = $request->only(['date_released']);
 
         $validator = Validator::make($requestData, [
