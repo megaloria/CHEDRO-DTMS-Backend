@@ -560,14 +560,14 @@ class DocumentController extends Controller
         })
         ->with(['attachments',
                 'sender.receivable',
-                'assign.assigned_user.profile',
+                'assign.assignedUser.profile',
                 'logs.user.profile',
-                'logs.acknowledge_user.profile',
-                'logs.action_user.profile',
-                'logs.approved_user.profile',
-                'logs.rejected_user.profile',
-                'logs.from_user.profile',
-                'logs.assigned_user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
                 'documentType',
                 'category',
                 'logs'=> function ($query){
@@ -621,14 +621,14 @@ class DocumentController extends Controller
         })
         ->with(['attachments',
                 'sender.receivable',
-                'assign.assigned_user.profile',
+                'assign.assignedUser.profile',
                 'logs.user.profile',
-                'logs.acknowledge_user.profile',
-                'logs.action_user.profile',
-                'logs.approved_user.profile',
-                'logs.rejected_user.profile',
-                'logs.from_user.profile',
-                'logs.assigned_user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
                 'documentType',
                 'category',
                 'logs'=> function ($query){
@@ -695,18 +695,18 @@ class DocumentController extends Controller
                'assign'=> function ($query){
                     $query -> orderBy('id', 'desc');
                 },
-                'assign.assigned_user.profile',
+                'assign.assignedUser.profile',
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
                 },
                 'logs.user.profile',
-                'logs.acknowledge_user.profile',
-                'logs.action_user.profile',
-                'logs.approved_user.profile',
-                'logs.rejected_user.profile',
-                'logs.from_user.profile',
-                'logs.assigned_user.profile',
-                'logs.assigned_user.role'
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
+                'logs.assignedUser.role'
             ])
             ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
@@ -776,9 +776,6 @@ class DocumentController extends Controller
                         },
                         'role.division.role.user'
                     ])
-                    ->whereHas('role', function ($query) {
-                        $query->where('level', '<>', 2);
-                    })
                     ->get();
                 break;
             default:
@@ -827,7 +824,7 @@ class DocumentController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $document = Document::with(['assign.assigned_user', 'logs'])->find($id);
+        $document = Document::with(['assign.assignedUser', 'logs'])->find($id);
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
@@ -901,18 +898,18 @@ class DocumentController extends Controller
                     });
 
 
-                        $subordinateLevel = $division->role->user->role->level+1;
+                    $subordinateLevel = $division->role->user->role->level+1;
 
-                        $filteredLevel = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
-                            return $value->role->level === $subordinateLevel;
-                        });
+                    $filteredLevel = $filteredToAddUsers->filter(function ($value) use ($subordinateLevel) {
+                        return $value->role->level === $subordinateLevel;
+                    });
 
-                        $superiorId = $division->role->user->id;
-                        $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
-                            $query->where('level', $subordinateLevel)->where('division_id', $division->id);
-                        })->first();
+                    $superiorId = $division->role->user->id;
+                    $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
+                        $query->where('level', $subordinateLevel)->where('division_id', $division->id);
+                    })->first();
 
-                        if ($filteredToAddUsers->count() > 0) {
+                    if ($filteredToAddUsers->count() > 0) {
                         if (!$chiefLogRow) {
                             $log = new DocumentLog();
                             if ($filteredToAddUsers->where('id', $division->role->user->id)->first()) {
@@ -1295,7 +1292,7 @@ class DocumentController extends Controller
     }
 
     public function releaseDocument(Request $request, $id) {
-        
+
         $requestData = $request->only(['date_released']);
 
         $validator = Validator::make($requestData, [
