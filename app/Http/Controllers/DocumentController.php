@@ -1117,7 +1117,7 @@ class DocumentController extends Controller
         }
 
         $latest = $document->logs()->orderBy('id', 'desc')->first();
-        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+        if ($latest->to_id !== $user->id && $latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to take action on this document.'], 401);
         }
 
