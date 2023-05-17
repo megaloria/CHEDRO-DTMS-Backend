@@ -172,7 +172,7 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable|present|max:1',
+            'assign_to' => 'array|nullable|max:1',
             'assign_to.*' => 'integer|min:1|exists:users,id'
         ]);
 
@@ -819,7 +819,7 @@ class DocumentController extends Controller
         $user = $request->user();
 
         $validator = Validator::make($requestData, [
-            'assign_to' => 'array|required|min:1',
+            'assign_to' => 'array|required|max:1',
             'assign_to.*' => 'integer|min:1'
         ]);
 
@@ -885,6 +885,9 @@ class DocumentController extends Controller
                     if ($document->logs->count() === 0) {
                         $log = new DocumentLog();
                         $log->to_id = $director->id;
+                        if(!$document->category->is_assignable) {
+                            $log->assigned_id = $director->id;
+                        }
                         $logs[] = $log;
                     }
 
@@ -894,8 +897,9 @@ class DocumentController extends Controller
 
                     // Adding users
                     $filteredToAddUsers = $usersToAssign->filter(function ($value, int $key) use ($division) {
-                        return $value->role->division_id === $division->id;
+                        return $value !== null && $value->role->division_id === $division->id;
                     });
+
 
                         $subordinateLevel = $division->role->user->role->level+1;
 
@@ -967,7 +971,7 @@ class DocumentController extends Controller
 
                     // Removing users
                     $filteredToRemoveUsers = $toRemove->filter(function ($value, int $key) use ($division) {
-                        return $value->role->division_id === $division->id;
+                        return $value !== null && $value->role->division_id === $division->id;
                     });
 
                     if ($filteredToRemoveUsers->count() > 0) {
@@ -1117,7 +1121,7 @@ class DocumentController extends Controller
         }
 
         $latest = $document->logs()->orderBy('id', 'desc')->first();
-        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+        if ($latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to take action on this document.'], 401);
         }
 
@@ -1179,7 +1183,7 @@ class DocumentController extends Controller
         }
 
         $latest = $document->logs()->orderBy('id', 'desc')->first();
-        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+        if ($latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to approve this document.'], 401);
         }
 
@@ -1247,7 +1251,7 @@ class DocumentController extends Controller
         }
 
         $latest = $document->logs()->orderBy('id', 'desc')->first();
-        if ($latest->to_id !== $user->id || $latest->acknowledge_id !== $user->id) {
+        if ($latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to reject this document.'], 401);
         }
 
