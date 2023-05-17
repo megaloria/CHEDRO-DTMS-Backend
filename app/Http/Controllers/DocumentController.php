@@ -560,14 +560,14 @@ class DocumentController extends Controller
         })
         ->with(['attachments',
                 'sender.receivable',
-                'assign.assigned_user.profile',
+                'assign.assignedUser.profile',
                 'logs.user.profile',
-                'logs.acknowledge_user.profile',
-                'logs.action_user.profile',
-                'logs.approved_user.profile',
-                'logs.rejected_user.profile',
-                'logs.from_user.profile',
-                'logs.assigned_user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
                 'documentType',
                 'category',
                 'logs'=> function ($query){
@@ -621,14 +621,14 @@ class DocumentController extends Controller
         })
         ->with(['attachments',
                 'sender.receivable',
-                'assign.assigned_user.profile',
+                'assign.assignedUser.profile',
                 'logs.user.profile',
-                'logs.acknowledge_user.profile',
-                'logs.action_user.profile',
-                'logs.approved_user.profile',
-                'logs.rejected_user.profile',
-                'logs.from_user.profile',
-                'logs.assigned_user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
                 'documentType',
                 'category',
                 'logs'=> function ($query){
@@ -695,18 +695,18 @@ class DocumentController extends Controller
                'assign'=> function ($query){
                     $query -> orderBy('id', 'desc');
                 },
-                'assign.assigned_user.profile',
+                'assign.assignedUser.profile',
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
                 },
                 'logs.user.profile',
-                'logs.acknowledge_user.profile',
-                'logs.action_user.profile',
-                'logs.approved_user.profile',
-                'logs.rejected_user.profile',
-                'logs.from_user.profile',
-                'logs.assigned_user.profile',
-                'logs.assigned_user.role'
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
+                'logs.assignedUser.role'
             ])
             ->when(!$user->role->level === 1, function($query) use ($user){
                 $query -> whereHas('logs', function ($query) use ($user) {
