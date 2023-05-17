@@ -696,6 +696,7 @@ class DocumentController extends Controller
                     $query -> orderBy('id', 'desc');
                 },
                 'assign.assignedUser.profile',
+                'assign.assignedUser.role',
                 'logs'=> function ($query){
                     $query -> orderBy('id', 'desc');
                 },
@@ -1021,6 +1022,23 @@ class DocumentController extends Controller
                 }
             }
 
+            $document->load([
+                'attachments',
+                'sender.receivable',
+                'assign.assignedUser.profile',
+                'logs.user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
+                'documentType',
+                'category',
+                'logs'=> function ($query){
+                    $query->orderBy('id', 'desc');
+                }
+            ]);
             DB::commit();
             return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
         } catch (\Exception $e) {
