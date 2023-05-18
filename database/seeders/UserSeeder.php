@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-
+        //Regional Director
         $role = Role::create([
             'description' => 'Regional Director IV',
             'level' => 2
@@ -43,24 +43,31 @@ class UserSeeder extends Seeder
             'position_designation' => 'Regional Director IV'
         ]);
 
+        //Administrator
+        $role = Role::create([
+            'description' => 'Record Officer',
+            'level' => 1
+        ]);
+
+        $user = User::create([
+            'role_id' => $role->id,
+            'username' => 'jmagbanua_ro',
+            'password' => Hash::make('chedro1234')
+        ]);
+
+        Profile::create([
+            'id' => $user->id,
+            'prefix' => 'Mr.',
+            'first_name' => 'Jun',
+            'last_name' => 'Magbanua',
+            'suffix' => '',
+            'position_designation' => 'Administrative Officer III'
+        ]);
+
         $divisions = [
             [
                 'description' => 'Administrative',
                 'roles' => [
-                    [
-                        'description' => 'Records Officer',
-                        'level' => 1,
-                        'users' => [
-                            [
-                                'username' => 'jmagbanua',
-                                'password' => Hash::make('chedro1234'),
-                                'prefix' => 'Mr.',
-                                'first_name' => 'Jun',
-                                'last_name' => 'Magbanua',
-                                'position_designation' => 'Administrative Officer III (Records Officer)'
-                            ]
-                        ]
-                    ],
                     [
                         'description' => 'Chief Administrative Officer',
                         'level' => 3,
@@ -102,6 +109,14 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Alliana Katriz',
                                 'last_name' => 'Laroza',
                                 'suffix' => '',
+                                'position_designation' => 'Administrative Officer III'
+                            ],
+                            [
+                                'username' => 'jmagbanua',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Jun',
+                                'last_name' => 'Magbanua',
                                 'position_designation' => 'Administrative Officer III'
                             ]
                         ]
@@ -181,13 +196,7 @@ class UserSeeder extends Seeder
                                 'last_name' => 'Soriano',
                                 'suffix' => '',
                                 'position_designation' => 'Project Technical Staff I'
-                            ]
-                        ]
-                    ],
-                    [
-                        'description' => 'Project Technical Staff I',
-                        'level' => 7,
-                        'users' => [
+                            ],
                             [
                                 'username' => 'kcamacho',
                                 'password' => Hash::make('chedro1234'),
@@ -243,7 +252,7 @@ class UserSeeder extends Seeder
                     ],
                     [
                         'description' => 'Support Service',
-                        'level' => 6,
+                        'level' => 5,
                         'users' => [
                             [
                                 'username' => 'apilpa',
@@ -257,8 +266,8 @@ class UserSeeder extends Seeder
                         ]
                     ],
                     [
-                        'description' => 'Project Support Staff II',
-                        'level' => 6,
+                        'description' => 'Project Technical Staff II',
+                        'level' => 5,
                         'users' => [
                             [
                                 'username' => 'cmalazartejr',
@@ -267,7 +276,7 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Carlos',
                                 'last_name' => 'Malazarte',
                                 'suffix' => 'Jr.',
-                                'position_designation' => 'Project Support Staff II'
+                                'position_designation' => 'Project Technical Staff II'
                             ]
                         ]
                     ],
@@ -275,16 +284,16 @@ class UserSeeder extends Seeder
                 ]
             ],
             [
-                'description' => 'Techical',
+                'description' => 'Technical',
                 'roles' => [
                     [
-                        'description' => 'OIC, Chief Education Program Specialist',
+                        'description' => 'Chief Education Program Specialist',
                         'level' => 3,
                         'users' => [
                             [
-                                'username' => 'jmachan',
+                                'username' => 'jmachan_ceps',
                                 'password' => Hash::make('chedro1234'),
-                                'prefix' => 'Ms.',
+                                'prefix' => 'Dr.',
                                 'first_name' => 'Judith Mary Ann',
                                 'last_name' => 'Chan',
                                 'suffix' => '',
@@ -293,11 +302,11 @@ class UserSeeder extends Seeder
                         ]
                     ],
                     [
-                        'description' => 'OIC, Supervising Education Program Specialist',
+                        'description' => 'Supervising Education Program Specialist',
                         'level' => 4,
                         'users' => [
                             [
-                                'username' => 'lgueta',
+                                'username' => 'lgueta_seps',
                                 'password' => Hash::make('chedro1234'),
                                 'prefix' => 'Mr.',
                                 'first_name' => 'Loupel',
@@ -311,6 +320,24 @@ class UserSeeder extends Seeder
                         'description' => 'Education Supervisor II',
                         'level' => 5,
                         'users' => [
+                            [
+                                'username' => 'jmachan',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Dr.',
+                                'first_name' => 'Judith Mary Ann',
+                                'last_name' => 'Chan',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
+                            [
+                                'username' => 'lgueta',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Loupel',
+                                'last_name' => 'Gueta',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
                             [
                                 'username' => 'dbuenaagua',
                                 'password' => Hash::make('chedro1234'),
@@ -341,7 +368,7 @@ class UserSeeder extends Seeder
                             [
                                 'username' => 'cflores',
                                 'password' => Hash::make('chedro1234'),
-                                'prefix' => 'Ms.',
+                                'prefix' => 'Dr.',
                                 'first_name' => 'Corazon',
                                 'last_name' => 'Flores',
                                 'suffix' => '',
@@ -393,7 +420,7 @@ class UserSeeder extends Seeder
                     ],
                     [
                         'description' => 'Project Technical Staff III',
-                        'level' => 7,
+                        'level' => 6,
                         'users' => [
                             [
                                 'username' => 'kbdeleon',
@@ -426,7 +453,7 @@ class UserSeeder extends Seeder
                     ],
                     [
                         'description' => 'Project Technical Staff II',
-                        'level' => 8,
+                        'level' => 7,
                         'users' => [
                             [
                                 'username' => 'ezara',
@@ -477,7 +504,7 @@ class UserSeeder extends Seeder
                     ],
                     [
                         'description' => 'Project Technical Staff I',
-                        'level' => 8,
+                        'level' => 7,
                         'users' => [
                             [
                                 'username' => 'cmosende',
