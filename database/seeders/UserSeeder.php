@@ -170,21 +170,6 @@ class UserSeeder extends Seeder
                         ]
                     ],
                     [
-                        'description' => 'Administrative Aide III',
-                        'level' => 4,
-                        'users' => [
-                            [
-                                'username' => 'rsoliva',
-                                'password' => Hash::make('chedro1234'),
-                                'prefix' => 'Mr.',
-                                'first_name' => 'Ranulfo',
-                                'last_name' => 'Soliva',
-                                'suffix' => '',
-                                'position_designation' => 'Administrative Aide III'
-                            ]
-                        ]
-                    ],
-                    [
                         'description' => 'Project Technical Staff I',
                         'level' => 5,
                         'users' => [
@@ -200,7 +185,64 @@ class UserSeeder extends Seeder
                         ]
                     ],
                     [
+                        'description' => 'Project Technical Staff I',
+                        'level' => 7,
+                        'users' => [
+                            [
+                                'username' => 'kcamacho',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Krystal',
+                                'last_name' => 'Camacho',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff I'
+                            ]
+                        ]
+                    ],
+                    [
                         'description' => 'Project Support Staff IV',
+                        'level' => 5,
+                        'users' => [
+                            [
+                                'username' => 'lestilles',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Leah',
+                                'last_name' => 'Estilles',
+                                'suffix' => '',
+                                'position_designation' => 'Project Support Staff IV'
+                            ],
+                            [
+                                'username' => 'icmaliksi',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Ian Christopher',
+                                'last_name' => 'Maliksi',
+                                'suffix' => '',
+                                'position_designation' => 'Project Support Staff IV'
+                            ],
+                            [
+                                'username' => 'smarias',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Sheila Mae',
+                                'last_name' => 'Arias',
+                                'suffix' => '',
+                                'position_designation' => 'Project Support Staff IV'
+                            ],
+                            [
+                                'username' => 'japineda',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Joan Abegail',
+                                'last_name' => 'Pineda',
+                                'suffix' => '',
+                                'position_designation' => 'Project Support Staff IV'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Support Service',
                         'level' => 6,
                         'users' => [
                             [
@@ -210,7 +252,7 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Alaiza',
                                 'last_name' => 'Pilpa',
                                 'suffix' => '',
-                                'position_designation' => 'Project Support Staff IV'
+                                'position_designation' => 'Support Service'
                             ]
                         ]
                     ],
@@ -219,12 +261,12 @@ class UserSeeder extends Seeder
                         'level' => 6,
                         'users' => [
                             [
-                                'username' => 'cmalazarte',
+                                'username' => 'cmalazartejr',
                                 'password' => Hash::make('chedro1234'),
                                 'prefix' => 'Mr.',
                                 'first_name' => 'Carlos',
                                 'last_name' => 'Malazarte',
-                                'suffix' => '',
+                                'suffix' => 'Jr.',
                                 'position_designation' => 'Project Support Staff II'
                             ]
                         ]
@@ -245,10 +287,242 @@ class UserSeeder extends Seeder
                                 'prefix' => 'Ms.',
                                 'first_name' => 'Judith Mary Ann',
                                 'last_name' => 'Chan',
+                                'suffix' => '',
                                 'position_designation' => 'OIC, Chief Education Program Specialist'
                             ]
                         ]
                     ],
+                    [
+                        'description' => 'OIC, Supervising Education Program Specialist',
+                        'level' => 4,
+                        'users' => [
+                            [
+                                'username' => 'lgueta',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Loupel',
+                                'last_name' => 'Gueta',
+                                'suffix' => '',
+                                'position_designation' => 'OIC, Supervising Education Program Specialist'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Education Supervisor II',
+                        'level' => 5,
+                        'users' => [
+                            [
+                                'username' => 'dbuenaagua',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Donald',
+                                'last_name' => 'Buena Agua',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
+                            [
+                                'username' => 'vcastelo',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Victor',
+                                'last_name' => 'Castelo',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
+                            [
+                                'username' => 'jkcuevas',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Jovine Krisell',
+                                'last_name' => 'Cuevas',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
+                            [
+                                'username' => 'cflores',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Corazon',
+                                'last_name' => 'Flores',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
+                            [
+                                'username' => 'plabangjr',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Pelagio',
+                                'last_name' => 'Labang',
+                                'suffix' => 'Jr.',
+                                'position_designation' => 'Education Supervisor II'
+                            ],
+                            [
+                                'username' => 'mlontal',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Ma. Lucila',
+                                'last_name' => 'Ontal',
+                                'suffix' => '',
+                                'position_designation' => 'Education Supervisor II'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Education Program Specialist II',
+                        'level' => 6,
+                        'users' => [
+                            [
+                                'username' => 'rpabiela',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Ryan Paul',
+                                'last_name' => 'Abiela',
+                                'suffix' => '',
+                                'position_designation' => 'Education Program Specialist II'
+                            ],
+                            [
+                                'username' => 'amendoza',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Agnes',
+                                'last_name' => 'Mendoza',
+                                'suffix' => '',
+                                'position_designation' => 'Education Program Specialist II'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Project Technical Staff III',
+                        'level' => 7,
+                        'users' => [
+                            [
+                                'username' => 'kbdeleon',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Kathryn Beatriz',
+                                'last_name' => 'De Leon',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff III'
+                            ],
+                            [
+                                'username' => 'kvapura',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Kim Virgil',
+                                'last_name' => 'Apura',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff III'
+                            ],
+                            [
+                                'username' => 'demanalo',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Daryl Eine',
+                                'last_name' => 'Manalo',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff III'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Project Technical Staff II',
+                        'level' => 8,
+                        'users' => [
+                            [
+                                'username' => 'ezara',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Ericka',
+                                'last_name' => 'Zara',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff II'
+                            ],
+                            [
+                                'username' => 'msoliva',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Mariel',
+                                'last_name' => 'Soliva',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff II'
+                            ],
+                            [
+                                'username' => 'amfuentes',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Alyssa Mae',
+                                'last_name' => 'Fuentes',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff II'
+                            ],
+                            [
+                                'username' => 'mrramirez',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Moises Rigor',
+                                'last_name' => 'Ramirez',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff II'
+                            ],
+                            [
+                                'username' => 'abernal',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Abigail',
+                                'last_name' => 'Bernal',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff II'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Project Technical Staff I',
+                        'level' => 8,
+                        'users' => [
+                            [
+                                'username' => 'cmosende',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Christine',
+                                'last_name' => 'Mosende',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff I'
+                            ],
+                            [
+                                'username' => 'ebalagbagan',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Edrich',
+                                'last_name' => 'Balagbagan',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff I'
+                            ],
+                            [
+                                'username' => 'jcajefe',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Ms.',
+                                'first_name' => 'Jhanina',
+                                'last_name' => 'Cajefe',
+                                'suffix' => '',
+                                'position_designation' => 'Project Technical Staff I'
+                            ]
+                        ]
+                    ],
+                    [
+                        'description' => 'Job Order',
+                        'level' => 7,
+                        'users' => [
+                            [
+                                'username' => 'jjbasco',
+                                'password' => Hash::make('chedro1234'),
+                                'prefix' => 'Mr.',
+                                'first_name' => 'Jonathan Jaylord',
+                                'last_name' => 'Basco',
+                                'suffix' => '',
+                                'position_designation' => 'Job Order'
+                            ]
+                        ]
+                    ],     
                 ]
             ]
         ];
