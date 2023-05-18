@@ -1028,7 +1028,9 @@ class DocumentController extends Controller
             $document->load([
                 'attachments',
                 'sender.receivable',
+                'user.profile',
                 'assign.assignedUser.profile',
+                'assign.assignedUser.role',
                 'logs.user.profile',
                 'logs.acknowledgeUser.profile',
                 'logs.actionUser.profile',
@@ -1036,11 +1038,15 @@ class DocumentController extends Controller
                 'logs.rejectedUser.profile',
                 'logs.fromUser.profile',
                 'logs.assignedUser.profile',
+                'logs.assignedUser.role',
                 'documentType',
                 'category',
                 'logs'=> function ($query){
                     $query->orderBy('id', 'desc');
-                }
+                },
+                'assign'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                },
             ]);
             DB::commit();
             return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
@@ -1066,7 +1072,7 @@ class DocumentController extends Controller
         }
 
         $latest = $document->logs()->orderBy('id', 'desc')->first();
-        if ($latest->to_id !== $user->id || $latest->acknowledge_id === $user->id) {
+        if ($latest->acknowledge_id === $user->id) {
             return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
         }
 
@@ -1101,8 +1107,32 @@ class DocumentController extends Controller
             }
 
             if ($document->logs()->saveMany($logs)) {
+                $document->load([
+                    'attachments',
+                    'sender.receivable',
+                    'user.profile',
+                    'assign.assignedUser.profile',
+                    'assign.assignedUser.role',
+                    'logs.user.profile',
+                    'logs.acknowledgeUser.profile',
+                    'logs.actionUser.profile',
+                    'logs.approvedUser.profile',
+                    'logs.rejectedUser.profile',
+                    'logs.fromUser.profile',
+                    'logs.assignedUser.profile',
+                    'logs.assignedUser.role',
+                    'documentType',
+                    'category',
+                    'logs'=> function ($query){
+                        $query->orderBy('id', 'desc');
+                    },
+                    'assign'=> function ($query){
+                        $query -> orderBy('id', 'desc');
+                    },
+                ]);
+                $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
                 DB::commit();
-                return response()->json(['data' => $log, 'message' => 'Successfully acknowledged the document.'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully acknowledged the document.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -1162,10 +1192,35 @@ class DocumentController extends Controller
             $log->action_id = $user->id;
             $logs[] = $log;
 
-
+            
             if ($document->logs()->saveMany($logs)) {
+                $document->load([
+                    'attachments',
+                    'sender.receivable',
+                    'user.profile',
+                    'assign.assignedUser.profile',
+                    'assign.assignedUser.role',
+                    'logs.user.profile',
+                    'logs.acknowledgeUser.profile',
+                    'logs.actionUser.profile',
+                    'logs.approvedUser.profile',
+                    'logs.rejectedUser.profile',
+                    'logs.fromUser.profile',
+                    'logs.assignedUser.profile',
+                    'logs.assignedUser.role',
+                    'documentType',
+                    'category',
+                    'logs'=> function ($query){
+                        $query->orderBy('id', 'desc');
+                    },
+                    'assign'=> function ($query){
+                        $query -> orderBy('id', 'desc');
+                    },
+                ]);
+                $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+
                 DB::commit();
-                return response()->json(['data' => $log, 'message' => 'Successfully took action on the document.'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully took action on the document.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -1230,9 +1285,36 @@ class DocumentController extends Controller
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
+            
+
             if ($document->logs()->saveMany($logs)) {
+                $document->load([
+                    'attachments',
+                    'sender.receivable',
+                    'user.profile',
+                    'assign.assignedUser.profile',
+                    'assign.assignedUser.role',
+                    'logs.user.profile',
+                    'logs.acknowledgeUser.profile',
+                    'logs.actionUser.profile',
+                    'logs.approvedUser.profile',
+                    'logs.rejectedUser.profile',
+                    'logs.fromUser.profile',
+                    'logs.assignedUser.profile',
+                    'logs.assignedUser.role',
+                    'documentType',
+                    'category',
+                    'logs'=> function ($query){
+                        $query->orderBy('id', 'desc');
+                    },
+                    'assign'=> function ($query){
+                        $query -> orderBy('id', 'desc');
+                    },
+                ]);
+                $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+
                 DB::commit();
-                return response()->json(['data' => $logs, 'message' => 'Successfully approved the document.'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully approved the document.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -1297,9 +1379,36 @@ class DocumentController extends Controller
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
+            
+
             if ($document->logs()->saveMany($logs)) {
+                $document->load([
+                    'attachments',
+                    'sender.receivable',
+                    'user.profile',
+                    'assign.assignedUser.profile',
+                    'assign.assignedUser.role',
+                    'logs.user.profile',
+                    'logs.acknowledgeUser.profile',
+                    'logs.actionUser.profile',
+                    'logs.approvedUser.profile',
+                    'logs.rejectedUser.profile',
+                    'logs.fromUser.profile',
+                    'logs.assignedUser.profile',
+                    'logs.assignedUser.role',
+                    'documentType',
+                    'category',
+                    'logs'=> function ($query){
+                        $query->orderBy('id', 'desc');
+                    },
+                    'assign'=> function ($query){
+                        $query -> orderBy('id', 'desc');
+                    },
+                ]);
+                $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+
                 DB::commit();
-                return response()->json(['data' => $log, 'message' => 'Successfully rejected the document.'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully rejected the document.'], 201);
             }
 
         } catch (\Exception$e) {
@@ -1347,9 +1456,36 @@ class DocumentController extends Controller
 
             $release->released_at = Carbon::parse($requestData['date_released']);
 
+            
+
             if ($release->save()) {
+                $document->load([
+                    'attachments',
+                    'sender.receivable',
+                    'user.profile',
+                    'assign.assignedUser.profile',
+                    'assign.assignedUser.role',
+                    'logs.user.profile',
+                    'logs.acknowledgeUser.profile',
+                    'logs.actionUser.profile',
+                    'logs.approvedUser.profile',
+                    'logs.rejectedUser.profile',
+                    'logs.fromUser.profile',
+                    'logs.assignedUser.profile',
+                    'logs.assignedUser.role',
+                    'documentType',
+                    'category',
+                    'logs'=> function ($query){
+                        $query->orderBy('id', 'desc');
+                    },
+                    'assign'=> function ($query){
+                        $query -> orderBy('id', 'desc');
+                    },
+                ]);
+                $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+
                 DB::commit();
-                return response()->json(['data' => $release, 'message' => 'Successfully released the document.'], 201);
+                return response()->json(['data' => $document, 'message' => 'Successfully released the document.'], 201);
             }
         } catch (\Exception $e) {
             report($e);
