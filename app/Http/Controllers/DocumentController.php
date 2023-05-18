@@ -723,6 +723,9 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document Type not found.'], 404);
         }
 
+        $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+             
+
         return response()->json(['data' => $document, 'url' => $fileUrl, 'message' => 'Successfully fetched the document.'], 200);
 
     }
