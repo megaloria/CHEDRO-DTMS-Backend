@@ -22,6 +22,7 @@ use App\Models\Division;
 use App\Models\DocumentLog;
 use App\Models\DocumentAssignation;
 use App\Models\Profile;
+use PhpParser\Comment\Doc;
 
 class DocumentController extends Controller
 {
@@ -1446,19 +1447,26 @@ class DocumentController extends Controller
             })
             ->first();
 
-        $release = $document->logs()->where('from_id', $director->id)
+        $releasing = $document->logs()->where('from_id', $director->id)
                                     ->whereNull('to_id')
                                     ->whereNotNull('approved_id')
                                     ->first();
 
+        if(!$releasing){
+            return response()->json([
+                'message' => 'Unable to release document.'
+            ], 403);
+        }
+
         try {
             DB::beginTransaction();
 
-            $release->released_at = Carbon::parse($requestData['date_released']);
+            $log = new DocumentLog();
+            $log->assigned_id = $releasing->assigned_id;
+            $log->action_id = $releasing->action_id;
+            $log->released_at = Carbon::parse($requestData['date_released']);
 
-            
-
-            if ($release->save()) {
+            if ($document->logs()->save($log)) {
                 $document->load([
                     'attachments',
                     'sender.receivable',
