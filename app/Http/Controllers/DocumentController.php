@@ -22,7 +22,6 @@ use App\Models\Division;
 use App\Models\DocumentLog;
 use App\Models\DocumentAssignation;
 use App\Models\Profile;
-use PhpParser\Comment\Doc;
 
 class DocumentController extends Controller
 {
@@ -861,11 +860,13 @@ class DocumentController extends Controller
             if ($document->logs()->whereNotNull('acknowledge_id')->exists()) {
                 $logs = [];
 
+                $acknowledgeLog = $document->logs()->where('acknowledge_id', $user->id)->orderBy('id', 'desc')->first();
                 foreach ($requestData['assign_to'] as $assignTo) {
                     $log        = new DocumentLog();
-                    $log->assigned_id = $user->id;
+                    $log->assigned_id = $acknowledgeLog->assigned_id;
                     $log->from_id = $user->id;
                     $log->to_id = $assignTo;
+                    $log->action_id = $acknowledgeLog->action_id;
                     $logs[]     = $log;
                 }
 
@@ -1049,6 +1050,8 @@ class DocumentController extends Controller
                     $query -> orderBy('id', 'desc');
                 },
             ]);
+            $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+
             DB::commit();
             return response()->json(['data' => $document, 'message' => 'Successfully forwarded the document.'], 201);
         } catch (\Exception $e) {
@@ -1073,39 +1076,22 @@ class DocumentController extends Controller
         }
 
         $latest = $document->logs()->orderBy('id', 'desc')->first();
-        if ($latest->acknowledge_id === $user->id) {
+        if ($latest->acknowledge_id === $user->id || $latest->to_id !== $user->id) {
             return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
         }
 
-        $receive = $document->logs()->where('to_id', $user->id)->orderBy('id', 'desc')->whereNull('action_id')->first();
-
-        $return = $document->logs()->where('to_id', $user->id)
-            ->orderBy('id','desc')
-            ->whereNotNull('action_id')
-            ->first();
-        $actioned = $document->logs()->whereNotNull('action_id')
-            ->whereNull('rejected_id')
-            ->exists();
+       
         $logs = [];
-
 
         try {
             DB::beginTransaction();
 
-            if ($actioned) {
                 $log = new DocumentLog();
-                $log->assigned_id = $return ? $return->assigned_id : $receive->assigned_id;
-                if ($return) {
-                    $log->action_id = $return->action_id;
-                }
+                $log->assigned_id = $latest->assigned_id;
+                $log->action_id = $latest->action_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
-            } else {
-                $log = new DocumentLog();
-                $log->assigned_id = $receive->assigned_id;
-                $log->acknowledge_id = $user->id;
-                $logs[] = $log;
-            }
+            
 
             if ($document->logs()->saveMany($logs)) {
                 $document->load([
