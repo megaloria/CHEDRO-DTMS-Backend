@@ -43,7 +43,7 @@ class DocumentController extends Controller
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
             'assign_to' => 'array|nullable|present|max:1',
-            'assign_to.*' => 'integer|min:1|exists:users,id'
+            'assign_to.*' => 'integer|min:1'
         ]);
 
         if ($validator->fails()) {
@@ -58,6 +58,26 @@ class DocumentController extends Controller
         $category = Category::find($requestData['category_id']);
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
+        }
+
+        if ($requestData['assign_to']) {
+            $users = User::with(['role', 'role.division'])->whereIn('id', $requestData['assign_to'])->get();
+            if ($users->count() !== count($requestData['assign_to'])) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+            if ($category->is_assignable) {
+                $filtered = $users->filter(function ($toAssignUser) {
+                    return $toAssignUser->role->division && (
+                        $toAssignUser->role->division->description === 'Administrative' ? (
+                            $toAssignUser->role->level > 4
+                        ) : $toAssignUser->role->division->description === 'Technical' &&
+                            $toAssignUser->role->level > 5
+                    );
+                });
+                if ($filtered->count() > 0) {
+                    return response()->json(['message' => 'Unable to assign to user.'], 409);
+                }
+            }
         }
 
         $dateReceived = Carbon::parse($requestData['date_received']);
@@ -132,10 +152,10 @@ class DocumentController extends Controller
                     ]);
                     $document->assign()->save($log);
                 } else if ($requestData['assign_to']) {
-                         $logs = [];
+                    $logs = [];
                     foreach ($requestData['assign_to'] as $assignTo) {
                         $logs[] = new DocumentAssignation([
-                            'assigned_id' => $assignTo,
+                            'assigned_id' => $assignTo
                         ]);
                     }
                     if (!empty($logs)) {
@@ -172,8 +192,8 @@ class DocumentController extends Controller
             'receivable_id' => 'required_if:receivable_type,HEIs,NGAs,CHED Offices|nullable|integer',
             'description' => 'required|string',
             'category_id' => 'required|integer|exists:categories,id',
-            'assign_to' => 'array|nullable|max:1',
-            'assign_to.*' => 'integer|min:1|exists:users,id'
+            'assign_to' => 'array|nullable|present|max:1',
+            'assign_to.*' => 'integer|min:1'
         ]);
 
         if ($validator->fails()) {
@@ -190,12 +210,25 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Category not found'], 404);
         }
 
-         if ($requestData['assign_to']) {
-            $users = User::with('role')->whereIn('id', $requestData['assign_to'])->get();
+        if ($requestData['assign_to']) {
+            $users = User::with(['role', 'role.division'])->whereIn('id', $requestData['assign_to'])->get();
             if ($users->count() !== count($requestData['assign_to'])) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
-         }
+            if ($category->is_assignable) {
+                $filtered = $users->filter(function ($toAssignUser) {
+                    return $toAssignUser->role->division && (
+                        $toAssignUser->role->division->description === 'Administrative' ? (
+                            $toAssignUser->role->level > 4
+                        ) : $toAssignUser->role->division->description === 'Technical' &&
+                            $toAssignUser->role->level > 5
+                    );
+                });
+                if ($filtered->count() > 0) {
+                    return response()->json(['message' => 'Unable to assign to user.'], 409);
+                }
+            }
+        }
 
         $dateReceived = Carbon::parse($requestData['date_received']);
         $latestDocument = Document::where('document_type_id', $documentType->id)->whereYear('date_received', $dateReceived->format('Y'))->orderBy('series_no', 'DESC')->first();
@@ -302,7 +335,7 @@ class DocumentController extends Controller
                             return $value->role->division_id === $division->id;
                         });
 
-                        if($filteredUsers->count() > 0){
+                        if($filteredUsers->count() > 0) {
                              $log = new DocumentLog();
                             if ($filteredUsers->where('id', $division->role->user->id)->first()) {
                                 $log->assigned_id = $division->role->user->id;
@@ -369,7 +402,6 @@ class DocumentController extends Controller
         DB::rollBack();
         return response()->json(['message' => 'Failed to add a document.'], 400);
     }
-
 
     public function editDocument (Request $request, $id) {
         $user = $request->user();
@@ -724,7 +756,7 @@ class DocumentController extends Controller
         }
 
         $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
-             
+
 
         return response()->json(['data' => $document, 'url' => $fileUrl, 'message' => 'Successfully fetched the document.'], 200);
 
@@ -780,6 +812,21 @@ class DocumentController extends Controller
                         },
                         'role.division.role.user'
                     ])
+                    ->whereHas('role', function ($query) {
+                        $query->where(function ($query) {
+                                $query->where('level', '<', 5)
+                                    ->whereHas('division', function ($query) {
+                                        $query->where('description', 'Administrative');
+                                    });
+                            })
+                            ->orWhere(function ($query) {
+                                $query->where('level', '<', 6)
+                                    ->whereHas('division', function ($query) {
+                                        $query->where('description', 'Technical');
+                                    });
+                            });
+                    })
+                    ->where('id', '<>', $user->id)
                     ->get();
                 break;
             default:
@@ -1080,7 +1127,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
         }
 
-       
+
         $logs = [];
 
         try {
@@ -1091,7 +1138,7 @@ class DocumentController extends Controller
                 $log->action_id = $latest->action_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
-            
+
 
             if ($document->logs()->saveMany($logs)) {
                 $document->load([
@@ -1179,7 +1226,7 @@ class DocumentController extends Controller
             $log->action_id = $user->id;
             $logs[] = $log;
 
-            
+
             if ($document->logs()->saveMany($logs)) {
                 $document->load([
                     'attachments',
@@ -1272,7 +1319,7 @@ class DocumentController extends Controller
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
-            
+
 
             if ($document->logs()->saveMany($logs)) {
                 $document->load([
@@ -1366,7 +1413,7 @@ class DocumentController extends Controller
             $log->comment = $requestData['comment'];
             $logs[] = $log;
 
-            
+
 
             if ($document->logs()->saveMany($logs)) {
                 $document->load([
