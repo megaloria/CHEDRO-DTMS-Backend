@@ -595,6 +595,21 @@ class DocumentController extends Controller
                         $query->where('assigned_id', $user->id);
                     });
             });
+        })->when($status === 'releasing', function ($query) use ($user) {
+            $query->where(function ($query) use ($user) {
+                $query->whereHas('logs', function ($query) use ($user) {
+                        $query->whereNull('to_id')->whereNotNull('from_id')
+                                ->whereNotNull('action_id')->whereNull('acknowledge_id')
+                                    ->whereNotNull('approved_id')
+                                        ->whereNull('released_at');
+                    });
+            });
+        })->when($status === 'done', function ($query) use ($user) {
+            $query->where(function ($query) use ($user) {
+                $query->whereHas('logs', function ($query) use ($user) {
+                        $query->whereNotNull('released_at');
+                    });
+            });
         })
         ->when($searchQuery, function ($query, $searchQuery) {
             $query->where(function ($query) use ($searchQuery) {
