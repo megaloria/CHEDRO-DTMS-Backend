@@ -788,7 +788,7 @@ class DocumentController extends Controller
 
 
         if (!$document) {
-            return response()->json(['message' => 'Document Type not found.'], 404);
+            return response()->json(['message' => 'Document not found.'], 404);
         }
 
         $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
@@ -796,6 +796,20 @@ class DocumentController extends Controller
 
         return response()->json(['data' => $document, 'url' => $fileUrl, 'message' => 'Successfully fetched the document.'], 200);
 
+    }
+
+    public function downloadDocumentFile (Request $request, $id, $fileName) {
+        $document = Document::with('attachments')->has('attachments')->find($id);
+
+        if (!$document) {
+            return response()->json(['message' => 'Document not found.'], 404);
+        }
+
+        if (Storage::disk('document_files')->missing($document->attachments->file_name)) {
+            return response()->json(['message' => 'File not found.'], 404);
+        }
+
+        return response()->file(Storage::disk('document_files')->path($document->attachments->file_name));
     }
 
     public function deleteDocument (Request $request, $id) {
