@@ -622,7 +622,7 @@ class DocumentController extends Controller
                     $query -> orderBy('id', 'desc');
                 }])
         ->orderBy('updated_at', 'desc')
-        ->paginate(5);
+        ->paginate(10);
 
         } else {
             $documents = Document::when($status === 'ongoing', function ($query) {
