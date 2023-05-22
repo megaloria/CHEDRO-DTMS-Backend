@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Notification;
 
 use App\Models\Document;
 use App\Models\Attachment;
@@ -22,6 +23,8 @@ use App\Models\Division;
 use App\Models\DocumentLog;
 use App\Models\DocumentAssignation;
 use App\Models\Profile;
+
+use App\Notifications\DocumentForwarded;
 
 class DocumentController extends Controller
 {
@@ -389,6 +392,8 @@ class DocumentController extends Controller
 
                     $document->assign()->saveMany($assignations);
                     $document->logs()->saveMany($logs);
+
+                    Notification::send($users, new DocumentForwarded($document));
                 }
 
                 $document->load(['user', 'documentType', 'attachments']);
