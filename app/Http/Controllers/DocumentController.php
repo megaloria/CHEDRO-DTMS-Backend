@@ -879,7 +879,8 @@ class DocumentController extends Controller
                                     ->whereHas('division', function ($query) {
                                         $query->where('description', 'Technical');
                                     });
-                            });
+                            })
+                            ->orWhere('level', 2);
                     })
                     ->where('id', '<>', $user->id)
                     ->get();
