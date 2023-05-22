@@ -299,18 +299,21 @@ class DocumentController extends Controller
                 if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
                             $query->where('position_designation', 'like', 'Regional Director%');
-                    })->value('id');
+                    })->first();
                     $assign      = new DocumentAssignation([
-                        'assigned_id' => $assignTo,
+                        'assigned_id' => $assignTo->id,
                     ]);
 
                     $log      = new DocumentLog([
-                        'to_id' => $assignTo,
+                        'to_id' => $assignTo->id,
                     ]);
                     $document->assign()->save($assign);
                     $document->logs()->save($log);
 
+                    Notification::send($assignTo, new DocumentForwarded($document, $log));
                 } else if ($requestData['assign_to']) {
+                    $notifications = [];
+
                      $assignations = [];
                     foreach($requestData['assign_to'] as $assignTo) {
                         $assignations[] = new DocumentAssignation([
@@ -327,11 +330,14 @@ class DocumentController extends Controller
                         'role.user'
                     ])->get();
 
+                    $director = User::whereHas('role', function ($query) {
+                            $query->where('level', 2);
+                        })
+                        ->first();
                     $log = new DocumentLog();
-                    $log->to_id = Profile::where(function ($query) {
-                                    $query->where('position_designation', 'like', 'Regional Director%');
-                                  })->value('id');
+                    $log->to_id = $director->id;
                     $logs[] = $log;
+                    Notification::send($director, new DocumentForwarded($document, $log));
 
                     foreach($divisions as $division) {
                         $filteredUsers = $users->filter(function ($value, int $key) use($division) {
@@ -344,11 +350,9 @@ class DocumentController extends Controller
                                 $log->assigned_id = $division->role->user->id;
                             }
                             $log->to_id = $division->role->user->id;
-                            $log->from_id = Profile::where(function ($query) {
-                                                $query->where('position_designation', 'like', 'Regional Director%');
-                                            })->value('id');
-
+                            $log->from_id = $director->id;
                             $logs[] = $log;
+                            Notification::send([$director, $division->role->user], new DocumentForwarded($document, $log));
 
                             $subordinateLevel = $division->role->user->role->level+1;
 
@@ -372,6 +376,7 @@ class DocumentController extends Controller
                                     $log->to_id = $subordinate->id;
                                     $log->from_id = $superiorId;
                                     $logs[] = $log;
+                                    Notification::send([$director, $division->role->user, $subordinate], new DocumentForwarded($document, $log));
 
                                     $superiorId = $subordinate->id;
                                  }
@@ -385,6 +390,7 @@ class DocumentController extends Controller
                                     $log->to_id = $assignTo->id;
                                     $log->from_id = $superiorId;
                                     $logs[] = $log;
+                                    Notification::send([$director, $division->role->user, $subordinate, $assignTo], new DocumentForwarded($document, $log));
                                 }
                             }
                         }
@@ -392,8 +398,6 @@ class DocumentController extends Controller
 
                     $document->assign()->saveMany($assignations);
                     $document->logs()->saveMany($logs);
-
-                    Notification::send($users, new DocumentForwarded($document));
                 }
 
                 $document->load(['user', 'documentType', 'attachments']);

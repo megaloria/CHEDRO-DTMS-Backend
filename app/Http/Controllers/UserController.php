@@ -12,7 +12,7 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Models\Role;
 
-class UserController extends Controller 
+class UserController extends Controller
 {
     public function createUser (Request $request) {
         $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id','position_designation']);
@@ -129,7 +129,7 @@ class UserController extends Controller
 
     public function getUser (Request $request, $id) {
         $user = User::find($id);
-        
+
         return response()->json(['data' => $user, 'message' => ' Successfully fetched the user.'], 200);
     }
 
@@ -175,7 +175,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             report($e);
         }
-    
+
         return response()->json(['message' => 'Failed to update the user'], 400);
     }
 
@@ -206,7 +206,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             report($e);
         }
-    
+
         return response()->json(['message' => 'Failed to update the password'], 400);
     }
 
@@ -223,7 +223,7 @@ class UserController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-      
+
         try {
         $user = $request->user();
 
@@ -245,14 +245,14 @@ class UserController extends Controller
         } catch (\Exception $e) {
             report($e);
         }
-    
+
         return response()->json(['message' => 'Failed to update the password'], 400);
     }
 
 
     public function login(Request $request) {
         $requestData = $request->only(['username', 'password']);
-        
+
         $validator = Validator::make($requestData, [
             'username' => 'required|min:5',
             'password' => 'required|min:8'
@@ -280,7 +280,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             report($e);
         }
-        
+
         return response()->json(['message' => 'Failed to login.'], 400);
     }
 
@@ -297,8 +297,11 @@ class UserController extends Controller
         return response()->json(['message' => 'Successfully logged out.'], 200);
     }
 
+    public function getNotifications (Request $request) {
+        $notifications = $request->user()->notifications()->paginate();
+        return response()->json(['data' => $notifications, 'message' => 'Successfully fetched current user.'], 200);
+    }
 
-   
-    
+
 }
 

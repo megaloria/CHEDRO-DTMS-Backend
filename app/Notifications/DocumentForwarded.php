@@ -12,13 +12,17 @@ class DocumentForwarded extends Notification
     use Queueable;
 
     private $document;
+    private $log;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($document)
+    public function __construct($document, $log)
     {
+        $this->afterCommit();
+
         $this->document = $document;
+        $this->log = $log;
     }
 
     /**
@@ -49,6 +53,9 @@ class DocumentForwarded extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        return $this->document->toArray();
+        return [
+            'document' => $this->document->toArray(),
+            'log' => $this->log->toArray()
+        ];
     }
 }

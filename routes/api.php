@@ -216,5 +216,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);
     });
+
+    Route::get('/notifications', [UserController::class, 'getNotifications']);
 });
 
