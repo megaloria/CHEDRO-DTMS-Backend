@@ -25,6 +25,11 @@ use App\Models\DocumentAssignation;
 use App\Models\Profile;
 
 use App\Notifications\DocumentForwarded;
+use App\Notifications\DocumentAcknowledged;
+use App\Notifications\DocumentApproved;
+use App\Notifications\DocumentRejected;
+use App\Notifications\DocumentReleased;
+use App\Notifications\DocumentActedOn;
 
 class DocumentController extends Controller
 {
@@ -393,7 +398,15 @@ class DocumentController extends Controller
                     $document->assign()->saveMany($assignations);
                     $document->logs()->saveMany($logs);
 
-                    Notification::send($users, new DocumentForwarded($document));
+                    $director = Profile::where(function ($query) {
+                        $query->where('position_designation', 'like', 'Regional Director%');
+                    })->value('id');
+
+                    if(!$document->is_assignable) {
+                        Notification::send($director, new DocumentForwarded($document));
+                    } else {
+                        Notification::send($users, new DocumentForwarded($document));
+                    }
                 }
 
                 $document->load(['user', 'documentType', 'attachments']);
@@ -1220,6 +1233,8 @@ class DocumentController extends Controller
                     },
                 ]);
                 $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
+
+                Notification::send($latest->from_id, new DocumentAcknowledged($document));
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully acknowledged the document.'], 201);
             }
