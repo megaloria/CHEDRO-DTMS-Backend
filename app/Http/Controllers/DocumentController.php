@@ -357,7 +357,7 @@ class DocumentController extends Controller
                             $log->to_id = $division->role->user->id;
                             $log->from_id = $director->id;
                             $logs[] = $log;
-                            Notification::send([$director, $division->role->user], new DocumentForwarded($document, $log));
+                            Notification::send([$director, $division->role->user], new DocumentForwarded($document, $log, $director, $division->role->user));
 
                             $subordinateLevel = $division->role->user->role->level+1;
 
@@ -365,7 +365,7 @@ class DocumentController extends Controller
                                 return $value->role->level === $subordinateLevel;
                             });
 
-                            $superiorId = $division->role->user->id;
+                            $superior = $division->role->user;
 
                             if ($filteredLevel->count() === 0) {
                                 $subordinate = User::whereHas('role', function ($query) use ($subordinateLevel, $division) {
@@ -379,23 +379,23 @@ class DocumentController extends Controller
                                  if ($filtered->count() > 0) {
                                     $log = new DocumentLog();
                                     $log->to_id = $subordinate->id;
-                                    $log->from_id = $superiorId;
+                                    $log->from_id = $superior->id;
                                     $logs[] = $log;
-                                    Notification::send([$director, $division->role->user, $subordinate], new DocumentForwarded($document, $log));
+                                    Notification::send([$director, $division->role->user, $subordinate], new DocumentForwarded($document, $log, $superior, $subordinate));
 
-                                    $superiorId = $subordinate->id;
+                                    $superior = $subordinate;
                                  }
 
                             }
 
                             foreach($filteredUsers as $assignTo) {
-                                if ($assignTo->id !== $superiorId) {
+                                if ($assignTo->id !== $superior->id) {
                                     $log = new DocumentLog();
                                     $log->assigned_id = $assignTo->id;
                                     $log->to_id = $assignTo->id;
-                                    $log->from_id = $superiorId;
+                                    $log->from_id = $superior->id;
                                     $logs[] = $log;
-                                    Notification::send([$director, $division->role->user, $subordinate, $assignTo], new DocumentForwarded($document, $log));
+                                    Notification::send([$director, $division->role->user, $assignTo], new DocumentForwarded($document, $log, $superior, $assignTo));
                                 }
                             }
                         }

@@ -13,16 +13,20 @@ class DocumentForwarded extends Notification
 
     private $document;
     private $log;
+    private $from;
+    private $to;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($document, $log)
+    public function __construct($document, $log, $from=null, $to=null)
     {
         $this->afterCommit();
 
         $this->document = $document;
         $this->log = $log;
+        $this->from = $from;
+        $this->to = $to;
     }
 
     /**
@@ -55,7 +59,9 @@ class DocumentForwarded extends Notification
     {
         return [
             'document' => $this->document->toArray(),
-            'log' => $this->log->toArray()
+            'log' => $this->log->toArray(),
+            'from' => $this->from,
+            'to' => $this->to
         ];
     }
 }
