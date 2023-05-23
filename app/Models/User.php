@@ -48,6 +48,10 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Profile', 'id', 'id');
     }
 
+    public function getUnreadNotificationsCountAttribute () {
+        return $this->unreadNotifications()->count();
+    }
+
     public function role() {
         return $this->belongsTo('App\Models\Role');
     }

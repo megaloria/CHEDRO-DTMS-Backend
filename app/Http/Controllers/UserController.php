@@ -286,6 +286,7 @@ class UserController extends Controller
 
     public function getCurrentUser (Request $request) {
         $user = $request->user();
+        $user->append('unread_notifications_count');
         $user->load(['profile', 'role']);
         return response()->json(['data' => $user, 'message' => 'Successfully fetched current user.'], 200);
     }
