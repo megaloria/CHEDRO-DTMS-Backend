@@ -1190,7 +1190,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $latest = $document->logs()->orderBy('id', 'desc')->with('fromUser')->first();
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
         if ($latest->acknowledge_id === $user->id || $latest->to_id !== $user->id) {
             return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
         }
@@ -1234,7 +1234,7 @@ class DocumentController extends Controller
                 ]);
                 $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
 
-                Notification::send($latest->fromUser, new DocumentAcknowledged($document));
+                
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully acknowledged the document.'], 201);
             }
@@ -1272,7 +1272,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $latest = $document->logs()->orderBy('id', 'desc')->with('fromUser')->first();
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
         if ($latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to take action on this document.'], 401);
         }
@@ -1323,7 +1323,6 @@ class DocumentController extends Controller
                 ]);
                 $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
 
-                Notification::send($latest->fromUser, new DocumentActedOn($document));
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully took action on the document.'], 201);
             }
@@ -1360,7 +1359,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $latest = $document->logs()->orderBy('id', 'desc')->with('fromUser')->first();
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
         if ($latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to approve this document.'], 401);
         }
@@ -1418,8 +1417,6 @@ class DocumentController extends Controller
                 ]);
                 $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
 
-                Notification::send($latest->fromUser, new DocumentApproved($document));
-
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully approved the document.'], 201);
             }
@@ -1457,7 +1454,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'Document not found.'], 404);
         }
 
-        $latest = $document->logs()->orderBy('id', 'desc')->with('fromUser')->first();
+        $latest = $document->logs()->orderBy('id', 'desc')->first();
         if ($latest->acknowledge_id !== $user->id) {
             return response()->json(['message' => 'Unable to reject this document.'], 401);
         }
@@ -1513,8 +1510,6 @@ class DocumentController extends Controller
                     },
                 ]);
                 $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
-
-                Notification::send($latest->fromUser, new DocumentRejected($document));
 
                 DB::commit();
                 return response()->json(['data' => $document, 'message' => 'Successfully rejected the document.'], 201);
