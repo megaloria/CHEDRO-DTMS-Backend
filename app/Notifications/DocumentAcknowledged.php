@@ -11,12 +11,17 @@ class DocumentAcknowledged extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct($document)
+    private $document;
+    private $log;
+    private $by;
+
+    public function __construct($document, $log, $by=null)
     {
+        $this->afterCommit();
+
         $this->document = $document;
+        $this->log = $log;
+        $this->by = $by;
     }
 
     /**
@@ -47,6 +52,10 @@ class DocumentAcknowledged extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        return $this->document->toArray();
+        return [
+            'document' => $this->document->toArray(),
+            'log' => $this->log->toArray(),
+            'by' => $this->by
+        ];
     }
 }
