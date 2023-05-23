@@ -14,9 +14,17 @@ class DocumentActedOn extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    private $document;
+    private $log;
+    private $by;
+
+    public function __construct($document, $log, $by=null)
     {
-        //
+        $this->afterCommit();
+
+        $this->document = $document;
+        $this->log = $log;
+        $this->by = $by;
     }
 
     /**
@@ -26,19 +34,19 @@ class DocumentActedOn extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
-    }
+    // public function toMail(object $notifiable): MailMessage
+    // {
+    //     return (new MailMessage)
+    //                 ->line('The introduction to the notification.')
+    //                 ->action('Notification Action', url('/'))
+    //                 ->line('Thank you for using our application!');
+    // }
 
     /**
      * Get the array representation of the notification.
@@ -48,7 +56,9 @@ class DocumentActedOn extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'document' => $this->document->toArray(),
+            'log' => $this->log->toArray(),
+            'by' => $this->by
         ];
     }
 }
