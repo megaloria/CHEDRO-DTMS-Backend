@@ -1590,7 +1590,7 @@ class DocumentController extends Controller
             ], 404);
         }
 
-        $users = $document->logs()->whereNotNull('to_id')->get()->pluck('to_id');
+        $users = $document->logs()->whereNotNull('to_id')->get()->pluck('to_id')->toArray();
 
         $users = User::whereIn('id', $users)->get();
 
@@ -1601,7 +1601,6 @@ class DocumentController extends Controller
 
         $releasing = $document->logs()->where('from_id', $director->id)
                                     ->whereNull('to_id')
-                                    ->whereNotNull('approved_id')
                                     ->first();
 
         if(!$releasing){
@@ -1619,7 +1618,7 @@ class DocumentController extends Controller
             $log->released_at = Carbon::parse($requestData['date_released']);
 
             if ($document->logs()->save($log)) {
-                Notification::send([$users], new DocumentApproved($document));
+                Notification::send($users, new DocumentReleased($document));
                 $document->load([
                     'attachments',
                     'sender.receivable',
