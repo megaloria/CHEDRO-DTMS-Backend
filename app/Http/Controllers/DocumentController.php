@@ -152,9 +152,10 @@ class DocumentController extends Controller
                 }
 
                 if (!$category->is_assignable) {
-                    $assignTo = Profile::where(function ($query) {
-                            $query->where('position_designation', 'like', 'Regional Director%');
-                    })->value('id');
+                    $assignTo = User::whereHas('role', function ($query) {
+                        $query->where('level', 2);
+                    })
+                    ->first();
                     $log      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
                     ]);
@@ -302,9 +303,10 @@ class DocumentController extends Controller
                 }
 
                 if (!$category->is_assignable) {
-                    $assignTo = Profile::where(function ($query) {
-                            $query->where('position_designation', 'like', 'Regional Director%');
-                    })->first();
+                    $assignTo = User::whereHas('role', function ($query) {
+                        $query->where('level', 2);
+                    })
+                    ->first();
                     $assign      = new DocumentAssignation([
                         'assigned_id' => $assignTo->id,
                     ]);
@@ -527,9 +529,10 @@ class DocumentController extends Controller
                 }
 
                if (!$category->is_assignable) {
-                    $assignTo = Profile::where(function ($query) {
-                            $query->where('position_designation', 'like', 'Regional Director%');
-                    })->value('id');
+                    $assignTo = User::whereHas('role', function ($query) {
+                        $query->where('level', 2);
+                    })
+                    ->first();
 
                     $log      = new DocumentAssignation([
                         'assigned_id' => $assignTo,
@@ -961,10 +964,10 @@ class DocumentController extends Controller
         ])
         ->get();
 
-        $director = Profile::where(function ($query) {
-                $query->where('position_designation', 'like', 'Regional Director%');
-            })
-            ->first();
+        $director = User::whereHas('role', function ($query) {
+            $query->where('level', 2);
+        })
+        ->first();
 
         try {
             DB::beginTransaction();
@@ -1547,8 +1550,8 @@ class DocumentController extends Controller
             ], 404);
         }
 
-        $director = Profile::where(function ($query) {
-                $query->where('position_designation', 'like', 'Regional Director%');
+        $director = User::whereHas('role', function ($query) {
+            $query->where('level', 2);
             })
             ->first();
 
