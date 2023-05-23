@@ -298,8 +298,17 @@ class UserController extends Controller
     }
 
     public function getNotifications (Request $request) {
+        $user = $request->user();
         $notifications = $request->user()->notifications()->paginate();
-        return response()->json(['data' => $notifications, 'message' => 'Successfully fetched current user.'], 200);
+
+        $profile = Profile::findOrFail($user->id);
+        $profileNotifications = $profile->notifications()->paginate();
+
+        return response()->json([
+            'user_notifications' => $notifications,
+            'profile_notifications' => $profileNotifications,
+            'message' => 'Successfully fetched the notifications.'
+        ], 200);
     }
 
 
