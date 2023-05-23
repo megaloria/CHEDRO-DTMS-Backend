@@ -303,6 +303,10 @@ class DocumentController extends Controller
                 }
 
                 if (!$category->is_assignable) {
+                    $fromUser = User::whereHas('role', function ($query) {
+                                    $query->where('level', 1);
+                                })
+                                ->first();
                     $assignTo = User::whereHas('role', function ($query) {
                         $query->where('level', 2);
                     })
@@ -317,7 +321,7 @@ class DocumentController extends Controller
                     $document->assign()->save($assign);
                     $document->logs()->save($log);
 
-                    Notification::send($assignTo, new DocumentForwarded($document, $log));
+                    Notification::send($assignTo, new DocumentForwarded($document, $log, $fromUser->profile, $assignTo->profile));
                 } else if ($requestData['assign_to']) {
                     $notifications = [];
 
@@ -337,6 +341,11 @@ class DocumentController extends Controller
                         'role.user'
                     ])->get();
 
+                    $fromUser = User::whereHas('role', function ($query) {
+                                    $query->where('level', 1);
+                                })
+                                ->first();
+
                     $director = User::whereHas('role', function ($query) {
                             $query->where('level', 2);
                         })
@@ -344,7 +353,7 @@ class DocumentController extends Controller
                     $log = new DocumentLog();
                     $log->to_id = $director->id;
                     $logs[] = $log;
-                    Notification::send($director, new DocumentForwarded($document, $log));
+                    Notification::send($director, new DocumentForwarded($document, $log, $fromUser->profile, $director->profile));
 
                     foreach($divisions as $division) {
                         $filteredUsers = $users->filter(function ($value, int $key) use($division) {
@@ -359,7 +368,7 @@ class DocumentController extends Controller
                             $log->to_id = $division->role->user->id;
                             $log->from_id = $director->id;
                             $logs[] = $log;
-                            Notification::send([$director, $division->role->user], new DocumentForwarded($document, $log, $director, $division->role->user));
+                            Notification::send([$director, $division->role->user], new DocumentForwarded($document, $log, $director->profile, $division->role->user->profile));
 
                             $subordinateLevel = $division->role->user->role->level+1;
 
@@ -383,7 +392,7 @@ class DocumentController extends Controller
                                     $log->to_id = $subordinate->id;
                                     $log->from_id = $superior->id;
                                     $logs[] = $log;
-                                    Notification::send([$director, $division->role->user, $subordinate], new DocumentForwarded($document, $log, $superior, $subordinate));
+                                    Notification::send([$director, $division->role->user, $subordinate], new DocumentForwarded($document, $log, $superior->profile, $subordinate->profile));
 
                                     $superior = $subordinate;
                                  }
@@ -397,7 +406,7 @@ class DocumentController extends Controller
                                     $log->to_id = $assignTo->id;
                                     $log->from_id = $superior->id;
                                     $logs[] = $log;
-                                    Notification::send([$director, $division->role->user, $assignTo], new DocumentForwarded($document, $log, $superior, $assignTo));
+                                    Notification::send([$director, $division->role->user, $assignTo], new DocumentForwarded($document, $log, $superior->profile, $assignTo->profile));
                                 }
                             }
                         }
@@ -795,14 +804,11 @@ class DocumentController extends Controller
                 'logs.assignedUser.role'
             ])
             ->when(!$user->role->level === 1, function($query) use ($user){
-                $query -> whereHas('logs', function ($query) use ($user) {
-                $query->where('to_id', $user->id);
-            });
+                $query->whereHas('logs', function ($query) use ($user) {
+                    $query->where('to_id', $user->id);
+                });
             })
             ->find($id);
-
-           $fileUrl = Storage::url($document->attachments?->file_name);
-
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -810,9 +816,8 @@ class DocumentController extends Controller
 
         $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
 
-
-        return response()->json(['data' => $document, 'url' => $fileUrl, 'message' => 'Successfully fetched the document.'], 200);
-
+        $user->unreadNotifications()->where('data->document->id', $document->id)->get()->markAsRead();
+        return response()->json(['data' => $document, 'message' => 'Successfully fetched the document.'], 200);
     }
 
     public function downloadDocumentFile (Request $request, $id, $fileName) {
@@ -1194,7 +1199,16 @@ class DocumentController extends Controller
         if ($latest->acknowledge_id === $user->id || $latest->to_id !== $user->id) {
             return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
         }
-
+        
+        if(!$document->category->is_assignable) {
+            $fromUser = User::whereHas('role', function ($query) {
+                $query->where('level', 1);
+            })
+            ->first();
+        } else {
+            $fromUser = User::find($latest->from_id);
+        }
+        
 
         $logs = [];
 
@@ -1206,6 +1220,7 @@ class DocumentController extends Controller
                 $log->action_id = $latest->action_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
+                Notification::send([$fromUser], new DocumentAcknowledged($document, $log, $user->profile));
 
 
             if ($document->logs()->saveMany($logs)) {
@@ -1232,6 +1247,7 @@ class DocumentController extends Controller
                         $query -> orderBy('id', 'desc');
                     },
                 ]);
+                
                 $document->logs_grouped = $document->logs->groupBy('assigned_id')->sortByDesc('id');
 
                 
