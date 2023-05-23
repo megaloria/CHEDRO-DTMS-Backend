@@ -1272,11 +1272,13 @@ class DocumentController extends Controller
             return response()->json(['message' => 'You are not allowed to acknowledge this document.'], 401);
         }
         
+        $recordsOfficer = User::whereHas('role', function ($query) {
+            $query->where('level', 1);
+        })
+        ->first();
+
         if(!$document->category->is_assignable) {
-            $fromUser = User::whereHas('role', function ($query) {
-                $query->where('level', 1);
-            })
-            ->first();
+            $fromUser = $recordsOfficer;
         } else {
             $fromUser = User::find($latest->from_id);
         }
@@ -1292,7 +1294,7 @@ class DocumentController extends Controller
                 $log->action_id = $latest->action_id;
                 $log->acknowledge_id = $user->id;
                 $logs[] = $log;
-                Notification::send([$fromUser], new DocumentAcknowledged($document, $log, $user->profile));
+                Notification::send([$recordsOfficer, $fromUser], new DocumentAcknowledged($document, $log, $user->profile));
 
 
             if ($document->logs()->saveMany($logs)) {
@@ -1481,7 +1483,7 @@ class DocumentController extends Controller
         } else {
             $fromUser = $recordsOfficer;
         }
-        
+
         try {
             DB::beginTransaction();
             $logs = [];
