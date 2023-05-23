@@ -17,16 +17,14 @@ class DocumentApproved extends Notification
     private $document;
     private $log;
     private $by;
-    private $to;
 
-    public function __construct($document, $log, $by=null, $to=null)
+    public function __construct($document, $log, $by=null)
     {
         $this->afterCommit();
 
         $this->document = $document;
         $this->log = $log;
         $this->by = $by;
-        $this->to = $to;
     }
 
     /**
@@ -60,8 +58,7 @@ class DocumentApproved extends Notification
         return [
             'document' => $this->document->toArray(),
             'log' => $this->log->toArray(),
-            'by' => $this->by,
-            'to' => $this->to
+            'by' => $this->by
         ];
     }
 }
