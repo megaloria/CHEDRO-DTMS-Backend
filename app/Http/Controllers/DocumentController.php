@@ -1407,7 +1407,15 @@ class DocumentController extends Controller
         $return = $document->logs()->where('to_id', $user->id)
                                 ->whereNull('action_id')->first();
 
-        $fromUser = User::find($return->from_id);
+        if ($return->from_id) {
+            $fromUser = User::find($return->from_id);
+        } else {
+            $fromUser = User::whereHas('role', function ($query) {
+                $query->where('level', 1);
+            })
+            ->first();
+        }
+        
 
         try {
             DB::beginTransaction();
@@ -1419,7 +1427,7 @@ class DocumentController extends Controller
             $log->approved_id = $user->id;
             $log->comment = $requestData['comment'];
             $logs[] = $log;
-            Notification::send([$fromUser], new DocumentApproved($document, $log, $user->profile));
+            Notification::send([$fromUser], new DocumentApproved($document, $log, $user->profile, $fromUser));
 
             $log = new DocumentLog();
             $log->assigned_id = $action->assigned_id;
