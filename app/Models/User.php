@@ -44,10 +44,6 @@ class User extends Authenticatable
         'is_first_login' => 'boolean'
     ];
 
-    public function getUnreadNotificationsCountAttribute () {
-        return $this->unreadNotifications()->count();
-    }
-
     public function profile() {
         return $this->hasOne('App\Models\Profile', 'id', 'id');
     }

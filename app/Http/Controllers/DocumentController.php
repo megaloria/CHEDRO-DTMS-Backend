@@ -300,8 +300,7 @@ class DocumentController extends Controller
                     ]);
                     $attachment->save();
                 }
-                    
-                $notifications = [];
+
                 if (!$category->is_assignable) {
                     $assignTo = Profile::where(function ($query) {
                             $query->where('position_designation', 'like', 'Regional Director%');
@@ -318,6 +317,7 @@ class DocumentController extends Controller
 
                     Notification::send($assignTo, new DocumentForwarded($document, $log));
                 } else if ($requestData['assign_to']) {
+                    $notifications = [];
 
                      $assignations = [];
                     foreach($requestData['assign_to'] as $assignTo) {

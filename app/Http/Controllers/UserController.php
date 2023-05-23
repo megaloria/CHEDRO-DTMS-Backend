@@ -287,7 +287,6 @@ class UserController extends Controller
     public function getCurrentUser (Request $request) {
         $user = $request->user();
         $user->load(['profile', 'role']);
-        $user->append('unread_notifications_count');
         return response()->json(['data' => $user, 'message' => 'Successfully fetched current user.'], 200);
     }
 
@@ -299,17 +298,8 @@ class UserController extends Controller
     }
 
     public function getNotifications (Request $request) {
-        $user = $request->user();
         $notifications = $request->user()->notifications()->paginate();
-
-        $profile = Profile::findOrFail($user->id);
-        $profileNotifications = $profile->notifications()->paginate();
-
-        return response()->json([
-            'user_notifications' => $notifications,
-            'profile_notifications' => $profileNotifications,
-            'message' => 'Successfully fetched the notifications.'
-        ], 200);
+        return response()->json(['data' => $notifications, 'message' => 'Successfully fetched the notifications.'], 200);
     }
 
 
