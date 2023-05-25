@@ -348,9 +348,10 @@ class DocumentController extends Controller
                                 ->first();
 
                     $director = User::whereHas('role', function ($query) {
-                            $query->where('level', 2);
-                        })
-                        ->first();
+                                    $query->where('level', 2);
+                                })
+                                ->first();
+
                     $log = new DocumentLog();
                     $log->to_id = $director->id;
                     $logs[] = $log;
