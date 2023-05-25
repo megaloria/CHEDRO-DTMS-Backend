@@ -211,7 +211,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 Route::post('/action', [DocumentController::class, 'actionDocument']);
                 Route::post('/approve', [DocumentController::class, 'approveDocument']);
                 Route::post('/reject', [DocumentController::class, 'rejectDocument']);
-
             });
 
         Route::get('/{status?}', [DocumentController::class, 'getDocuments']);
