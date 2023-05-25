@@ -18,9 +18,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'username',
         'password',
+        'role_id',
+        'is_first_login'
     ];
 
     /**
@@ -30,7 +31,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        'remember_token'
     ];
 
     /**
@@ -39,6 +40,19 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'role_id' => 'integer',
+        'is_first_login' => 'boolean'
     ];
+
+    public function profile() {
+        return $this->hasOne('App\Models\Profile', 'id', 'id');
+    }
+
+    public function getUnreadNotificationsCountAttribute () {
+        return $this->unreadNotifications()->count();
+    }
+
+    public function role() {
+        return $this->belongsTo('App\Models\Role');
+    }
 }
