@@ -299,7 +299,7 @@ class UserController extends Controller
     }
 
     public function getNotifications (Request $request) {
-        $notifications = $request->user()->notifications()->paginate();
+        $notifications = $request->user()->notifications()->paginate(10);
         return response()->json(['data' => $notifications, 'message' => 'Successfully fetched the notifications.'], 200);
     }
 
