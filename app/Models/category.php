@@ -5,18 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DocumentType extends Model
+class Category extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'id',
-        'code',
         'description',
-        'days'
+        'is_assignable'
     ];
-
-    protected $cast = [
-        'days' => 'integer'
+    protected $casts = [
+        'is_assignable' => 'boolean'
     ];
 }

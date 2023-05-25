@@ -14,14 +14,18 @@ class Document extends Model
         'document_type_id',
         'user_id',
         'tracking_no',
-        'recieved_from',
+        'sender_id',
+        'category_id',
         'description',
-        'date_received'
+        'date_received',
+        'series_no'
     ];
 
     protected $casts = [
         'document_type_id' => 'integer',
-        'user_id' => 'integer'
+        'user_id' => 'integer',
+        'sender_id' => 'integer',
+        'series_no' => 'integer'
     ];
 
     public function user() {
@@ -33,6 +37,22 @@ class Document extends Model
     }
 
     public function attachments() {
-         return $this->hasMany('App\Models\Attachment');
+         return $this->hasOne('App\Models\Attachment');
+    }
+
+    public function category(){
+        return $this->belongsTo('App\Models\Category');
+    }
+
+    public function sender(){
+        return $this->belongsTo('App\Models\Sender', 'sender_id');
+    }
+
+    public function logs(){
+        return $this->hasMany('App\Models\DocumentLog');
+    }
+
+     public function assign(){
+        return $this->hasMany('App\Models\DocumentAssignation');
     }
 }

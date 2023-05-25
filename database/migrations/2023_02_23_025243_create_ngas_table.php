@@ -8,28 +8,23 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('document_types', function (Blueprint $table) {
+        Schema::create('ngas', function (Blueprint $table) {
             $table->id();
             $table->string('code');
-            $table->text('description');
-            $table->integer('days');
+            $table->string('description');
+            $table->string('email');
             $table->timestamps();
-
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('document_types');
+        Schema::dropIfExists('ngas');
     }
 };

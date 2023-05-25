@@ -12,23 +12,20 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Models\Role;
 
-class UserController extends Controller 
+class UserController extends Controller
 {
     public function createUser (Request $request) {
-        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id', 'division_id', 'level', 'description','position_designation']);
+        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id','position_designation']);
 
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:5',
             'password' => 'required|min:8',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'prefix' => 'nullable|present|string',
-            'suffix' => 'nullable|present|string',
-            'middle_name' => 'nullable|present|string',
+            'prefix' => 'nullable|string',
+            'suffix' => 'nullable|string',
+            'middle_name' => 'nullable|string',
             'role_id' => 'required|integer|exists:roles,id',
-            'division_id' => 'required|integer|exists:divisions,id',
-            'level' => 'required|integer',
-            'description' => 'required|string',
             'position_designation' => 'nullable|present|string'
         ]);
 
@@ -70,14 +67,20 @@ class UserController extends Controller
         return response()->json(['message' => 'Failed to create a user.'], 400);
     }
 
-    public function deleteUser (Request $Request, $id) {
+    public function deleteUser (Request $request, $id) {
+        $currentUser = $request -> user();
         $user = User::find($id);
+        // $profile = Profile::get();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
         try {
+
+            if ($currentUser->id === $user -> id){
+                return response()->json(['message' => 'Unable to delete the current user.'], 409);
+            }
             $user->delete();
 
             return response()->json(['message' => 'Successfully deleted the user.'], 200);
@@ -89,24 +92,56 @@ class UserController extends Controller
     }
 
     public function getUsers (Request $request) {
-        $user = User::paginate(10);
+        $allQuery = $request->query->all();
 
-        return response()->json(['data' => $user, 'message' => 'Successfully fetched the users.'], 200);
+        $validator = Validator::make($allQuery, [
+            'query' => 'present|nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $searchQuery = $allQuery['query'];
+
+        $user = User::when($searchQuery, function ($query, $searchQuery) {
+        $query->where('username', 'like', "%$searchQuery%")
+            ->orWhereHas('profile', function ($query) use ($searchQuery) {
+                $query->where(function ($query) use ($searchQuery) {
+                    $query->where('position_designation', 'like', "%$searchQuery%");
+                });
+            })
+            ->orWhereHas('role', function ($query) use ($searchQuery) {
+                $query->where('description', 'like', "%$searchQuery%");
+            });
+        })
+        ->with('profile', 'role')
+        ->paginate(6);
+        $roles = Role::get();
+
+        return response()->json([
+            'data'=>[
+                'roles' => $roles,
+                'users' => $user
+            ],
+            'message'=> 'Successfully fetched the users.' ], 200);
     }
 
     public function getUser (Request $request, $id) {
         $user = User::find($id);
-        
+
         return response()->json(['data' => $user, 'message' => ' Successfully fetched the user.'], 200);
     }
 
     public function editUser (Request $request,$id) {
-        $requestData = $request->only(['prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
+        $requestData = $request->only(['username', 'role_id', 'prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
 
         $validator = Validator::make($requestData, [
-            'prefix' => 'nullable|present|string|min:2',
+            'username' => 'required|string|min:5',
+            'role_id' => 'required|integer|exists:roles,id',
+            'prefix' => 'nullable|string|min:2',
             'first_name' => '|string|min:3',
-            'middle_name' => 'nullable|string|min:3',
+            'middle_name' => 'nullable|string|min:2',
             'last_name' => '|string|min:3',
             'suffix' => 'nullable|string|min:2',
             'position_designation' => 'required|string',
@@ -116,33 +151,108 @@ class UserController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $editUser = Profile::find($id);
+        $editUser = User::with('profile')->find($id);
 
         if (!$editUser) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
         try {
-            $editUser->prefix = $requestData['prefix'];
-            $editUser->first_name = $requestData['first_name'];
-            $editUser->middle_name = $requestData['middle_name'];
-            $editUser->last_name = $requestData['last_name'];
-            $editUser->suffix = $requestData['suffix'];
-            $editUser->position_designation = $requestData['position_designation'];
+            $editUser->username = $requestData['username'];
+            $editUser->role_id = $requestData['role_id'];
+            $editUser->save();
 
-            if ($editUser->save()) {
+            $editUser->profile->prefix = $requestData['prefix'];
+            $editUser->profile->first_name = $requestData['first_name'];
+            $editUser->profile->middle_name = $requestData['middle_name'];
+            $editUser->profile->last_name = $requestData['last_name'];
+            $editUser->profile->suffix = $requestData['suffix'];
+            $editUser->profile->position_designation = $requestData['position_designation'];
+
+            if ($editUser->profile->save()) {
                 return response()->json(['data' => $editUser, 'message' => 'Successfully updated the user.'], 201);
             }
         } catch (\Exception $e) {
             report($e);
         }
-    
+
         return response()->json(['message' => 'Failed to update the user'], 400);
     }
 
+    // RESET PASSWORD
+    public function resetPass (Request $request,$id) {
+        $requestData = $request->only('reset_password');
+
+        $validator = Validator::make($requestData, [
+            'reset_password' => 'required|string|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+        $editPass = User::with('profile')->find($id);
+
+        if (!$editPass) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        try {
+            $editPass->password = Hash::make($requestData['reset_password']);
+
+            if ($editPass->save()) {
+                return response()->json(['data' => $editPass, 'message' => 'Successfully updated the password.'], 201);
+            }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return response()->json(['message' => 'Failed to update the password'], 400);
+    }
+
+    public function changePass (Request $request) {
+        $requestData = $request->only('password','new_password', 'confirm_password');
+
+        $validator = Validator::make($requestData, [
+            'password' => 'required|string|min:8',
+            'new_password' => 'required|string|min:8|same:confirm_password|different:password',
+            'confirm_password' => 'required|string|min:8|same:new_password'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 409);
+        }
+
+
+        try {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized.'], 401);
+        }
+
+        if (!$user || !Hash::check($requestData['password'], $user->password)) {
+            return response()->json(['message' => 'Invalid credentials!'], 409);
+        }
+             User::where('id', $user->id)->update([
+            'password' => Hash::make($requestData['new_password']),
+            'is_first_login' => false,
+        ]);
+
+        if ($user->save()) {
+            return response()->json(['data' => $user, 'message' => 'Successfully updated the password.'], 201);
+        }
+        } catch (\Exception $e) {
+            report($e);
+        }
+
+        return response()->json(['message' => 'Failed to update the password'], 400);
+    }
+
+
     public function login(Request $request) {
         $requestData = $request->only(['username', 'password']);
-        
+
         $validator = Validator::make($requestData, [
             'username' => 'required|min:5',
             'password' => 'required|min:8'
@@ -165,18 +275,19 @@ class UserController extends Controller
             }
 
             Auth::guard('web')->login($user);
-            $user->load('profile');
+            $user->load(['profile', 'role']);
             return response()->json(['message' => 'Successfully logged in.', 'data' => $user], 200);
         } catch (\Exception $e) {
             report($e);
         }
-        
+
         return response()->json(['message' => 'Failed to login.'], 400);
     }
 
     public function getCurrentUser (Request $request) {
         $user = $request->user();
-        $user->load('profile');
+        $user->append('unread_notifications_count');
+        $user->load(['profile', 'role']);
         return response()->json(['data' => $user, 'message' => 'Successfully fetched current user.'], 200);
     }
 
@@ -186,5 +297,12 @@ class UserController extends Controller
         $request->session()->regenerateToken();
         return response()->json(['message' => 'Successfully logged out.'], 200);
     }
+
+    public function getNotifications (Request $request) {
+        $notifications = $request->user()->notifications()->paginate(10);
+        return response()->json(['data' => $notifications, 'message' => 'Successfully fetched the notifications.'], 200);
+    }
+
+
 }
 

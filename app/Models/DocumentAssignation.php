@@ -5,18 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DocumentType extends Model
+class DocumentAssignation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'id',
-        'code',
-        'description',
-        'days'
+        'assigned_id'
     ];
 
-    protected $cast = [
-        'days' => 'integer'
-    ];
+    public function assignedUser() {
+        return $this->belongsTo('App\Models\User', 'assigned_id');
+    }
+
 }

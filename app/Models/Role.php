@@ -20,7 +20,12 @@ class Role extends Model
         'division_id' => 'integer'
     ];
 
-    public function divisions() {
+    public function division() {
         return $this->belongsTo('App\Models\Division');
     }
+
+    public function user() {
+        return $this->hasOne('App\Models\User');
+    }
+
 }

@@ -40,8 +40,6 @@ class DivisionController extends Controller
         return response()->json(['message' => 'Failed to create a division.'], 400);
     }
 
-
-
     public function editDivision (Request $request, $id) {
         $requestData = $request->only(['description']);
 
@@ -72,8 +70,6 @@ class DivisionController extends Controller
         return response()->json(['message' => 'Failed to update the division'], 400);
     }
 
-
-
     public function deleteDivision (Request $request, $id) {
         $division = Division::find($id);
 
@@ -90,10 +86,10 @@ class DivisionController extends Controller
             report($e);
         }
 
-        return response()->json(['message' => 'Failed to update the division.'], 400);
+        return response()->json(['message' => 'Failed to delete the division.'], 400);
     }
 
-    public function getRDivisions (Request $request) {
+    public function getDivisions (Request $request) {
         $divisions = Division::get();
         
         return response()->json(['data' => $divisions, 'message' => 'Successfully fetched the divisions.'], 200);

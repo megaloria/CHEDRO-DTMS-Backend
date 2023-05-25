@@ -20,7 +20,8 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'password',
-        'role_id'
+        'role_id',
+        'is_first_login'
     ];
 
     /**
@@ -40,10 +41,15 @@ class User extends Authenticatable
      */
     protected $casts = [
         'role_id' => 'integer',
+        'is_first_login' => 'boolean'
     ];
 
     public function profile() {
         return $this->hasOne('App\Models\Profile', 'id', 'id');
+    }
+
+    public function getUnreadNotificationsCountAttribute () {
+        return $this->unreadNotifications()->count();
     }
 
     public function role() {
