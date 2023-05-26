@@ -47,6 +47,8 @@ class DocumentReleased extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        return $this->document->toArray();
+        return [
+            'document' => $this->document->toArray()
+        ];
     }
 }
