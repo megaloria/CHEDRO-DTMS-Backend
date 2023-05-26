@@ -1809,7 +1809,7 @@ class DocumentController extends Controller
             $log->released_at = Carbon::parse($requestData['date_released']);
 
             if ($document->logs()->save($log)) {
-                Notification::send([$users,$recordsOfficer], new DocumentReleased($document));
+                Notification::send($users->concat([$recordsOfficer]), new DocumentReleased($document));
                 $document->load([
                     'attachments',
                     'sender.receivable',
