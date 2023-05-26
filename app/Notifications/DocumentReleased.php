@@ -52,6 +52,7 @@ class DocumentReleased extends Notification
             'document' => $this->document
         ];
     }
+
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         return new BroadcastMessage([
