@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class DocumentActedOn extends Notification
 {
@@ -34,7 +35,7 @@ class DocumentActedOn extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     /**
@@ -53,12 +54,21 @@ class DocumentActedOn extends Notification
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
         return [
-            'document' => $this->document->toArray(),
-            'log' => $this->log->toArray(),
+            'document' => $this->document,
+            'log' => $this->log,
             'by' => $this->by
         ];
+    }
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'unread_notifications_count' => $notifiable->unread_notifications_count,
+            'document' => $this->document,
+            'log' => $this->log,
+            'by' => $this->by
+        ]);
     }
 }
