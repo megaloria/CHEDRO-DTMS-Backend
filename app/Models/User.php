@@ -44,6 +44,11 @@ class User extends Authenticatable
         'is_first_login' => 'boolean'
     ];
 
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'user.'.$this->id;
+    }
+
     public function profile() {
         return $this->hasOne('App\Models\Profile', 'id', 'id');
     }
