@@ -68,7 +68,6 @@ class DocumentForwardedTo extends Notification
             'unread_notifications_count' => $notifiable->unread_notifications_count,
             'document' => $this->document,
             'log' => $this->log,
-            'from' => $this->from,
             'to' => $this->to
         ]);
     }
