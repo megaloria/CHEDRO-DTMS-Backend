@@ -48,7 +48,9 @@ class DocumentReleased extends Notification
      */
     public function toDatabase(object $notifiable): array
     {
-        return $this->document;
+        return [
+            'document' => $this->document
+        ];
     }
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
