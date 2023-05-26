@@ -299,7 +299,9 @@ class UserController extends Controller
     }
 
     public function getNotifications (Request $request) {
-        $notifications = $request->user()->notifications()->paginate(10);
+        $user = $request->user();
+        $notifications = $user->notifications()->paginate(10)->toArray();
+        $notifications['unread_notifications_count'] = $user->unread_notifications_count;
         return response()->json(['data' => $notifications, 'message' => 'Successfully fetched the notifications.'], 200);
     }
 
