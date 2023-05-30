@@ -40,7 +40,8 @@ class UserSeeder extends Seeder
             'first_name' => 'Virginia',
             'last_name' => 'Akiate',
             'suffix' => ', CESO III',
-            'position_designation' => 'Regional Director IV'
+            'position_designation' => 'Regional Director IV',
+            'email' => 'vakiate@ched.gov.ph'
         ]);
 
         //Administrator
@@ -61,7 +62,8 @@ class UserSeeder extends Seeder
             'first_name' => 'Jun',
             'last_name' => 'Magbanua',
             'suffix' => '',
-            'position_designation' => 'Administrative Officer III'
+            'position_designation' => 'Administrative Officer III',
+            'email' => 'jmagbanua@ched.gov.ph'
         ]);
 
         $divisions = [
@@ -79,7 +81,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Freddie',
                                 'last_name' => 'Bulauan',
                                 'suffix' => ', DPA',
-                                'position_designation' => 'Chief Administrative Officer'
+                                'position_designation' => 'Chief Administrative Officer',
+                                'email' => 'fbulauan@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -94,7 +97,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Danica',
                                 'last_name' => 'De Silva',
                                 'suffix' => '',
-                                'position_designation' => 'Accountant II'
+                                'position_designation' => 'Accountant II',
+                                'email' => 'ddesilva@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -109,7 +113,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Alliana Katriz',
                                 'last_name' => 'Laroza',
                                 'suffix' => '',
-                                'position_designation' => 'Administrative Officer III'
+                                'position_designation' => 'Administrative Officer III',
+                                'email' => 'aklaroza@ched.gov.ph'
                             ],
                             [
                                 'username' => 'jmagbanua',
@@ -117,7 +122,8 @@ class UserSeeder extends Seeder
                                 'prefix' => 'Mr.',
                                 'first_name' => 'Jun',
                                 'last_name' => 'Magbanua',
-                                'position_designation' => 'Administrative Officer III'
+                                'position_designation' => 'Administrative Officer III',
+                                'email' => 'jmagbanua@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -132,7 +138,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Maximo',
                                 'last_name' => 'Castillon',
                                 'suffix' => '',
-                                'position_designation' => 'Administrative Assistant III'
+                                'position_designation' => 'Administrative Assistant III',
+                                'email' => 'mcastillon@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -147,7 +154,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Edwin',
                                 'last_name' => 'Bacungan',
                                 'suffix' => '',
-                                'position_designation' => 'Administrative Aide VI'
+                                'position_designation' => 'Administrative Aide VI',
+                                'email' => 'ebacungan@ched.gov.ph'
                             ],
                             [
                                 'username' => 'jsmagbanua',
@@ -156,7 +164,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Jhon Sylvan',
                                 'last_name' => 'Magbanua',
                                 'suffix' => '',
-                                'position_designation' => 'Administrative Aide VI'
+                                'position_designation' => 'Administrative Aide VI',
+                                'email' => 'jsmagbanua@ched.gov.ph'
                             ],
                         ]
                     ],
@@ -171,7 +180,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Pio Dhave',
                                 'last_name' => 'Monteverde',
                                 'suffix' => '',
-                                'position_designation' => 'Administrative Aide IV'
+                                'position_designation' => 'Administrative Aide IV',
+                                'email' => 'pdmonteverde@ched.gov.ph'
                             ],
                             [
                                 'username' => 'eamar',
@@ -180,7 +190,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Emmalyn',
                                 'last_name' => 'Amar',
                                 'suffix' => '',
-                                'position_designation' => 'Administrative Aide IV'
+                                'position_designation' => 'Administrative Aide IV',
+                                'email' => 'eamar@ched.gov.ph'
                             ],
                         ]
                     ],
@@ -195,7 +206,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Jemmilene',
                                 'last_name' => 'Soriano',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff I'
+                                'position_designation' => 'Project Technical Staff I',
+                                'email' => 'jsoriano@ched.gov.ph'
                             ],
                             [
                                 'username' => 'kcamacho',
@@ -204,7 +216,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Krystal',
                                 'last_name' => 'Camacho',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff I'
+                                'position_designation' => 'Project Technical Staff I',
+                                'email' => 'kcamacho@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -219,7 +232,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Leah',
                                 'last_name' => 'Estilles',
                                 'suffix' => '',
-                                'position_designation' => 'Project Support Staff IV'
+                                'position_designation' => 'Project Support Staff IV',
+                                'email' => 'lestilles@ched.gov.ph'
                             ],
                             [
                                 'username' => 'icmaliksi',
@@ -228,7 +242,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Ian Christopher',
                                 'last_name' => 'Maliksi',
                                 'suffix' => '',
-                                'position_designation' => 'Project Support Staff IV'
+                                'position_designation' => 'Project Support Staff IV',
+                                'email' => 'icmaliksi@ched.gov.ph'
                             ],
                             [
                                 'username' => 'smarias',
@@ -237,7 +252,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Sheila Mae',
                                 'last_name' => 'Arias',
                                 'suffix' => '',
-                                'position_designation' => 'Project Support Staff IV'
+                                'position_designation' => 'Project Support Staff IV',
+                                'email' => 'smarias@ched.gov.ph'
                             ],
                             [
                                 'username' => 'japineda',
@@ -246,7 +262,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Joan Abegail',
                                 'last_name' => 'Pineda',
                                 'suffix' => '',
-                                'position_designation' => 'Project Support Staff IV'
+                                'position_designation' => 'Project Support Staff IV',
+                                'email' => 'japineda@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -261,7 +278,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Alaiza',
                                 'last_name' => 'Pilpa',
                                 'suffix' => '',
-                                'position_designation' => 'Support Service'
+                                'position_designation' => 'Support Service',
+                                'email' => 'apilpa@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -276,11 +294,12 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Carlos',
                                 'last_name' => 'Malazarte',
                                 'suffix' => 'Jr.',
-                                'position_designation' => 'Project Technical Staff II'
+                                'position_designation' => 'Project Technical Staff II',
+                                'email' => 'cmalazartejr@ched.gov.ph'
                             ]
                         ]
                     ],
-                    
+
                 ]
             ],
             [
@@ -297,7 +316,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Judith Mary Ann',
                                 'last_name' => 'Chan',
                                 'suffix' => '',
-                                'position_designation' => 'OIC, Chief Education Program Specialist'
+                                'position_designation' => 'OIC, Chief Education Program Specialist',
+                                'email' => 'jmachan@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -312,7 +332,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Loupel',
                                 'last_name' => 'Gueta',
                                 'suffix' => '',
-                                'position_designation' => 'OIC, Supervising Education Program Specialist'
+                                'position_designation' => 'OIC, Supervising Education Program Specialist',
+                                'email' => 'lgueta@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -327,7 +348,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Judith Mary Ann',
                                 'last_name' => 'Chan',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'jmachan@ched.gov.ph'
                             ],
                             [
                                 'username' => 'lgueta',
@@ -336,7 +358,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Loupel',
                                 'last_name' => 'Gueta',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'lgueta@ched.gov.ph'
                             ],
                             [
                                 'username' => 'dbuenaagua',
@@ -345,7 +368,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Donald',
                                 'last_name' => 'Buena Agua',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'dbuenaagua@ched.gov.ph'
                             ],
                             [
                                 'username' => 'vcastelo',
@@ -354,7 +378,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Victor',
                                 'last_name' => 'Castelo',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'vcastelo@ched.gov.ph'
                             ],
                             [
                                 'username' => 'jkcuevas',
@@ -363,7 +388,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Jovine Krisell',
                                 'last_name' => 'Cuevas',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'jkcuevas@ched.gov.ph'
                             ],
                             [
                                 'username' => 'cflores',
@@ -372,7 +398,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Corazon',
                                 'last_name' => 'Flores',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'cflores@ched.gov.ph'
                             ],
                             [
                                 'username' => 'plabangjr',
@@ -381,7 +408,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Pelagio',
                                 'last_name' => 'Labang',
                                 'suffix' => 'Jr.',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'plabangjr@ched.gov.ph'
                             ],
                             [
                                 'username' => 'mlontal',
@@ -390,7 +418,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Ma. Lucila',
                                 'last_name' => 'Ontal',
                                 'suffix' => '',
-                                'position_designation' => 'Education Supervisor II'
+                                'position_designation' => 'Education Supervisor II',
+                                'email' => 'mlontal@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -405,7 +434,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Ryan Paul',
                                 'last_name' => 'Abiela',
                                 'suffix' => '',
-                                'position_designation' => 'Education Program Specialist II'
+                                'position_designation' => 'Education Program Specialist II',
+                                'email' => 'rpabiela@ched.gov.ph'
                             ],
                             [
                                 'username' => 'amendoza',
@@ -414,7 +444,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Agnes',
                                 'last_name' => 'Mendoza',
                                 'suffix' => '',
-                                'position_designation' => 'Education Program Specialist II'
+                                'position_designation' => 'Education Program Specialist II',
+                                'email' => 'amendoza@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -429,7 +460,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Kathryn Beatriz',
                                 'last_name' => 'De Leon',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff III'
+                                'position_designation' => 'Project Technical Staff III',
+                                'email' => 'kbdeleon@ched.gov.ph'
                             ],
                             [
                                 'username' => 'kvapura',
@@ -438,7 +470,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Kim Virgil',
                                 'last_name' => 'Apura',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff III'
+                                'position_designation' => 'Project Technical Staff III',
+                                'email' => 'kvapura@ched.gov.ph'
                             ],
                             [
                                 'username' => 'demanalo',
@@ -447,7 +480,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Daryl Eine',
                                 'last_name' => 'Manalo',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff III'
+                                'position_designation' => 'Project Technical Staff III',
+                                'email' => 'demanalo@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -462,7 +496,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Ericka',
                                 'last_name' => 'Zara',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff II'
+                                'position_designation' => 'Project Technical Staff II',
+                                'email' => 'ezara@ched.gov.ph'
                             ],
                             [
                                 'username' => 'msoliva',
@@ -471,7 +506,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Mariel',
                                 'last_name' => 'Soliva',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff II'
+                                'position_designation' => 'Project Technical Staff II',
+                                'email' => 'msoliva@ched.gov.ph'
                             ],
                             [
                                 'username' => 'amfuentes',
@@ -480,7 +516,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Alyssa Mae',
                                 'last_name' => 'Fuentes',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff II'
+                                'position_designation' => 'Project Technical Staff II',
+                                'email' => 'amfuentes@ched.gov.ph'
                             ],
                             [
                                 'username' => 'mrramirez',
@@ -489,7 +526,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Moises Rigor',
                                 'last_name' => 'Ramirez',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff II'
+                                'position_designation' => 'Project Technical Staff II',
+                                'email' => 'mrramirez@ched.gov.ph'
                             ],
                             [
                                 'username' => 'abernal',
@@ -498,7 +536,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Abigail',
                                 'last_name' => 'Bernal',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff II'
+                                'position_designation' => 'Project Technical Staff II',
+                                'email' => 'abernal@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -513,7 +552,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Christine',
                                 'last_name' => 'Mosende',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff I'
+                                'position_designation' => 'Project Technical Staff I',
+                                'email' => 'cmosende@ched.gov.ph'
                             ],
                             [
                                 'username' => 'ebalagbagan',
@@ -522,7 +562,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Edrich',
                                 'last_name' => 'Balagbagan',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff I'
+                                'position_designation' => 'Project Technical Staff I',
+                                'email' => 'ebalagbagan@ched.gov.ph'
                             ],
                             [
                                 'username' => 'jcajefe',
@@ -531,7 +572,8 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Jhanina',
                                 'last_name' => 'Cajefe',
                                 'suffix' => '',
-                                'position_designation' => 'Project Technical Staff I'
+                                'position_designation' => 'Project Technical Staff I',
+                                'email' => 'jcajefe@ched.gov.ph'
                             ]
                         ]
                     ],
@@ -546,10 +588,11 @@ class UserSeeder extends Seeder
                                 'first_name' => 'Jonathan Jaylord',
                                 'last_name' => 'Basco',
                                 'suffix' => '',
-                                'position_designation' => 'Job Order'
+                                'position_designation' => 'Job Order',
+                                'email' => 'jjbasco@ched.gov.ph'
                             ]
                         ]
-                    ],     
+                    ],
                 ]
             ]
         ];
@@ -572,13 +615,14 @@ class UserSeeder extends Seeder
                         'username' => $user['username'],
                         'password' => $user['password']
                     ]);
-            
+
                     Profile::create([
                         'id' => $userSave->id,
                         'prefix' => $user['prefix'],
                         'first_name' => $user['first_name'],
                         'last_name' => $user['last_name'],
-                        'position_designation' => $user['position_designation']
+                        'position_designation' => $user['position_designation'],
+                        'email' => $user['email']
                     ]);
                 }
             }
@@ -739,4 +783,3 @@ class UserSeeder extends Seeder
         //     'suffix' => '',
         //     'position_designation' => 'Education Program Specialist II'
         // ]);
- 
