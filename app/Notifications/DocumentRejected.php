@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 
-class DocumentRejected extends Notification
+class DocumentRejected extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -36,6 +36,13 @@ class DocumentRejected extends Notification
     public function via(object $notifiable): array
     {
         return ['database','broadcast', 'mail'];
+    }
+
+    public function withDelay(object $notifiable): array
+    {
+        return [
+            'mail' => now()->addMinutes(1)
+        ];
     }
 
     /**
