@@ -15,7 +15,7 @@ use App\Models\Role;
 class UserController extends Controller
 {
     public function createUser (Request $request) {
-        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id','position_designation']);
+        $requestData = $request->only(['username', 'password', 'prefix', 'first_name', 'middle_name', 'last_name', 'suffix', 'role_id','position_designation', 'email']);
 
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:5',
@@ -26,7 +26,8 @@ class UserController extends Controller
             'suffix' => 'nullable|string',
             'middle_name' => 'nullable|string',
             'role_id' => 'required|integer|exists:roles,id',
-            'position_designation' => 'nullable|present|string'
+            'position_designation' => 'nullable|present|string',
+            'email' => 'required|string|email'
         ]);
 
         if ($validator->fails()) {
@@ -51,6 +52,7 @@ class UserController extends Controller
                     'last_name' => $requestData['last_name'],
                     'suffix' => $requestData['suffix'],
                     'position_designation' => $requestData['position_designation'],
+                    'email' => $requestData['email']
                 ]);
 
                 $profile->save();
@@ -134,7 +136,7 @@ class UserController extends Controller
     }
 
     public function editUser (Request $request,$id) {
-        $requestData = $request->only(['username', 'role_id', 'prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
+        $requestData = $request->only(['username', 'role_id', 'prefix','first_name','middle_name','last_name','suffix', 'position_designation', 'email']);
 
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:5',
@@ -145,6 +147,7 @@ class UserController extends Controller
             'last_name' => '|string|min:3',
             'suffix' => 'nullable|string|min:2',
             'position_designation' => 'required|string',
+            'email' => 'required|string|email'
         ]);
 
         if ($validator->fails()) {
@@ -168,6 +171,7 @@ class UserController extends Controller
             $editUser->profile->last_name = $requestData['last_name'];
             $editUser->profile->suffix = $requestData['suffix'];
             $editUser->profile->position_designation = $requestData['position_designation'];
+            $editUser->profile->email = $requestData['email'];
 
             if ($editUser->profile->save()) {
                 return response()->json(['data' => $editUser, 'message' => 'Successfully updated the user.'], 201);
@@ -299,7 +303,9 @@ class UserController extends Controller
     }
 
     public function getNotifications (Request $request) {
-        $notifications = $request->user()->notifications()->paginate(10);
+        $user = $request->user();
+        $notifications = $user->notifications()->paginate(10)->toArray();
+        $notifications['unread_notifications_count'] = $user->unread_notifications_count;
         return response()->json(['data' => $notifications, 'message' => 'Successfully fetched the notifications.'], 200);
     }
 

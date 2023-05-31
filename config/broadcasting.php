@@ -39,8 +39,8 @@ return [
                 'host' => env('PUSHER_HOST') ?: 'api-'.env('PUSHER_APP_CLUSTER', 'ap1').'.pusher.com',
                 'port' => env('PUSHER_PORT', 443),
                 'scheme' => env('PUSHER_SCHEME', 'https'),
-                'encrypted' => true,
-                'useTLS' => true,
+                'encrypted' => false,
+                'useTLS' => false,
                 'cluster' => env('PUSHER_APP_CLUSTER')
             ],
             'client_options' => [
