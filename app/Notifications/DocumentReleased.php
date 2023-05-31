@@ -15,8 +15,12 @@ class DocumentReleased extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
+    private $document;
+
     public function __construct($document)
     {
+        $this->afterCommit();
+        
         $this->document = $document;
     }
 

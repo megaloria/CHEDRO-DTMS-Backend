@@ -303,6 +303,8 @@ class DocumentController extends Controller
                     $attachment->save();
                 }
 
+                $document->load('category');
+
                 if (!$category->is_assignable) {
                     $fromUser = User::whereHas('role', function ($query) {
                                     $query->where('level', 1);
@@ -962,7 +964,7 @@ class DocumentController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $document = Document::with(['assign.assignedUser', 'logs'])->find($id);
+        $document = Document::with(['assign.assignedUser', 'logs', 'category'])->find($id);
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
         }
@@ -1189,7 +1191,7 @@ class DocumentController extends Controller
                         $log->to_id = $assignTo->id;
                         $log->action_id = $acknowledgeLog->action_id;
                         $logs[]     = $log;
-                        Notification::send([$fromUser, $director, $assignTo, $user], new DocumentForwarded($document->toArray(), $log->toArray(), $user->profile->toArray(), $assignTo->profile->toArray()));
+                        Notification::send([$fromUser, $assignTo, $user], new DocumentForwarded($document->toArray(), $log->toArray(), $user->profile->toArray(), $assignTo->profile->toArray()));
                     }
 
                     $document->logs()->saveMany($logs);
@@ -1267,7 +1269,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $document = Document::find($id);
+        $document = Document::with('category')->find($id);
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -1380,7 +1382,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $document = Document::find($id);
+        $document = Document::with('category')->find($id);
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -1503,7 +1505,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $document = Document::find($id);
+        $document = Document::with('category')->find($id);
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -1644,7 +1646,7 @@ class DocumentController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $document = Document::find($id);
+        $document = Document::with('category')->find($id);
 
         if (!$document) {
             return response()->json(['message' => 'Document not found.'], 404);
@@ -1769,7 +1771,7 @@ class DocumentController extends Controller
             return response()->json(['message' => $validator->errors()->first()], 409);
         }
 
-        $document = Document::find($id);
+        $document = Document::with('category')->find($id);
 
         if (!$document) {
             return response()->json([
