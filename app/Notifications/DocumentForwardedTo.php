@@ -38,13 +38,6 @@ class DocumentForwardedTo extends Notification implements ShouldQueue
         return ['database', 'broadcast', 'mail'];
     }
 
-    public function withDelay(object $notifiable): array
-    {
-        return [
-            'mail' => now()->addMinutes(1)
-        ];
-    }
-
     /**
      * Get the mail representation of the notification.
      */

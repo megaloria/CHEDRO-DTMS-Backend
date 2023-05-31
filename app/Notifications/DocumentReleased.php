@@ -20,7 +20,7 @@ class DocumentReleased extends Notification implements ShouldQueue
     public function __construct($document)
     {
         $this->afterCommit();
-        
+
         $this->document = $document;
     }
 
@@ -32,13 +32,6 @@ class DocumentReleased extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         return ['database', 'broadcast', 'mail'];
-    }
-
-    public function withDelay(object $notifiable): array
-    {
-        return [
-            'mail' => now()->addMinutes(1)
-        ];
     }
 
     /**
