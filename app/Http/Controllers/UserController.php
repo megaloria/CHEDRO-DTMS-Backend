@@ -136,7 +136,7 @@ class UserController extends Controller
     }
 
     public function editUser (Request $request,$id) {
-        $requestData = $request->only(['username', 'role_id', 'prefix','first_name','middle_name','last_name','suffix', 'position_designation']);
+        $requestData = $request->only(['username', 'role_id', 'prefix','first_name','middle_name','last_name','suffix', 'position_designation', 'email']);
 
         $validator = Validator::make($requestData, [
             'username' => 'required|string|min:5',
