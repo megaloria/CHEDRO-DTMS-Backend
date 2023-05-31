@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notification;
 
 class User extends Authenticatable
 {
@@ -47,6 +48,12 @@ class User extends Authenticatable
     public function receivesBroadcastNotificationsOn(): string
     {
         return 'user.'.$this->id;
+    }
+
+    public function routeNotificationForMail(Notification $notification): array|string
+    {
+        // Return email address and name...
+        return [$this->profile->email => $this->profile->name];
     }
 
     public function profile() {

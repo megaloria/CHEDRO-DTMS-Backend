@@ -37,19 +37,31 @@ class DocumentForwarded extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database','broadcast'];
+        return ['database','broadcast', 'mail'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    // public function toMail(object $notifiable): MailMessage
-    // {
-    //     return (new MailMessage)
-    //                 ->line('The introduction to the notification.')
-    //                 ->action('Notification Action', url('/'))
-    //                 ->line('Thank you for using our application!');
-    // }
+    public function toMail(object $notifiable): MailMessage
+    {
+        $url = config('constants.APP_CLIENT_URL').'/documents/view/'.$this->document['id'];
+
+        $line = 'The document '.$this->document['tracking_no'].' has been forwarded';
+        if (($this->from && $this->from['id'] === $notifiable->id) || ($notifiable->role->level <= 2 && $this->to && $this->to['id'] !== $notifiable->id)) {
+            $line = 'The document '.$this->document['tracking_no'].' has been forwarded to '.$this->to['name'];
+        } else if ($this->to && $this->to['id'] === $notifiable->id) {
+            $line = 'The document '.$this->document['tracking_no'].' has been forwarded from '.$this->from['name'];
+        }
+
+        return (new MailMessage)
+                    ->subject('DTMS Notification - '.$this->document['tracking_no'])
+                    ->greeting('Hello!')
+                    ->line($line)
+                    ->lineIf(isset($this->log['comment']) && $this->log['comment'], isset($this->log['comment']) && $this->log['comment'] ? $this->log['comment'] : '')
+                    ->action('View Document', $url)
+                    ->line('Thank you for using our application!');
+    }
 
     /**
      * Get the array representation of the notification.
