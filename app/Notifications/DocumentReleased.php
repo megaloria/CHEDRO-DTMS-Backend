@@ -8,6 +8,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 
+use App\Models\Document;
+
 class DocumentReleased extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -32,6 +34,22 @@ class DocumentReleased extends Notification implements ShouldQueue
     public function via(object $notifiable): array
     {
         return ['database', 'broadcast', 'mail'];
+    }
+
+    public function withDelay(object $notifiable): array
+    {
+        return [
+            'mail' => now()->addSeconds(10),
+        ];
+    }
+
+    public function viaConnections(): array
+    {
+        return [
+            'broadcast' => 'redis',
+            'mail' => 'redis',
+            'database' => 'sync',
+        ];
     }
 
     /**
@@ -64,9 +82,27 @@ class DocumentReleased extends Notification implements ShouldQueue
 
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
+        $document = Document::with(['attachments',
+                'sender.receivable',
+                'assign.assignedUser.profile',
+                'logs.user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
+                'documentType',
+                'category',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                }
+            ])
+            ->find($this->document['id']);
+
         return new BroadcastMessage([
             'unread_notifications_count' => $notifiable->unread_notifications_count,
-            'document' => $this->document
+            'document' => $document
         ]);
     }
 }
