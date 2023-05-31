@@ -6,16 +6,23 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
-class DocumentReleased extends Notification
+use App\Models\Document;
+
+class DocumentReleased extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
+    private $document;
+
     public function __construct($document)
     {
+        $this->afterCommit();
+
         $this->document = $document;
     }
 
@@ -26,29 +33,76 @@ class DocumentReleased extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast', 'mail'];
+    }
+
+    public function withDelay(object $notifiable): array
+    {
+        return [
+            'mail' => now()->addSeconds(10),
+        ];
+    }
+
+    public function viaConnections(): array
+    {
+        return [
+            'broadcast' => 'redis',
+            'mail' => 'redis',
+            'database' => 'sync',
+        ];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    // public function toMail(object $notifiable): MailMessage
-    // {
-    //     return (new MailMessage)
-    //                 ->line('The introduction to the notification.')
-    //                 ->action('Notification Action', url('/'))
-    //                 ->line('Thank you for using our application!');
-    // }
+    public function toMail(object $notifiable): MailMessage
+    {
+        $url = config('constants.APP_CLIENT_URL').'/documents/view/'.$this->document['id'];
+
+        return (new MailMessage)
+                    ->subject('DTMS Notification - '.$this->document['tracking_no'])
+                    ->greeting('Hello!')
+                    ->line('The document '.$this->document['tracking_no'].' has been released')
+                    ->lineIf(isset($this->log['comment']) && $this->log['comment'], isset($this->log['comment']) && $this->log['comment'] ? $this->log['comment'] : '')
+                    ->action('View Document', $url)
+                    ->line('Thank you for using our application!');
+    }
 
     /**
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
         return [
-            'document' => $this->document->toArray()
+            'document' => $this->document
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        $document = Document::with(['attachments',
+                'sender.receivable',
+                'assign.assignedUser.profile',
+                'logs.user.profile',
+                'logs.acknowledgeUser.profile',
+                'logs.actionUser.profile',
+                'logs.approvedUser.profile',
+                'logs.rejectedUser.profile',
+                'logs.fromUser.profile',
+                'logs.assignedUser.profile',
+                'documentType',
+                'category',
+                'logs'=> function ($query){
+                    $query -> orderBy('id', 'desc');
+                }
+            ])
+            ->find($this->document['id']);
+
+        return new BroadcastMessage([
+            'unread_notifications_count' => $notifiable->unread_notifications_count,
+            'document' => $document
+        ]);
     }
 }

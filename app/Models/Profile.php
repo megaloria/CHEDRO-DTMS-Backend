@@ -21,7 +21,8 @@ class Profile extends Model
         'middle_name',
         'last_name',
         'suffix',
-        'position_designation'
+        'position_designation',
+        'email'
     ];
 
     protected $appends = [
@@ -31,7 +32,7 @@ class Profile extends Model
     public function getNameAttribute() {
         return ($this->prefix ? $this->prefix . ' ': '').$this->first_name . ' ' . $this->last_name. ($this->suffix ? $this->suffix : '');
     }
-    
+
 }
 
 
